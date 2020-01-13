@@ -6,10 +6,12 @@ WiFiManager wifiManager;
 
 void setup_wifimanager(void)
 {
-  WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, 40);
-  WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqtt_port, 6);
-  WiFiManagerParameter custom_mqtt_user("user", "mqtt user", mqtt_user, 20);
-  WiFiManagerParameter custom_mqtt_pass("pass", "mqtt pass", mqtt_pass, 20);
+  char str[PARAM_MAX_STR];
+  WiFiManagerParameter custom_mqtt_server("server", "mqtt server", parameters.mqtt_server, 40);
+  itoa(parameters.mqtt_port, str, 10);
+  WiFiManagerParameter custom_mqtt_port("port", "mqtt port", str, 6);
+  WiFiManagerParameter custom_mqtt_user("user", "mqtt user", parameters.mqtt_user, 20);
+  WiFiManagerParameter custom_mqtt_pass("pass", "mqtt pass", parameters.mqtt_pass, 20);
   WiFiManagerParameter custom_text("</p>MQTT Server");
 
   //set config save notify callback
