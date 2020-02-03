@@ -1,5 +1,5 @@
 
-
+#include <board.h>
 #include <WiFi.h> 
 #include <WebServer.h>
 #include "wifi_manager.h"
@@ -16,10 +16,7 @@ SimpleCLI cli;
 Command cmd_portal;
 
 
-#define LED_BUILTIN 2
-
-
-auto timer = timer_create_default(); // create a timer with default settings
+auto timer = timer_create_default();
 uintptr_t task;
 
 volatile uint32_t cpt=0;
@@ -51,8 +48,7 @@ void setup() {
   setup_wifimanager();
   cmd_portal = cli.addSingleArgCmd("portal", cmd_portalCallback);
  
-  pinMode(LED_BUILTIN, OUTPUT); // set LED pin to OUTPUT
-  digitalWrite(LED_BUILTIN, true); 
+
   
   //save the custom parameters to FS
   if (shouldSaveConfig) {

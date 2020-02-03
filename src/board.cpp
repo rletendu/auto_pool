@@ -5,15 +5,21 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Nextion.h>
+#include <Adafruit_ADS1015.h> // https://github.com/adafruit/Adafruit_ADS1X15.git
 
+#include <DS3231.h>
+
+DS3231 Rtc;
 OneWire oneWire(PIN_DS18B20);
 DallasTemperature ds18b20(&oneWire);
 DHT dht(PIN_DHT, DHT22);
-
+Adafruit_ADS1115 ads;
 
 
 void board_init()
 {
+  Wire.begin();
+  
   pinMode(PIN_LED0, OUTPUT);
   pinMode(PIN_LED1, OUTPUT);
   pinMode(PIN_BUZZER, OUTPUT);
@@ -35,13 +41,7 @@ void board_init()
 
   dht.begin();
   ds18b20.begin();
+  ads.begin();
   nexInit();
 }
 
-void pump_all_off(void)
-{
-  digitalWrite(PIN_RELAY_PUMP_CL, false);
-  digitalWrite(PIN_RELAY_PUMP_FILTER, false);
-  digitalWrite(PIN_RELAY_PUMP_PH_M, false);
-  digitalWrite(PIN_RELAY_PUMP_PH_P, false);
-}
