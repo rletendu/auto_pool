@@ -5,7 +5,6 @@ WiFiManager wifiManager;
 
 static bool shouldSaveConfig = false;
 WiFiManagerParameter custom_mqtt_server("server", "mqtt server", parameters.mqtt_server, 40);
-  //itoa(parameters.mqtt_port, str, 10);
 WiFiManagerParameter custom_mqtt_port("port", "mqtt port", parameters.mqtt_port, 6);
 WiFiManagerParameter custom_mqtt_user("user", "mqtt user", parameters.mqtt_user, 20);
 WiFiManagerParameter custom_mqtt_pass("pass", "mqtt pass", parameters.mqtt_pass, 20);
@@ -23,9 +22,6 @@ bool is_should_save_config(void)
 
 void setup_wifimanager(void)
 {
-  char str[PARAM_MAX_STR];
-
-
   //set config save notify callback
   wifiManager.setSaveConfigCallback(saveConfigCallback);
 
@@ -51,8 +47,10 @@ void wifimanager_autoconnect(void)
 
 
   //read updated parameters
+  /*
   strcpy(mqtt_server, custom_mqtt_server.getValue());
   strcpy(mqtt_port, custom_mqtt_port.getValue());
   strcpy(mqtt_user, custom_mqtt_user.getValue());
   strcpy(mqtt_pass, custom_mqtt_pass.getValue());
+*/
 }

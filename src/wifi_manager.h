@@ -4,3 +4,4 @@ extern WiFiManager wifiManager;
 
 void setup_wifimanager(void);
 bool is_should_save_config(void);
+void wifimanager_autoconnect(void);

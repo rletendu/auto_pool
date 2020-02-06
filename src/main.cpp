@@ -43,6 +43,7 @@ void setup() {
   Serial.begin(9600);
   delay(500);
   setup_wifimanager();
+  wifimanager_autoconnect();
   cmd_portal = cli.addSingleArgCmd("portal", cmd_portalCallback);
  
 
