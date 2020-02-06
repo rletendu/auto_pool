@@ -5,7 +5,7 @@
 struct ParametersStruture
 {
 	char mqtt_server[PARAM_MAX_STR];
-	uint16_t mqtt_port;
+	char mqtt_port[PARAM_MAX_STR];
 	char mqtt_user[PARAM_MAX_STR];
 	char mqtt_pass[PARAM_MAX_STR];
 	char humidity_topic[PARAM_MAX_STR];

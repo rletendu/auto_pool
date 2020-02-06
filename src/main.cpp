@@ -20,7 +20,7 @@ auto timer = timer_create_default();
 uintptr_t task;
 
 volatile uint32_t cpt=0;
-bool shouldSaveConfig = false;
+
 uint16_t port;
 
 void cmd_portalCallback(cmd* c) {
@@ -33,14 +33,11 @@ void cmd_portalCallback(cmd* c) {
 bool toggle_led(void *) {
 
   cpt++;
-  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // toggle the LED
+  led0_toggle();
   return true; // repeat? true
 }
 
-void saveConfigCallback () {
-  Serial.println("Should save config");
-  shouldSaveConfig = true;
-}
+
 
 void setup() {
   Serial.begin(9600);
@@ -51,7 +48,7 @@ void setup() {
 
   
   //save the custom parameters to FS
-  if (shouldSaveConfig) {
+  if ( is_should_save_config()) {
     parameters_write_json();
   }
   task = timer.every(500, toggle_led);

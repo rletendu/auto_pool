@@ -30,7 +30,7 @@ void parameters_read_json(void)
         if (json.success()) {
           Serial.println("\nparsed json");
           strcpy(parameters.mqtt_server, json["mqtt_server"]);
-          parameters.mqtt_port = json["mqtt_port"];
+          strcpy(parameters.mqtt_port, json["mqtt_port"]);
           strcpy(parameters.mqtt_user, json["mqtt_user"]);
           strcpy(parameters.mqtt_pass, json["mqtt_pass"]);
         } else {
