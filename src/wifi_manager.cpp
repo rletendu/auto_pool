@@ -1,5 +1,6 @@
 #include <WiFiManager.h>          //https://github.com/Brunez3BD/WIFIMANAGER-ESP32
 #include "parameters.h"
+#include <SerialDebug.h>
 
 WiFiManager wifiManager;
 
@@ -22,6 +23,8 @@ bool is_should_save_config(void)
 
 void setup_wifimanager(void)
 {
+  printlnA(F("Setup Wifi manager..."));
+  wifiManager.setDebugOutput(false);
   //set config save notify callback
   wifiManager.setSaveConfigCallback(saveConfigCallback);
 
@@ -43,14 +46,17 @@ void wifimanager_autoconnect(void)
   wifiManager.autoConnect("AutoConnectAP");
   //wifiManager.startConfigPortal();
 
-  Serial.println("connected...yeey :)");
-
+  printlnA(F("Connected !"));
 
   //read updated parameters
-  /*
-  strcpy(mqtt_server, custom_mqtt_server.getValue());
-  strcpy(mqtt_port, custom_mqtt_port.getValue());
-  strcpy(mqtt_user, custom_mqtt_user.getValue());
-  strcpy(mqtt_pass, custom_mqtt_pass.getValue());
-*/
+  strcpy(parameters.mqtt_server, custom_mqtt_server.getValue());
+  strcpy(parameters.mqtt_port, custom_mqtt_port.getValue());
+  strcpy(parameters.mqtt_user, custom_mqtt_user.getValue());
+  strcpy(parameters.mqtt_pass, custom_mqtt_pass.getValue());
+  if (shouldSaveConfig) {
+    printlnA(F("Saveconfig Detected !"));
+
+
+  }
+
 }

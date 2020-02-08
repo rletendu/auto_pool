@@ -42,6 +42,7 @@
 #define PIN_LEVEL_MIN_PH_P    36
 #define PIN_LEVEL_MIN_WATER   39
 
+void board_init(void);
 
 void pump_all_off(void);
 void pump_ph_minus_on(void);
