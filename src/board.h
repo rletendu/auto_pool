@@ -42,6 +42,12 @@
 #define PIN_LEVEL_MIN_PH_P    36
 #define PIN_LEVEL_MIN_WATER   39
 
+#define ADS_CH_PH             0
+#define ADS_CH_CL             1
+#define ADS_CH_PRESSURE       2
+#define ADS_CH_EXTRA          3
+
+
 void board_init(void);
 
 void pump_all_off(void);

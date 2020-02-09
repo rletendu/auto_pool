@@ -13,7 +13,7 @@ struct ParametersStruture
 
 extern struct ParametersStruture parameters;
 
-extern char *mqtt_server;
+//extern char *mqtt_server;
 extern char *mqtt_port;
 extern char *mqtt_user;
 extern char *mqtt_pass;
