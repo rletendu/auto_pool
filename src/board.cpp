@@ -4,7 +4,7 @@
 #include <DHT.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-//#include <Nextion.h>
+#include <Nextion.h>
 #include <Adafruit_ADS1015.h> // https://github.com/adafruit/Adafruit_ADS1X15.git
 
 #include <DS3231.h>
@@ -42,6 +42,6 @@ void board_init()
   dht.begin();
   ds18b20.begin();
   ads.begin();
-  //nexInit();
+  nexInit();
 }
 

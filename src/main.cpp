@@ -13,6 +13,7 @@
 
 #include <ArduinoOTA.h>
 #include "time.h"
+#include <Nextion.h>
 
 // Create CLI Object
 SimpleCLI cli;
