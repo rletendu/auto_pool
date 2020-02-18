@@ -24,6 +24,6 @@ char mqtt_pass[50]   =      "mqtt_pass";
 char humidity_topic[50] =   "sensor/humidity";
 */
 
-void parameters_read_json(void);
+bool parameters_read_json(void);
 void parameters_write_json(void);
 void parameters_format(void);

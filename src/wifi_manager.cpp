@@ -26,7 +26,6 @@ bool is_should_save_config(void)
 void setup_wifimanager(void)
 {
   printlnA(F("Setup Wifi manager..."));
-  parameters_read_json();
   wifiManager.setDebugOutput(false);
   wifiManager.setSaveConfigCallback(saveConfigCallback);
   wifiManager.addParameter(&custom_text);
@@ -34,11 +33,14 @@ void setup_wifimanager(void)
   wifiManager.addParameter(&custom_mqtt_port);
   wifiManager.addParameter(&custom_mqtt_user);
   wifiManager.addParameter(&custom_mqtt_pass);
+  if (parameters_read_json())
+  {
 
-  custom_mqtt_server.setValue(parameters.mqtt_server);
-  custom_mqtt_port.setValue(parameters.mqtt_port);
-  custom_mqtt_user.setValue(parameters.mqtt_user);
-  custom_mqtt_pass.setValue(parameters.mqtt_pass);
+    custom_mqtt_server.setValue(parameters.mqtt_server);
+    custom_mqtt_port.setValue(parameters.mqtt_port);
+    custom_mqtt_user.setValue(parameters.mqtt_user);
+    custom_mqtt_pass.setValue(parameters.mqtt_pass);
+  }
 }
 
 void reset_wifimanager(void)

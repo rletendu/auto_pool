@@ -2,10 +2,9 @@
 #include <ArduinoOTA.h>
 #include <SerialDebug.h>
 
-
 void ota_init(void)
 {
-   ArduinoOTA
+  ArduinoOTA
       .onStart([]() {
         String type;
         if (ArduinoOTA.getCommand() == U_FLASH)
@@ -47,11 +46,9 @@ void ota_init(void)
       });
 
   ArduinoOTA.begin();
-
 }
 
 void ota_loop(void)
 {
   ArduinoOTA.handle();
 }
-

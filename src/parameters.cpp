@@ -6,7 +6,7 @@
 
 struct ParametersStruture parameters;
 
-void parameters_read_json(void)
+bool parameters_read_json(void)
 {
   printlnA(F("mounting FS..."));
   if (SPIFFS.begin())
@@ -32,6 +32,7 @@ void parameters_read_json(void)
           strcpy(parameters.mqtt_port, json["mqtt_port"]);
           strcpy(parameters.mqtt_user, json["mqtt_user"]);
           strcpy(parameters.mqtt_pass, json["mqtt_pass"]);
+          return true;
         }
         else
         {
@@ -43,7 +44,9 @@ void parameters_read_json(void)
   else
   {
     printlnA(F("failed to mount FS"));
+    SPIFFS.format();
   }
+  return false;
 }
 
 void parameters_write_json(void)

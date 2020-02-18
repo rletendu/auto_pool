@@ -86,5 +86,8 @@ inline bool pump_cl_is_on(void) { return digitalRead(PIN_RELAY_PUMP_CL) ? true :
 
 inline void pump_all_off(void) {pump_filtration_off(); pump_ph_minus_off(); pump_ph_plus_off(); pump_cl_off();}
 
+inline void buzzer_on(void)    { digitalWrite(PIN_BUZZER,true); }
+inline void buzzer_off(void)   { digitalWrite(PIN_BUZZER,false); }
+
 void pump_filtration_off(void);
 #endif
