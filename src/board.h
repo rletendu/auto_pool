@@ -90,4 +90,16 @@ inline void buzzer_on(void)    { digitalWrite(PIN_BUZZER,true); }
 inline void buzzer_off(void)   { digitalWrite(PIN_BUZZER,false); }
 
 void pump_filtration_off(void);
+
+
+float dht_get_temperature(void);
+float dht_get_humidity(void);
+float rtc_get_temperature(void);
+uint8_t ds18_count(void);
+float ds18_get_temperature(uint8_t index);
+float water_get_temperature(void);
+float water_get_ph(void);
+float water_get_redox(void);
+float pump_filtration_get_pressure(void);
+
 #endif

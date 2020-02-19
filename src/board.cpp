@@ -1,5 +1,6 @@
 #include "board.h"
 //#include <arduino.h>
+#include "display.h"
 
 #include <DHT.h>
 #include <OneWire.h>
@@ -10,7 +11,7 @@
 #include <DS3231.h>
 #include <SerialDebug.h>
 
-DS3231 Rtc;
+DS3231 rtc;
 OneWire oneWire(PIN_DS18B20);
 DallasTemperature ds18b20(&oneWire);
 DHT dht(PIN_DHT, DHT22);
@@ -46,11 +47,99 @@ void board_init()
   dht.begin();
   ds18b20.begin();
   ads.begin();
-  //nexInit();
+  display_init();
+  
 
-  float t = dht.readTemperature();
   printA(F("DHT Temperature : "));
-  printlnA(t);
+  printlnA(dht_get_temperature());
+  printA(F("DHT Humidity : "));
+  printlnA(dht_get_humidity());
   printA(F("RTC Temperature : "));
-  printlnA(Rtc.getTemperature());
+  printlnA(rtc_get_temperature());
+  printA(F("Water Temperature : "));
+  printlnA(ds18_get_temperature(0));
+}
+
+float dht_get_temperature(void)
+{
+  float t = dht.readTemperature();
+  if (t == NAN || t > 100 || t < -100)
+  {
+    return 255;
+  }
+  else
+  {
+    return t;
+  }
+}
+
+float dht_get_humidity(void)
+{
+  float t = dht.readHumidity();
+  if (t == NAN || t > 100 || t < 0)
+  {
+    return 255;
+  }
+  else
+  {
+    return t;
+  }
+}
+
+float rtc_get_temperature(void)
+{
+  float t = rtc.getTemperature();
+  if (t == NAN || t > 100 || t < -100)
+  {
+    return 255;
+  }
+  else
+  {
+    return t;
+  }
+}
+
+uint8_t ds18_count(void)
+{
+  return ds18b20.getDeviceCount();
+}
+
+
+float ds18_get_temperature(uint8_t index)
+{
+  float t;
+  ds18b20.requestTemperatures();
+  t = ds18b20.getTempCByIndex(index);
+  if (t == NAN || t > 100 || t < -100)
+  {
+    return 255;
+  }
+  else
+  {
+    return t;
+  }
+}
+
+float water_get_temperature(void)
+{
+  return ds18_get_temperature(0);
+}
+
+float water_get_ph(void)
+{
+  int16_t adc;
+  adc = ads.readADC_SingleEnded(ADS_CH_PH);
+
+}
+
+float water_get_redox(void)
+{
+  int16_t adc;
+  adc = ads.readADC_SingleEnded(ADS_CH_CL);
+}
+
+float pump_filtration_get_pressure(void)
+{
+  int16_t adc;
+  adc = ads.readADC_SingleEnded(ADS_CH_PRESSURE);
 }
