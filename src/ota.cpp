@@ -14,6 +14,7 @@ void ota_init(void)
 
         // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
         printlnA(F("Start updating "));
+        pump_all_off();
       })
       .onEnd([]() {
         printlnA(F("End Update"));
