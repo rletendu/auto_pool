@@ -58,6 +58,11 @@ void board_init()
   printlnA(rtc_get_temperature());
   printA(F("Water Temperature : "));
   printlnA(ds18_get_temperature(0));
+
+  printA(F("Pump Pressure : "));
+  printlnA(pump_filtration_get_pressure());
+
+
 }
 
 float dht_get_temperature(void)
@@ -142,4 +147,7 @@ float pump_filtration_get_pressure(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_PRESSURE);
+  printA(F("Pressure ADC Code : "));
+  printlnA(adc);
+  return adc*0.1875;
 }

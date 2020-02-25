@@ -60,6 +60,8 @@ void pump_ph_cl_off(void);
 void pump_filtration_on(void);
 void pump_filtration_off(void);
 
+#define PUMP_ACTIVE_VALUE false
+#define PUMP_INACTIVE_VALUE ~PUMP_ACTIVE_VALUE
 
 inline void led0_off(void)    { digitalWrite(PIN_LED0,false); }
 inline void led0_on(void)     { digitalWrite(PIN_LED0,true); }
@@ -68,21 +70,21 @@ inline void led1_off(void)    { digitalWrite(PIN_LED1,false); }
 inline void led1_on(void)     { digitalWrite(PIN_LED1,true); }
 inline void led1_toggle(void) { digitalWrite(PIN_LED1, !digitalRead(PIN_LED1)); }
 
-inline void pump_filtration_on(void)    { digitalWrite(PIN_RELAY_PUMP_FILTER,true); }
-inline void pump_filtration_off(void)   { digitalWrite(PIN_RELAY_PUMP_FILTER,false); }
-inline bool pump_filtration_is_on(void) { return digitalRead(PIN_RELAY_PUMP_FILTER) ? true : false;}
+inline void pump_filtration_on(void)    { digitalWrite(PIN_RELAY_PUMP_FILTER,PUMP_ACTIVE_VALUE); }
+inline void pump_filtration_off(void)   { digitalWrite(PIN_RELAY_PUMP_FILTER,PUMP_INACTIVE_VALUE); }
+inline bool pump_filtration_is_on(void) { return digitalRead(PIN_RELAY_PUMP_FILTER) ? PUMP_ACTIVE_VALUE : PUMP_INACTIVE_VALUE;}
 
-inline void pump_ph_minus_on(void)    { digitalWrite(PIN_RELAY_PUMP_PH_M,true); }
-inline void pump_ph_minus_off(void)   { digitalWrite(PIN_RELAY_PUMP_PH_M,false); }
-inline bool pump_ph_minus_is_on(void) { return digitalRead(PIN_RELAY_PUMP_PH_M) ? true : false;}
+inline void pump_ph_minus_on(void)    { digitalWrite(PIN_RELAY_PUMP_PH_M,PUMP_ACTIVE_VALUE); }
+inline void pump_ph_minus_off(void)   { digitalWrite(PIN_RELAY_PUMP_PH_M,PUMP_INACTIVE_VALUE); }
+inline bool pump_ph_minus_is_on(void) { return digitalRead(PIN_RELAY_PUMP_PH_M) ? PUMP_ACTIVE_VALUE : PUMP_INACTIVE_VALUE;}
 
-inline void pump_ph_plus_on(void)    { digitalWrite(PIN_RELAY_PUMP_PH_P,true); }
-inline void pump_ph_plus_off(void)   { digitalWrite(PIN_RELAY_PUMP_PH_P,false); }
-inline bool pump_ph_plus_is_on(void) { return digitalRead(PIN_RELAY_PUMP_PH_P) ? true : false;}
+inline void pump_ph_plus_on(void)    { digitalWrite(PIN_RELAY_PUMP_PH_P,PUMP_ACTIVE_VALUE); }
+inline void pump_ph_plus_off(void)   { digitalWrite(PIN_RELAY_PUMP_PH_P,PUMP_INACTIVE_VALUE); }
+inline bool pump_ph_plus_is_on(void) { return digitalRead(PIN_RELAY_PUMP_PH_P) ? PUMP_ACTIVE_VALUE : PUMP_INACTIVE_VALUE;}
 
-inline void pump_cl_on(void)    { digitalWrite(PIN_RELAY_PUMP_CL,true); }
-inline void pump_cl_off(void)   { digitalWrite(PIN_RELAY_PUMP_CL,false); }
-inline bool pump_cl_is_on(void) { return digitalRead(PIN_RELAY_PUMP_CL) ? true : false;}
+inline void pump_cl_on(void)    { digitalWrite(PIN_RELAY_PUMP_CL,PUMP_ACTIVE_VALUE); }
+inline void pump_cl_off(void)   { digitalWrite(PIN_RELAY_PUMP_CL,PUMP_INACTIVE_VALUE); }
+inline bool pump_cl_is_on(void) { return digitalRead(PIN_RELAY_PUMP_CL) ? PUMP_ACTIVE_VALUE : PUMP_INACTIVE_VALUE;}
 
 inline void pump_all_off(void) {pump_filtration_off(); pump_ph_minus_off(); pump_ph_plus_off(); pump_cl_off();}
 
