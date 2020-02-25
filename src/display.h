@@ -6,5 +6,8 @@
 
 void display_init();
 
+void disp_page_ota();
+void disp_ota_progress(uint8_t progress);
+
 
 #endif

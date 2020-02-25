@@ -1,6 +1,7 @@
 #include "board.h"
 #include <ArduinoOTA.h>
 #include <SerialDebug.h>
+#include "display.h"
 
 void ota_init(void)
 {
@@ -14,12 +15,14 @@ void ota_init(void)
 
         // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
         printlnA(F("Start updating "));
+        disp_page_ota();
       })
       .onEnd([]() {
         printlnA(F("End Update"));
       })
       .onProgress([](unsigned int progress, unsigned int total) {
         Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+        disp_ota_progress( (progress / (total / 100)));
       })
       .onError([](ota_error_t error) {
         Serial.printf("Error[%u]: ", error);
