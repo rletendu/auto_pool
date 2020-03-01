@@ -5,9 +5,11 @@
 #include <SerialDebug.h>
 
 struct ParametersStruture parameters;
+void parameters_set_default(void);
 
 bool parameters_read_json(void)
 {
+  parameters_set_default();
   printlnA(F("mounting FS..."));
   if (SPIFFS.begin())
   {
@@ -32,6 +34,27 @@ bool parameters_read_json(void)
           strcpy(parameters.mqtt_port, json["mqtt_port"]);
           strcpy(parameters.mqtt_user, json["mqtt_user"]);
           strcpy(parameters.mqtt_pass, json["mqtt_pass"]);
+          strcpy(parameters.base_topic, json["base_topic"]);
+          printA(F("base_topic:"));
+          printlnA(parameters.base_topic);
+          parameters.target_ph = json["target_ph"];
+          printA(F("target_ph:"));
+          printlnA(parameters.target_ph);
+          parameters.delta_ph = json["delta_ph"];
+          printA(F("delta_ph:"));
+          printlnA(parameters.delta_ph);
+          parameters.target_redox = json["target_redox"];
+          printA(F("target_redox:"));
+          printlnA(parameters.target_redox);
+          parameters.delta_redox = json["delta_redox"];
+          printA(F("delta_redox:"));
+          printlnA(parameters.delta_redox);
+          parameters.flow_cl = json["flow_cl"];
+          printA(F("flow_cl:"));
+          printlnA(parameters.flow_cl);
+          parameters.flow_ph_minus = json["flow_ph_minus"];
+          printA(F("flow_ph_minus:"));
+          printlnA(parameters.flow_ph_minus);
           return true;
         }
         else
@@ -58,7 +81,13 @@ void parameters_write_json(void)
   json["mqtt_port"] = parameters.mqtt_port;
   json["mqtt_user"] = parameters.mqtt_user;
   json["mqtt_pass"] = parameters.mqtt_pass;
-
+  json["base_topic"] = parameters.base_topic;
+  json["target_ph"] = parameters.target_ph;
+  json["delta_ph"] = parameters.delta_ph;
+  json["target_redox"] = parameters.target_redox;
+  json["delta_redox"] = parameters.delta_redox;
+  json["flow_cl"] = parameters.flow_cl;
+  json["flow_ph_minus"] = parameters.flow_ph_minus;
   File configFile = SPIFFS.open("/config.json", "w");
   if (!configFile)
   {
@@ -72,4 +101,14 @@ void parameters_write_json(void)
 void parameters_format(void)
 {
   SPIFFS.format();
+}
+
+void parameters_set_default(void)
+{
+  parameters.target_ph = 7.2;
+  parameters.delta_ph = 0.2;
+  parameters.target_redox = 650;
+  parameters.delta_redox = 50;
+  parameters.flow_cl = 12.3;
+  parameters.flow_ph_minus = 12.1;
 }

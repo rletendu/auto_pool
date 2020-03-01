@@ -49,7 +49,7 @@ public: /* methods */
      */
     void printObjInfo(void);
 
-protected: /* methods */
+//protected: /* methods */
 
     /*
      * Get page id.

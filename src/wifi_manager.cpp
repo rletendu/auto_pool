@@ -10,6 +10,7 @@ WiFiManagerParameter custom_mqtt_server("server", "mqtt server", parameters.mqtt
 WiFiManagerParameter custom_mqtt_port("port", "mqtt port", parameters.mqtt_port, 6);
 WiFiManagerParameter custom_mqtt_user("user", "mqtt user", parameters.mqtt_user, 20);
 WiFiManagerParameter custom_mqtt_pass("pass", "mqtt pass", parameters.mqtt_pass, 20);
+WiFiManagerParameter custom_mqtt_base_topic("topic", "mqtt topic", parameters.base_topic, 20);
 WiFiManagerParameter custom_text("</p>MQTT Server configuration");
 
 void saveConfigCallback()
@@ -33,13 +34,14 @@ void setup_wifimanager(void)
   wifiManager.addParameter(&custom_mqtt_port);
   wifiManager.addParameter(&custom_mqtt_user);
   wifiManager.addParameter(&custom_mqtt_pass);
+  wifiManager.addParameter(&custom_mqtt_base_topic);
   if (parameters_read_json())
   {
-
     custom_mqtt_server.setValue(parameters.mqtt_server);
     custom_mqtt_port.setValue(parameters.mqtt_port);
     custom_mqtt_user.setValue(parameters.mqtt_user);
     custom_mqtt_pass.setValue(parameters.mqtt_pass);
+    custom_mqtt_base_topic.setValue(parameters.base_topic);
   }
 }
 
@@ -58,9 +60,11 @@ void wifimanager_autoconnect(void)
   strcpy(parameters.mqtt_port, custom_mqtt_port.getValue());
   strcpy(parameters.mqtt_user, custom_mqtt_user.getValue());
   strcpy(parameters.mqtt_pass, custom_mqtt_pass.getValue());
-  if (shouldSaveConfig)
+  strcpy(parameters.base_topic, custom_mqtt_base_topic.getValue());
+  if (is_should_save_config())
   {
     printlnA(F("Saveconfig Detected !"));
+    parameters_write_json();
   }
 }
 
@@ -72,7 +76,7 @@ void wifimanager_start_portal(void)
   strcpy(parameters.mqtt_port, custom_mqtt_port.getValue());
   strcpy(parameters.mqtt_user, custom_mqtt_user.getValue());
   strcpy(parameters.mqtt_pass, custom_mqtt_pass.getValue());
-
+  strcpy(parameters.base_topic, custom_mqtt_base_topic.getValue());
   if (is_should_save_config())
   {
     printlnA(F("Need to write Json config file..."));

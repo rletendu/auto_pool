@@ -1,6 +1,7 @@
 #include <config.h>
 #include <board.h>
 #include <ota.h>
+#include "display.h"
 #include <WiFi.h>
 #include <WebServer.h>
 #include "wifi_manager.h"
@@ -65,7 +66,7 @@ void printLocalTime()
 void setup()
 {
   Serial.begin(115200);
-
+  //parameters_format();
   board_init();
   delay(500);
 
@@ -98,6 +99,7 @@ unsigned long duration;
 void loop()
 {
   ota_loop();
+  display_loop();
   timer.tick(); // tick the timer
   if (cpt > 10)
   {
