@@ -87,8 +87,10 @@ void disp_options_to_parameters(void);
 
 void disp_options_ok_Callback(void *ptr)
 {
-  printlnA(F("Opions OK pressed"));
+  printlnA(F("Options OK pressed, reading back updated parameters and save Json"));
   disp_options_to_parameters();
+  parameters_write_json();
+  #warning need to publish parameters to MQTT...
 }
 
 void disp_next_prev_Callback(void *ptr)
