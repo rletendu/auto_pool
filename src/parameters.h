@@ -17,8 +17,8 @@ struct ParametersStruture
 	char base_topic[PARAM_MAX_STR];
 	float target_ph;
 	float delta_ph;
-	float target_redox;
-	float delta_redox;
+	float target_orp;
+	float delta_orp;
 	float flow_cl;
 	float flow_ph_minus;
 	float flow_ph_plus;

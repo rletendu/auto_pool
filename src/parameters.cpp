@@ -43,12 +43,12 @@ bool parameters_read_json(void)
           parameters.delta_ph = json["delta_ph"];
           printA(F("delta_ph:"));
           printlnA(parameters.delta_ph);
-          parameters.target_redox = json["target_redox"];
+          parameters.target_orp = json["target_redox"];
           printA(F("target_redox:"));
-          printlnA(parameters.target_redox);
-          parameters.delta_redox = json["delta_redox"];
+          printlnA(parameters.target_orp);
+          parameters.delta_orp = json["delta_redox"];
           printA(F("delta_redox:"));
-          printlnA(parameters.delta_redox);
+          printlnA(parameters.delta_orp);
           parameters.flow_cl = json["flow_cl"];
           printA(F("flow_cl:"));
           printlnA(parameters.flow_cl);
@@ -84,8 +84,8 @@ void parameters_write_json(void)
   json["base_topic"] = parameters.base_topic;
   json["target_ph"] = parameters.target_ph;
   json["delta_ph"] = parameters.delta_ph;
-  json["target_redox"] = parameters.target_redox;
-  json["delta_redox"] = parameters.delta_redox;
+  json["target_redox"] = parameters.target_orp;
+  json["delta_redox"] = parameters.delta_orp;
   json["flow_cl"] = parameters.flow_cl;
   json["flow_ph_minus"] = parameters.flow_ph_minus;
   File configFile = SPIFFS.open("/config.json", "w");
@@ -107,8 +107,8 @@ void parameters_set_default(void)
 {
   parameters.target_ph = 7.2;
   parameters.delta_ph = 0.2;
-  parameters.target_redox = 650;
-  parameters.delta_redox = 50;
+  parameters.target_orp = 650;
+  parameters.delta_orp = 50;
   parameters.flow_cl = 12.3;
   parameters.flow_ph_minus = 12.1;
 }

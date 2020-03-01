@@ -57,9 +57,38 @@ NexRadio disp_options_mode_timer_prog = NexRadio(PID_OPTIONS, CID_OPTIONS_MODE_T
 NexRadio disp_options_mode_fct_t = NexRadio(PID_OPTIONS, CID_OPTIONS_MODE_FCT_T, "r1");
 
 NexCheckbox disp_otions_0h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_0H, "c0");
+NexCheckbox disp_otions_1h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_1H, "c1");
+NexCheckbox disp_otions_2h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_2H, "c2");
+NexCheckbox disp_otions_3h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_3H, "c3");
+NexCheckbox disp_otions_4h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_4H, "c4");
+NexCheckbox disp_otions_5h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_5H, "c5");
+NexCheckbox disp_otions_6h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_6H, "c6");
+NexCheckbox disp_otions_7h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_7H, "c7");
+NexCheckbox disp_otions_8h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_8H, "c8");
+NexCheckbox disp_otions_9h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_9H, "c9");
+NexCheckbox disp_otions_10h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_10H, "c10");
+NexCheckbox disp_otions_11h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_11H, "c11");
+NexCheckbox disp_otions_12h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_12H, "c12");
+NexCheckbox disp_otions_13h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_13H, "c13");
+NexCheckbox disp_otions_14h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_14H, "c14");
+NexCheckbox disp_otions_15h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_15H, "c15");
+NexCheckbox disp_otions_16h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_16H, "c16");
+NexCheckbox disp_otions_17h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_17H, "c17");
+NexCheckbox disp_otions_18h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_18H, "c18");
+NexCheckbox disp_otions_19h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_19H, "c19");
+NexCheckbox disp_otions_20h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_20H, "c20");
+NexCheckbox disp_otions_21h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_21H, "c21");
+NexCheckbox disp_otions_22h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_22H, "c22");
+NexCheckbox disp_otions_23h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_23H, "c23");
+
+uint32_t disp_timer_prog_to_display(uint32_t timer_prog);
+uint32_t disp_disp_to_timer_prog_value(void);
+void disp_options_to_parameters(void);
 
 void disp_options_ok_Callback(void *ptr)
 {
+  printlnA(F("Opions OK pressed"));
+  disp_options_to_parameters();
 }
 
 void disp_next_prev_Callback(void *ptr)
@@ -70,35 +99,27 @@ void disp_next_prev_Callback(void *ptr)
   switch (id)
   {
   case ((PID_STATUS << 8) + CID_STATUS_NEXT):
+  case ((PID_GRAPH << 8) + CID_GRAPH_PREV):
     display_page = PAGE_CONTROL;
-    break;
-
-  case ((PID_STATUS << 8) + CID_STATUS_PREV):
-    display_page = PAGE_LOG;
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_NEXT):
-    display_page = PAGE_GRAPH;
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_PREV):
-    display_page = PAGE_STATUS;
+    printlnA(F("Entering control page"));
     break;
 
   case ((PID_GRAPH << 8) + CID_GRAPH_NEXT):
+  case ((PID_STATUS << 8) + CID_STATUS_PREV):
     display_page = PAGE_LOG;
-    break;
-
-  case ((PID_GRAPH << 8) + CID_GRAPH_PREV):
-    display_page = PAGE_CONTROL;
-    break;
-
-  case ((PID_LOG << 8) + CID_LOG_NEXT):
-    display_page = PAGE_STATUS;
+    printlnA(F("Entering log page"));
     break;
 
   case ((PID_LOG << 8) + CID_LOG_PREV):
+  case ((PID_CONTROL << 8) + CID_CONTROL_NEXT):
     display_page = PAGE_GRAPH;
+    printlnA(F("Entering Graph page"));
+    break;
+
+  case ((PID_LOG << 8) + CID_LOG_NEXT):
+  case ((PID_CONTROL << 8) + CID_CONTROL_PREV):
+    display_page = PAGE_STATUS;
+    printlnA(F("Entering Status page"));
     break;
 
   default:
@@ -112,6 +133,14 @@ void disp_next_prev_Callback(void *ptr)
 NexTouch *nex_listen_list[] =
     {
         &disp_next_status,
+        &disp_prev_status,
+        &disp_next_control,
+        &disp_prev_control,
+        &disp_next_graph,
+        &disp_prev_graph,
+        &disp_next_log,
+        &disp_prev_log,
+        &disp_options_ok,
         NULL};
 
 void display_init()
@@ -125,6 +154,9 @@ void display_init()
   disp_prev_graph.attachPush(disp_next_prev_Callback, &disp_prev_graph);
   disp_next_log.attachPush(disp_next_prev_Callback, &disp_next_log);
   disp_prev_log.attachPush(disp_next_prev_Callback, &disp_prev_log);
+
+  disp_options_ok.attachPush(disp_options_ok_Callback, &disp_options_ok);
+  
 }
 
 void display_loop(void)
@@ -144,18 +176,120 @@ void disp_ota_progress(uint8_t progress)
 
 void disp_parameters_to_display(void)
 {
-  disp_options_ph.setValue(parameters.target_ph);
-  disp_options_delta_ph.setValue(parameters.delta_ph);
+  disp_options_ph.setValue(parameters.target_ph * 10);
+  disp_options_delta_ph.setValue(parameters.delta_ph * 10);
+  disp_options_orp.setValue(parameters.target_orp);
+  disp_options_delta_orp.setValue(parameters.delta_orp);
+  disp_options_cl_flow.setValue(parameters.flow_cl * 10);
+  disp_options_ph_minus_flow.setValue(parameters.flow_ph_minus * 10);
+  disp_options_ph_plus_flow.setValue(parameters.flow_ph_plus * 10);
+  disp_options_pressure_warning.setValue(parameters.pressure_warning * 10);
+  disp_timer_prog_to_display(parameters.timer_prog);
+}
 
-  disp_options_orp.setValue(parameters.target_redox);
-  disp_options_delta_orp.setValue(parameters.delta_redox);
+void disp_options_to_parameters(void)
+{
+  uint32_t val;
+  disp_options_ph.getValue(&val);
+  parameters.target_ph = val;
+  disp_options_delta_ph.getValue(&val);
+  parameters.delta_ph = val;
+  disp_options_orp.getValue(&val);
+  parameters.target_orp = val;
+  disp_options_delta_orp.getValue(&val);
+  parameters.delta_orp = val;
+  disp_options_cl_flow.getValue(&val);
+  parameters.flow_cl = val;
+  disp_options_ph_minus_flow.getValue(&val);
+  parameters.flow_ph_minus = val;
+  disp_options_ph_plus_flow.getValue(&val);
+  parameters.flow_ph_plus = val;
+  disp_options_pressure_warning.getValue(&val);
+  parameters.pressure_warning = val;
+  parameters.timer_prog = disp_disp_to_timer_prog_value();
+}
 
-  disp_options_cl_flow.setValue(parameters.flow_cl);
-  disp_options_ph_minus_flow.setValue(parameters.flow_ph_minus);
-  disp_options_ph_plus_flow.setValue(parameters.flow_ph_plus);
+uint32_t disp_timer_prog_to_display(uint32_t timer_prog)
+{
+  disp_otions_0h.setValue((timer_prog >> 0) & 0x01);
+  disp_otions_1h.setValue((timer_prog >> 1) & 0x01);
+  disp_otions_2h.setValue((timer_prog >> 2) & 0x01);
+  disp_otions_3h.setValue((timer_prog >> 3) & 0x01);
+  disp_otions_4h.setValue((timer_prog >> 4) & 0x01);
+  disp_otions_5h.setValue((timer_prog >> 5) & 0x01);
+  disp_otions_6h.setValue((timer_prog >> 6) & 0x01);
+  disp_otions_7h.setValue((timer_prog >> 7) & 0x01);
+  disp_otions_8h.setValue((timer_prog >> 8) & 0x01);
+  disp_otions_9h.setValue((timer_prog >> 9) & 0x01);
+  disp_otions_10h.setValue((timer_prog >> 10) & 0x01);
+  disp_otions_11h.setValue((timer_prog >> 11) & 0x01);
+  disp_otions_12h.setValue((timer_prog >> 12) & 0x01);
+  disp_otions_13h.setValue((timer_prog >> 13) & 0x01);
+  disp_otions_14h.setValue((timer_prog >> 14) & 0x01);
+  disp_otions_15h.setValue((timer_prog >> 15) & 0x01);
+  disp_otions_16h.setValue((timer_prog >> 16) & 0x01);
+  disp_otions_17h.setValue((timer_prog >> 17) & 0x01);
+  disp_otions_18h.setValue((timer_prog >> 18) & 0x01);
+  disp_otions_19h.setValue((timer_prog >> 19) & 0x01);
+  disp_otions_20h.setValue((timer_prog >> 20) & 0x01);
+  disp_otions_21h.setValue((timer_prog >> 21) & 0x01);
+  disp_otions_22h.setValue((timer_prog >> 22) & 0x01);
+  disp_otions_23h.setValue((timer_prog >> 23) & 0x01);
+}
 
-  disp_options_pressure_warning.setValue(parameters.pressure_warning);
-  disp_options_ph.setValue(parameters.target_ph);
+uint32_t disp_disp_to_timer_prog_value(void)
+{
+  uint32_t timer_prog = 0;
+  uint32_t cb_val;
+  disp_otions_0h.getValue(&cb_val);
+  timer_prog += cb_val << 0;
+  disp_otions_1h.getValue(&cb_val);
+  timer_prog += cb_val << 1;
+  disp_otions_2h.getValue(&cb_val);
+  timer_prog += cb_val << 2;
+  disp_otions_3h.getValue(&cb_val);
+  timer_prog += cb_val << 3;
+  disp_otions_4h.getValue(&cb_val);
+  timer_prog += cb_val << 4;
+  disp_otions_5h.getValue(&cb_val);
+  timer_prog += cb_val << 5;
+  disp_otions_6h.getValue(&cb_val);
+  timer_prog += cb_val << 6;
+  disp_otions_7h.getValue(&cb_val);
+  timer_prog += cb_val << 7;
+  disp_otions_8h.getValue(&cb_val);
+  timer_prog += cb_val << 8;
+  disp_otions_9h.getValue(&cb_val);
+  timer_prog += cb_val << 9;
+  disp_otions_10h.getValue(&cb_val);
+  timer_prog += cb_val << 10;
+  disp_otions_11h.getValue(&cb_val);
+  timer_prog += cb_val << 11;
+  disp_otions_12h.getValue(&cb_val);
+  timer_prog += cb_val << 12;
+  disp_otions_13h.getValue(&cb_val);
+  timer_prog += cb_val << 13;
+  disp_otions_14h.getValue(&cb_val);
+  timer_prog += cb_val << 14;
+  disp_otions_15h.getValue(&cb_val);
+  timer_prog += cb_val << 15;
+  disp_otions_16h.getValue(&cb_val);
+  timer_prog += cb_val << 16;
+  disp_otions_17h.getValue(&cb_val);
+  timer_prog += cb_val << 17;
+  disp_otions_18h.getValue(&cb_val);
+  timer_prog += cb_val << 18;
+  disp_otions_19h.getValue(&cb_val);
+  timer_prog += cb_val << 19;
+  disp_otions_20h.getValue(&cb_val);
+  timer_prog += cb_val << 20;
+  disp_otions_21h.getValue(&cb_val);
+  timer_prog += cb_val << 21;
+  disp_otions_22h.getValue(&cb_val);
+  timer_prog += cb_val << 22;
+  disp_otions_23h.getValue(&cb_val);
+  timer_prog += cb_val << 23;
+  return timer_prog;
 }
 
 void disp_measures_to_display(void)
