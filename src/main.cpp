@@ -11,6 +11,7 @@
 
 #include <SimpleCLI.h>
 #include "parameters.h"
+#include "mqtt.h"
 
 #include <ArduinoOTA.h>
 #include "time.h"
@@ -77,6 +78,7 @@ void setup()
   printlnA(F("Ip Address : "));
   printlnA(WiFi.localIP());
   ota_init();
+  mqtt_init();
   configTime(GMTOFFSET, DAYLIGHTOFFSET, NTPSERVER);
   printLocalTime();
 
@@ -100,6 +102,7 @@ void loop()
 {
   ota_loop();
   display_loop();
+  mqtt_loop();
   timer.tick(); // tick the timer
   if (cpt > 10)
   {

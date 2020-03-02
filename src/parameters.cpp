@@ -34,9 +34,9 @@ bool parameters_read_json(void)
           strcpy(parameters.mqtt_port, json["mqtt_port"]);
           strcpy(parameters.mqtt_user, json["mqtt_user"]);
           strcpy(parameters.mqtt_pass, json["mqtt_pass"]);
-          strcpy(parameters.base_topic, json["base_topic"]);
+          strcpy(parameters.mqtt_base_topic, json["base_topic"]);
           printA(F("base_topic:"));
-          printlnA(parameters.base_topic);
+          printlnA(parameters.mqtt_base_topic);
           parameters.target_ph = json["target_ph"];
           printA(F("target_ph:"));
           printlnA(parameters.target_ph);
@@ -81,7 +81,7 @@ void parameters_write_json(void)
   json["mqtt_port"] = parameters.mqtt_port;
   json["mqtt_user"] = parameters.mqtt_user;
   json["mqtt_pass"] = parameters.mqtt_pass;
-  json["base_topic"] = parameters.base_topic;
+  json["base_topic"] = parameters.mqtt_base_topic;
   json["target_ph"] = parameters.target_ph;
   json["delta_ph"] = parameters.delta_ph;
   json["target_redox"] = parameters.target_orp;

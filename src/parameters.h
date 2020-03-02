@@ -14,7 +14,7 @@ struct ParametersStruture
 	char mqtt_port[PARAM_MAX_STR];
 	char mqtt_user[PARAM_MAX_STR];
 	char mqtt_pass[PARAM_MAX_STR];
-	char base_topic[PARAM_MAX_STR];
+	char mqtt_base_topic[PARAM_MAX_STR];
 	float target_ph;
 	float delta_ph;
 	float target_orp;
