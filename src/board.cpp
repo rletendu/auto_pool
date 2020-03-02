@@ -137,7 +137,7 @@ float water_get_ph(void)
 
 }
 
-float water_get_redox(void)
+float water_get_orp(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_CL);

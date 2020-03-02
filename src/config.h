@@ -8,4 +8,5 @@
 #define GMTOFFSET 3600
 #define DAYLIGHTOFFSET 3600
 
+#define PARAMETER_FILENAME "/config.json"
 #endif

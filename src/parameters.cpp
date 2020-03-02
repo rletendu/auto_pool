@@ -3,6 +3,7 @@
 #include <SPIFFS.h>
 #include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson
 #include <SerialDebug.h>
+#include "config.h"
 
 struct ParametersStruture parameters;
 void parameters_set_default(void);
@@ -14,10 +15,10 @@ bool parameters_read_json(void)
   if (SPIFFS.begin())
   {
     printlnA(F("mounted file system"));
-    if (SPIFFS.exists("/config.json"))
+    if (SPIFFS.exists(PARAMETER_FILENAME))
     {
       printlnA(F("reading config file"));
-      File configFile = SPIFFS.open("/config.json", "r");
+      File configFile = SPIFFS.open(PARAMETER_FILENAME, "r");
       if (configFile)
       {
         printlnA(F("opened config file"));
@@ -43,11 +44,11 @@ bool parameters_read_json(void)
           parameters.delta_ph = json["delta_ph"];
           printA(F("delta_ph:"));
           printlnA(parameters.delta_ph);
-          parameters.target_orp = json["target_redox"];
-          printA(F("target_redox:"));
+          parameters.target_orp = json["target_orp"];
+          printA(F("target_orp:"));
           printlnA(parameters.target_orp);
-          parameters.delta_orp = json["delta_redox"];
-          printA(F("delta_redox:"));
+          parameters.delta_orp = json["delta_orp"];
+          printA(F("delta_orp:"));
           printlnA(parameters.delta_orp);
           parameters.flow_cl = json["flow_cl"];
           printA(F("flow_cl:"));
@@ -84,11 +85,11 @@ void parameters_write_json(void)
   json["base_topic"] = parameters.mqtt_base_topic;
   json["target_ph"] = parameters.target_ph;
   json["delta_ph"] = parameters.delta_ph;
-  json["target_redox"] = parameters.target_orp;
-  json["delta_redox"] = parameters.delta_orp;
+  json["target_orp"] = parameters.target_orp;
+  json["delta_orp"] = parameters.delta_orp;
   json["flow_cl"] = parameters.flow_cl;
   json["flow_ph_minus"] = parameters.flow_ph_minus;
-  File configFile = SPIFFS.open("/config.json", "w");
+  File configFile = SPIFFS.open(PARAMETER_FILENAME, "w");
   if (!configFile)
   {
     printlnA(F("failed to open config file for writing"));

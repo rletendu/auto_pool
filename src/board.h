@@ -101,7 +101,7 @@ uint8_t ds18_count(void);
 float ds18_get_temperature(uint8_t index);
 float water_get_temperature(void);
 float water_get_ph(void);
-float water_get_redox(void);
+float water_get_orp(void);
 float pump_filtration_get_pressure(void);
 
 #endif
