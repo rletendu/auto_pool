@@ -5,7 +5,7 @@
 #include "measures.h"
 #include "parameters.h"
 
-display_page_t display_page = PAGE_BOOT;
+display_page_t display_page = PAGE_STATUS;
 
 NexPage page_boot = NexPage(PID_BOOT, 0, "boot");
 NexPage page_status = NexPage(PID_STATUS, 0, "status");
@@ -29,6 +29,12 @@ NexPicture disp_led_ph = NexPicture(PID_STATUS, CID_STATUS_LED_PH, "p4");
 NexPicture disp_led_orp = NexPicture(PID_STATUS, CID_STATUS_LED_ORP, "p5");
 NexPicture disp_led_pressure = NexPicture(PID_STATUS, CID_STATUS_LED_PRESSURE, "p6");
 
+NexPicture disp_led_level_water = NexPicture(PID_STATUS, CID_STATUS_WATER_LEVEL, "p7");
+NexPicture disp_led_level_cl = NexPicture(PID_STATUS, CID_STATUS_CL_LEVEL, "p8");
+NexPicture disp_led_level_ph_minus = NexPicture(PID_STATUS, CID_STATUS_PH_MINUS_LEVEL, "p9");
+
+NexPicture disp_options = NexPicture(PID_STATUS, CID_OPTIONS, "p1");
+
 NexPicture disp_next_status = NexPicture(PID_STATUS, CID_STATUS_NEXT, "p3");
 NexPicture disp_prev_status = NexPicture(PID_STATUS, CID_STATUS_PREV, "p2");
 
@@ -45,7 +51,7 @@ NexButton disp_options_ok = NexButton(PID_OPTIONS, CID_OPTIONS_OK, "b12");
 NexButton disp_options_cancel = NexButton(PID_OPTIONS, CID_OPTIONS_CANCEL, "b13");
 
 NexNumber disp_options_delta_ph = NexNumber(PID_OPTIONS, CID_OPTIONS_DELTA_PH, "x0");
-NexNumber disp_options_ph = NexNumber(PID_OPTIONS, 1, "x1");
+NexNumber disp_options_ph = NexNumber(PID_OPTIONS, CID_OPTIONS_PH, "x1");
 NexNumber disp_options_orp = NexNumber(PID_OPTIONS, CID_OPTIONS_ORP, "x2");
 NexNumber disp_options_delta_orp = NexNumber(PID_OPTIONS, CID_OPTIONS_ORP, "x3");
 NexNumber disp_options_cl_flow = NexNumber(PID_OPTIONS, CID_OPTIONS_CL_FLOW, "x4");
@@ -88,9 +94,19 @@ void disp_options_to_parameters(void);
 void disp_options_ok_Callback(void *ptr)
 {
   printlnA(F("Options OK pressed, reading back updated parameters and save Json"));
+  delay(10);
+  //page_options.show();
   disp_options_to_parameters();
+  page_status.show();
+  display_page = PAGE_STATUS;
   parameters_write_json();
-  #warning need to publish parameters to MQTT...
+#warning need to publish parameters to MQTT...
+}
+
+void disp_enter_options_Callback(void *ptr)
+{
+  display_page = PAGE_OPTIONS;
+  disp_parameters_to_display();
 }
 
 void disp_next_prev_Callback(void *ptr)
@@ -103,24 +119,28 @@ void disp_next_prev_Callback(void *ptr)
   case ((PID_STATUS << 8) + CID_STATUS_NEXT):
   case ((PID_GRAPH << 8) + CID_GRAPH_PREV):
     display_page = PAGE_CONTROL;
+    page_control.show();
     printlnA(F("Entering control page"));
     break;
 
   case ((PID_GRAPH << 8) + CID_GRAPH_NEXT):
   case ((PID_STATUS << 8) + CID_STATUS_PREV):
     display_page = PAGE_LOG;
+    page_log.show();
     printlnA(F("Entering log page"));
     break;
 
   case ((PID_LOG << 8) + CID_LOG_PREV):
   case ((PID_CONTROL << 8) + CID_CONTROL_NEXT):
     display_page = PAGE_GRAPH;
+    page_graph.show();
     printlnA(F("Entering Graph page"));
     break;
 
   case ((PID_LOG << 8) + CID_LOG_NEXT):
   case ((PID_CONTROL << 8) + CID_CONTROL_PREV):
     display_page = PAGE_STATUS;
+    page_status.show();
     printlnA(F("Entering Status page"));
     break;
 
@@ -143,6 +163,7 @@ NexTouch *nex_listen_list[] =
         &disp_next_log,
         &disp_prev_log,
         &disp_options_ok,
+        &disp_options,
         NULL};
 
 void display_init()
@@ -156,9 +177,9 @@ void display_init()
   disp_prev_graph.attachPush(disp_next_prev_Callback, &disp_prev_graph);
   disp_next_log.attachPush(disp_next_prev_Callback, &disp_next_log);
   disp_prev_log.attachPush(disp_next_prev_Callback, &disp_prev_log);
-
+  disp_options.attachPush(disp_enter_options_Callback, &disp_options);
   disp_options_ok.attachPush(disp_options_ok_Callback, &disp_options_ok);
-  
+  page_boot.show();
 }
 
 void display_loop(void)
@@ -186,28 +207,57 @@ void disp_parameters_to_display(void)
   disp_options_ph_minus_flow.setValue(parameters.flow_ph_minus * 10);
   disp_options_ph_plus_flow.setValue(parameters.flow_ph_plus * 10);
   disp_options_pressure_warning.setValue(parameters.pressure_warning * 10);
+  if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
+  {
+    disp_options_mode_timer_prog.setValue(1);
+    disp_options_mode_fct_t.setValue(0);
+  }
+  else
+  {
+    disp_options_mode_timer_prog.setValue(0);
+    disp_options_mode_fct_t.setValue(1);
+  }
+
   disp_timer_prog_to_display(parameters.timer_prog);
 }
 
 void disp_options_to_parameters(void)
 {
   uint32_t val;
+  printA(F("Reading back pH Target : "));
   disp_options_ph.getValue(&val);
-  parameters.target_ph = val;
+  parameters.target_ph = val / 10.0;
+  printlnA(parameters.target_ph);
+  printA(F("Reading back delta pH Target"));
   disp_options_delta_ph.getValue(&val);
-  parameters.delta_ph = val;
+  parameters.delta_ph = val / 10.0;
+  printlnA(parameters.delta_ph);
+  printlnA(F("Reading back ORP Target"));
   disp_options_orp.getValue(&val);
   parameters.target_orp = val;
+  printlnA(F("Reading back ORP delta Target"));
   disp_options_delta_orp.getValue(&val);
   parameters.delta_orp = val;
+  printlnA(F("Reading back cl flow"));
   disp_options_cl_flow.getValue(&val);
-  parameters.flow_cl = val;
+  parameters.flow_cl = val / 10.0;
+  printlnA(F("Reading back pHminus flow"));
   disp_options_ph_minus_flow.getValue(&val);
-  parameters.flow_ph_minus = val;
+  parameters.flow_ph_minus = val / 10.0;
+  printlnA(F("Reading back pHplus flow"));
   disp_options_ph_plus_flow.getValue(&val);
-  parameters.flow_ph_plus = val;
+  parameters.flow_ph_plus = val / 10.0;
   disp_options_pressure_warning.getValue(&val);
-  parameters.pressure_warning = val;
+  parameters.pressure_warning = val / 10.0;
+  disp_options_mode_timer_prog.getValue(&val);
+  if (val)
+  {
+    parameters.filter_auto_mode = AUTO_TIMER_PROG;
+  }
+  else
+  {
+    parameters.filter_auto_mode = AUTO_TIMER_FCT_T;
+  }
   parameters.timer_prog = disp_disp_to_timer_prog_value();
 }
 
@@ -297,4 +347,33 @@ uint32_t disp_disp_to_timer_prog_value(void)
 void disp_measures_to_display(void)
 {
   disp_water_temperature.setValue(measures.water_temperature * 10);
+  disp_ph.setValue(measures.ph * 10);
+  disp_pressure.setValue(measures.pump_pressure * 10);
+  disp_orp.setValue(measures.orp);
+  disp_sys_humidity.setValue(measures.system_humidity);
+  disp_sys_temperature.setValue(measures.system_temperature * 10);
+  if (measures.level_cl)
+  {
+    disp_led_level_cl.setPic(ID_IMAGE_GREEN);
+  }
+  else
+  {
+    disp_led_level_cl.setPic(ID_IMAGE_RED);
+  }
+  if (measures.level_ph_minus)
+  {
+    disp_led_level_ph_minus.setPic(ID_IMAGE_GREEN);
+  }
+  else
+  {
+    disp_led_level_ph_minus.setPic(ID_IMAGE_RED);
+  }
+  if (measures.level_water)
+  {
+    disp_led_level_water.setPic(ID_IMAGE_GREEN);
+  }
+  else
+  {
+    disp_led_level_water.setPic(ID_IMAGE_RED);
+  }
 }

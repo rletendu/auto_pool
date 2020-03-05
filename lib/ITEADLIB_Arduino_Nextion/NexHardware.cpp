@@ -79,7 +79,7 @@ __return:
     {
         dbSerialPrintln("recvRetNumber err");
     }
-    
+    delay(10);
     return ret;
 }
 
@@ -233,6 +233,12 @@ bool nexInit(int baud)
     sendCommand("");
     sendCommand("bkcmd=1");
     ret1 = recvRetCommandFinished();
+    sendCommand("");
+    sendCommand("baud=115200");
+    recvRetCommandFinished();
+    nexSerial.flush();
+    nexSerial.end();
+    nexSerial.begin(115200);
     sendCommand("page 0");
     ret2 = recvRetCommandFinished();
     return ret1 && ret2;

@@ -57,7 +57,8 @@ void mqtt_publish_parameters()
 	strcat (topic,"/PARAM");
 	if (mqtt_client.connected())
 	{ 
-		mqtt_client.publish(topic,message);
+		#warning FIXE ME
+		mqtt_client.publish(topic,"parameters message");
 	}
 }
 

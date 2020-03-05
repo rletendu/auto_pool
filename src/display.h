@@ -17,6 +17,7 @@
 #define PID_OTA 6
 
 #define CID_STATUS_WIFI 6
+#define CID_OPTIONS 7
 #define CID_STATUS_WATER_TEMP 10
 #define CID_STATUS_PH 11
 #define CID_STATUS_ORP 12
@@ -71,12 +72,12 @@
 #define CID_OPTIONS_22H 54
 #define CID_OPTIONS_23H 55
 
-#define CID_STATUS_NEXT 4
+#define CID_STATUS_NEXT 9
 #define CID_CONTROL_NEXT 2
 #define CID_GRAPH_NEXT 6
 #define CID_LOG_NEXT 3
 
-#define CID_STATUS_PREV 3
+#define CID_STATUS_PREV 8
 #define CID_CONTROL_PREV 1
 #define CID_GRAPH_PREV 5
 #define CID_LOG_PREV 2
@@ -97,5 +98,6 @@ void display_loop(void);
 
 void disp_page_ota();
 void disp_ota_progress(uint8_t progress);
+void disp_parameters_to_display(void);
 
 #endif

@@ -56,6 +56,11 @@ bool parameters_read_json(void)
           parameters.flow_ph_minus = json["flow_ph_minus"];
           printA(F("flow_ph_minus:"));
           printlnA(parameters.flow_ph_minus);
+          parameters.pressure_warning = json["pressure_warning"];
+          parameters.flow_ph_plus = json["flow_ph_plus"];
+          int mode = json["filter_auto_mode"];
+          parameters.filter_auto_mode = (filter_auto_mode_t)mode;
+          parameters.timer_prog = json["timer_prog"];
           return true;
         }
         else
@@ -89,6 +94,10 @@ void parameters_write_json(void)
   json["delta_orp"] = parameters.delta_orp;
   json["flow_cl"] = parameters.flow_cl;
   json["flow_ph_minus"] = parameters.flow_ph_minus;
+  json["flow_ph_plus"] = parameters.flow_ph_plus;
+  json["filter_auto_mode"] = (int)parameters.filter_auto_mode;
+  json["timer_prog"] = parameters.timer_prog;
+  json["pressure_warning"] = parameters.pressure_warning;
   File configFile = SPIFFS.open(PARAMETER_FILENAME, "w");
   if (!configFile)
   {

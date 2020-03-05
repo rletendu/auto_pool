@@ -41,7 +41,7 @@ void board_init()
   pinMode(PIN_FLOW, INPUT);
 
   buzzer_on();
-  delay(20);
+  delay(10);
   buzzer_off();
 
   dht.begin();
