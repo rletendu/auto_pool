@@ -87,6 +87,22 @@ NexCheckbox disp_otions_21h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_21H, "c21");
 NexCheckbox disp_otions_22h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_22H, "c22");
 NexCheckbox disp_otions_23h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_23H, "c23");
 
+NexButton disp_control_filter_auto = NexButton(PID_CONTROL, CID_CONTROL_FILTER_AUTO, "b0");
+NexButton disp_control_filter_off = NexButton(PID_CONTROL, CID_CONTROL_FILTER_OFF, "b1");
+NexButton disp_control_filter_on = NexButton(PID_CONTROL, CID_CONTROL_FILTER_ON, "b2");
+
+NexButton disp_control_cl_auto = NexButton(PID_CONTROL, CID_CONTROL_CL_AUTO, "b3");
+NexButton disp_control_cl_off = NexButton(PID_CONTROL, CID_CONTROL_CL_OFF, "b4");
+NexButton disp_control_cl_on = NexButton(PID_CONTROL, CID_CONTROL_CL_ON, "b5");
+
+NexButton disp_control_ph_minus_auto = NexButton(PID_CONTROL, CID_CONTROL_PH_MINUS_AUTO, "b6");
+NexButton disp_control_ph_minus_off = NexButton(PID_CONTROL, CID_CONTROL_PH_MINUS_OFF, "b7");
+NexButton disp_control_ph_minus_on = NexButton(PID_CONTROL, CID_CONTROL_PH_MINUS_ON, "b8");
+
+NexButton disp_control_ph_plus_auto = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_AUTO, "b9");
+NexButton disp_control_ph_plus_off = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_OFF, "b10");
+NexButton disp_control_ph_plus_on = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_ON, "b11");
+
 uint32_t disp_timer_prog_to_display(uint32_t timer_prog);
 uint32_t disp_disp_to_timer_prog_value(void);
 void disp_options_to_parameters(void);

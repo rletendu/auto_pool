@@ -7,6 +7,7 @@
 
 struct ParametersStruture parameters;
 void parameters_set_default(void);
+char parameters_json_string[PARAMETERS_JSON_MESSAGE_LEN];
 
 bool parameters_read_json(void)
 {
@@ -105,6 +106,7 @@ void parameters_write_json(void)
   }
   json.printTo(Serial);
   json.printTo(configFile);
+  json.printTo(parameters_json_string);
   configFile.close();
 }
 

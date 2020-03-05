@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "config.h"
 
 #define PARAM_MAX_STR 50
 
@@ -28,6 +29,7 @@ struct ParametersStruture
 };
 
 extern struct ParametersStruture parameters;
+extern char parameters_json_string[PARAMETERS_JSON_MESSAGE_LEN];
 
 bool parameters_read_json(void);
 void parameters_write_json(void);

@@ -2,8 +2,10 @@
 #include "config.h"
 #include <SerialDebug.h>
 #include "board.h"
+#include <ArduinoJson.h> 
 
 struct MeasuresStructure measures;
+char measures_json_string[MEASURES_JSON_MESSAGE_LEN];
 
 void update_measures(void)
 {
@@ -19,3 +21,19 @@ void update_measures(void)
     measures.level_water = level_water_is_ok();
 }
 
+void measures_to_json_string(void)
+{
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &json = jsonBuffer.createObject();
+    json["system_temperature"] = measures.system_temperature;
+    json["mqtt_server"] = measures.system_humidity;
+    json["mqtt_server"] = measures.water_temperature;
+    json["mqtt_server"] = measures.pump_pressure;
+    json["mqtt_server"] = measures.ph;
+    json["mqtt_server"] = measures.orp;
+    json["mqtt_server"] = measures.level_cl;
+    json["mqtt_server"] = measures.level_ph_minus;
+    json["mqtt_server"] = measures.level_ph_plus;
+    json["mqtt_server"] = measures.level_water;
+    json.printTo(measures_json_string);
+}

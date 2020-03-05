@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "config.h"
 
 struct MeasuresStructure
 {
@@ -15,4 +16,4 @@ struct MeasuresStructure
 };
 
 extern struct MeasuresStructure measures;
-
+extern char measures_json_string[MEASURES_JSON_MESSAGE_LEN];

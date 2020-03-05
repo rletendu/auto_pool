@@ -1,5 +1,6 @@
 #include "mqtt.h"
 #include "parameters.h"
+#include "measures.h"
 #include <PubSubClient.h>
 #include <WiFi.h>
 #include <SerialDebug.h>
@@ -57,8 +58,18 @@ void mqtt_publish_parameters()
 	strcat (topic,"/PARAM");
 	if (mqtt_client.connected())
 	{ 
-		#warning FIXE ME
-		mqtt_client.publish(topic,"parameters message");
+		mqtt_client.publish(topic,parameters_json_string);
+	}
+}
+
+void mqtt_publish_measures()
+{
+	char topic[40];
+	strcpy (topic,parameters.mqtt_base_topic);
+	strcat (topic,"/MEAS");
+	if (mqtt_client.connected())
+	{ 
+		mqtt_client.publish(topic,measures_json_string);
 	}
 }
 
