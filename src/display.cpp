@@ -3,6 +3,7 @@
 #include <Nextion.h>
 #include <SerialDebug.h>
 #include "measures.h"
+#include "mqtt.h"
 #include "parameters.h"
 
 display_page_t display_page = PAGE_STATUS;
@@ -116,7 +117,7 @@ void disp_options_ok_Callback(void *ptr)
   page_status.show();
   display_page = PAGE_STATUS;
   parameters_write_json();
-#warning need to publish parameters to MQTT...
+  mqtt_publish_parameters();
 }
 
 void disp_enter_options_Callback(void *ptr)
