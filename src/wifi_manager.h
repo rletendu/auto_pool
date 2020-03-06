@@ -2,7 +2,7 @@
 
 extern WiFiManager wifiManager;
 
-void setup_wifimanager(void);
+void wifimanager_init(void);
 bool is_should_save_config(void);
 void wifimanager_autoconnect(void);
 void wifimanager_start_portal(void);

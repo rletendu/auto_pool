@@ -18,12 +18,12 @@ NexPage page_ota = NexPage(PID_OTA, 0, "OTA");
 
 NexProgressBar ota_progress = NexProgressBar(PID_OTA, 1, "j0");
 
-NexNumber disp_water_temperature = NexNumber(PID_STATUS, CID_STATUS_WATER_TEMP, "x0");
-NexNumber disp_ph = NexNumber(PID_STATUS, CID_STATUS_PH, "x1");
-NexNumber disp_orp = NexNumber(PID_STATUS, CID_STATUS_ORP, "x2");
-NexNumber disp_pressure = NexNumber(PID_STATUS, CID_STATUS_PRESSURE, "x3");
-NexNumber disp_sys_temperature = NexNumber(PID_STATUS, CID_STATUS_SYSTEM_TEMP, "x4");
-NexNumber disp_sys_humidity = NexNumber(PID_STATUS, CID_STATUS_SYSTEM_HUMIDITY, "x5");
+NexXfloat disp_water_temperature = NexXfloat(PID_STATUS, CID_STATUS_WATER_TEMP, "x0");
+NexXfloat disp_ph = NexXfloat(PID_STATUS, CID_STATUS_PH, "x1");
+NexXfloat disp_orp = NexXfloat(PID_STATUS, CID_STATUS_ORP, "x2");
+NexXfloat disp_pressure = NexXfloat(PID_STATUS, CID_STATUS_PRESSURE, "x3");
+NexXfloat disp_sys_temperature = NexXfloat(PID_STATUS, CID_STATUS_SYSTEM_TEMP, "x4");
+NexXfloat disp_sys_humidity = NexXfloat(PID_STATUS, CID_STATUS_SYSTEM_HUMIDITY, "x5");
 NexPicture disp_wifi = NexPicture(PID_STATUS, CID_STATUS_WIFI, "p0");
 
 NexPicture disp_led_ph = NexPicture(PID_STATUS, CID_STATUS_LED_PH, "p4");
@@ -51,14 +51,14 @@ NexPicture disp_prev_log = NexPicture(PID_LOG, CID_LOG_PREV, "p2");
 NexButton disp_options_ok = NexButton(PID_OPTIONS, CID_OPTIONS_OK, "b12");
 NexButton disp_options_cancel = NexButton(PID_OPTIONS, CID_OPTIONS_CANCEL, "b13");
 
-NexNumber disp_options_delta_ph = NexNumber(PID_OPTIONS, CID_OPTIONS_DELTA_PH, "x0");
-NexNumber disp_options_ph = NexNumber(PID_OPTIONS, CID_OPTIONS_PH, "x1");
-NexNumber disp_options_orp = NexNumber(PID_OPTIONS, CID_OPTIONS_ORP, "x2");
-NexNumber disp_options_delta_orp = NexNumber(PID_OPTIONS, CID_OPTIONS_ORP, "x3");
-NexNumber disp_options_cl_flow = NexNumber(PID_OPTIONS, CID_OPTIONS_CL_FLOW, "x4");
-NexNumber disp_options_ph_minus_flow = NexNumber(PID_OPTIONS, CID_OPTIONS_PH_MINUS_FLOW, "x5");
-NexNumber disp_options_ph_plus_flow = NexNumber(PID_OPTIONS, CID_OPTIONS_PH_PLUS_FLOW, "x6");
-NexNumber disp_options_pressure_warning = NexNumber(PID_OPTIONS, CID_OPTIONS_PRESSURE, "x7");
+NexXfloat disp_options_delta_ph = NexXfloat(PID_OPTIONS, CID_OPTIONS_DELTA_PH, "x0");
+NexXfloat disp_options_ph = NexXfloat(PID_OPTIONS, CID_OPTIONS_PH, "x1");
+NexXfloat disp_options_orp = NexXfloat(PID_OPTIONS, CID_OPTIONS_ORP, "x2");
+NexXfloat disp_options_delta_orp = NexXfloat(PID_OPTIONS, CID_OPTIONS_ORP, "x3");
+NexXfloat disp_options_cl_flow = NexXfloat(PID_OPTIONS, CID_OPTIONS_CL_FLOW, "x4");
+NexXfloat disp_options_ph_minus_flow = NexXfloat(PID_OPTIONS, CID_OPTIONS_PH_MINUS_FLOW, "x5");
+NexXfloat disp_options_ph_plus_flow = NexXfloat(PID_OPTIONS, CID_OPTIONS_PH_PLUS_FLOW, "x6");
+NexXfloat disp_options_pressure_warning = NexXfloat(PID_OPTIONS, CID_OPTIONS_PRESSURE, "x7");
 
 NexRadio disp_options_mode_timer_prog = NexRadio(PID_OPTIONS, CID_OPTIONS_MODE_TIMER_PROG, "r0");
 NexRadio disp_options_mode_fct_t = NexRadio(PID_OPTIONS, CID_OPTIONS_MODE_FCT_T, "r1");
@@ -216,14 +216,14 @@ void disp_ota_progress(uint8_t progress)
 
 void disp_parameters_to_display(void)
 {
-  disp_options_ph.setValue(parameters.target_ph * 10);
-  disp_options_delta_ph.setValue(parameters.delta_ph * 10);
+  disp_options_ph.setValue(parameters.target_ph);
+  disp_options_delta_ph.setValue(parameters.delta_ph);
   disp_options_orp.setValue(parameters.target_orp);
   disp_options_delta_orp.setValue(parameters.delta_orp);
-  disp_options_cl_flow.setValue(parameters.flow_cl * 10);
-  disp_options_ph_minus_flow.setValue(parameters.flow_ph_minus * 10);
-  disp_options_ph_plus_flow.setValue(parameters.flow_ph_plus * 10);
-  disp_options_pressure_warning.setValue(parameters.pressure_warning * 10);
+  disp_options_cl_flow.setValue(parameters.flow_cl);
+  disp_options_ph_minus_flow.setValue(parameters.flow_ph_minus);
+  disp_options_ph_plus_flow.setValue(parameters.flow_ph_plus);
+  disp_options_pressure_warning.setValue(parameters.pressure_warning);
   if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
   {
     disp_options_mode_timer_prog.setValue(1);
@@ -240,34 +240,36 @@ void disp_parameters_to_display(void)
 
 void disp_options_to_parameters(void)
 {
-  uint32_t val;
+  float val_f;
+  uint32_t val_u;
+
   printA(F("Reading back pH Target : "));
-  disp_options_ph.getValue(&val);
-  parameters.target_ph = val / 10.0;
+  disp_options_ph.getValue(&val_f);
+  parameters.target_ph = val_f;
   printlnA(parameters.target_ph);
   printA(F("Reading back delta pH Target"));
-  disp_options_delta_ph.getValue(&val);
-  parameters.delta_ph = val / 10.0;
+  disp_options_delta_ph.getValue(&val_f);
+  parameters.delta_ph = val_f;
   printlnA(parameters.delta_ph);
   printlnA(F("Reading back ORP Target"));
-  disp_options_orp.getValue(&val);
-  parameters.target_orp = val;
+  disp_options_orp.getValue(&val_f);
+  parameters.target_orp = val_f;
   printlnA(F("Reading back ORP delta Target"));
-  disp_options_delta_orp.getValue(&val);
-  parameters.delta_orp = val;
+  disp_options_delta_orp.getValue(&val_f);
+  parameters.delta_orp = val_f;
   printlnA(F("Reading back cl flow"));
-  disp_options_cl_flow.getValue(&val);
-  parameters.flow_cl = val / 10.0;
+  disp_options_cl_flow.getValue(&val_f);
+  parameters.flow_cl = val_f;
   printlnA(F("Reading back pHminus flow"));
-  disp_options_ph_minus_flow.getValue(&val);
-  parameters.flow_ph_minus = val / 10.0;
+  disp_options_ph_minus_flow.getValue(&val_f);
+  parameters.flow_ph_minus = val_f;
   printlnA(F("Reading back pHplus flow"));
-  disp_options_ph_plus_flow.getValue(&val);
-  parameters.flow_ph_plus = val / 10.0;
-  disp_options_pressure_warning.getValue(&val);
-  parameters.pressure_warning = val / 10.0;
-  disp_options_mode_timer_prog.getValue(&val);
-  if (val)
+  disp_options_ph_plus_flow.getValue(&val_f);
+  parameters.flow_ph_plus = val_f;
+  disp_options_pressure_warning.getValue(&val_f);
+  parameters.pressure_warning = val_f;
+  disp_options_mode_timer_prog.getValue(&val_u);
+  if (val_u)
   {
     parameters.filter_auto_mode = AUTO_TIMER_PROG;
   }
@@ -363,12 +365,12 @@ uint32_t disp_disp_to_timer_prog_value(void)
 
 void disp_measures_to_display(void)
 {
-  disp_water_temperature.setValue(measures.water_temperature * 10);
-  disp_ph.setValue(measures.ph * 10);
-  disp_pressure.setValue(measures.pump_pressure * 10);
+  disp_water_temperature.setValue(measures.water_temperature);
+  disp_ph.setValue(measures.ph);
+  disp_pressure.setValue(measures.pump_pressure);
   disp_orp.setValue(measures.orp);
   disp_sys_humidity.setValue(measures.system_humidity);
-  disp_sys_temperature.setValue(measures.system_temperature * 10);
+  disp_sys_temperature.setValue(measures.system_temperature);
   if (measures.level_cl)
   {
     disp_led_level_cl.setPic(ID_IMAGE_GREEN);

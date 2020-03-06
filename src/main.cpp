@@ -72,7 +72,7 @@ void setup()
   delay(500);
 
   printlnA(F("AutoPool Starting..."));
-  setup_wifimanager();
+  wifimanager_init();
   wifimanager_autoconnect();
   parameters_read_json();
   printlnA(F("Ip Address : "));

@@ -17,6 +17,8 @@
 #define __NEXOBJECT_H__
 #include <Arduino.h>
 #include "NexConfig.h"
+
+
 /**
  * @addtogroup CoreAPI 
  * @{ 
@@ -48,6 +50,8 @@ public: /* methods */
      * @warning this method does nothing, unless debug message enabled. 
      */
     void printObjInfo(void);
+
+    bool setVisibility(bool);
 
 //protected: /* methods */
 

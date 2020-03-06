@@ -13,12 +13,27 @@
  * the License, or (at your option) any later version.
  */
 #include "NexObject.h"
+#include "NexHardware.h"
 
 NexObject::NexObject(uint8_t pid, uint8_t cid, const char *name)
 {
     this->__pid = pid;
     this->__cid = cid;
     this->__name = name;
+}
+
+bool NexObject::setVisibility(bool visibility)
+{
+    char buf[10] = {0};
+    String cmd = "vis ";
+    cmd += getObjName();
+    if (visibility) {
+        cmd += ",1";
+    } else {
+        cmd += ",0";
+    }
+    sendCommand(cmd.c_str());
+    return recvRetCommandFinished();
 }
 
 uint8_t NexObject::getObjPid(void)

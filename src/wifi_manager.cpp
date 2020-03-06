@@ -24,7 +24,7 @@ bool is_should_save_config(void)
   return shouldSaveConfig;
 }
 
-void setup_wifimanager(void)
+void wifimanager_init(void)
 {
   printlnA(F("Setup Wifi manager..."));
   wifiManager.setDebugOutput(false);

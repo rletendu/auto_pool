@@ -10,8 +10,8 @@ enum filter_mode_t
 	FILTER_AUTO = 2,
 };
 
-extern enum filter_mode_t filter_mode = FILTER_AUTO;
+extern enum filter_mode_t filter_mode;
 
-void filter_init(void);
+void filter_control_init(void);
 
 

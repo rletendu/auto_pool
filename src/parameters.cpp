@@ -31,32 +31,17 @@ bool parameters_read_json(void)
         json.printTo(Serial);
         if (json.success())
         {
-          printlnA(F("Parsed json"));
           strcpy(parameters.mqtt_server, json["mqtt_server"]);
           strcpy(parameters.mqtt_port, json["mqtt_port"]);
           strcpy(parameters.mqtt_user, json["mqtt_user"]);
           strcpy(parameters.mqtt_pass, json["mqtt_pass"]);
           strcpy(parameters.mqtt_base_topic, json["base_topic"]);
-          printA(F("base_topic:"));
-          printlnA(parameters.mqtt_base_topic);
           parameters.target_ph = json["target_ph"];
-          printA(F("target_ph:"));
-          printlnA(parameters.target_ph);
           parameters.delta_ph = json["delta_ph"];
-          printA(F("delta_ph:"));
-          printlnA(parameters.delta_ph);
           parameters.target_orp = json["target_orp"];
-          printA(F("target_orp:"));
-          printlnA(parameters.target_orp);
           parameters.delta_orp = json["delta_orp"];
-          printA(F("delta_orp:"));
-          printlnA(parameters.delta_orp);
           parameters.flow_cl = json["flow_cl"];
-          printA(F("flow_cl:"));
-          printlnA(parameters.flow_cl);
           parameters.flow_ph_minus = json["flow_ph_minus"];
-          printA(F("flow_ph_minus:"));
-          printlnA(parameters.flow_ph_minus);
           parameters.pressure_warning = json["pressure_warning"];
           parameters.flow_ph_plus = json["flow_ph_plus"];
           int mode = json["filter_auto_mode"];
@@ -66,7 +51,7 @@ bool parameters_read_json(void)
         }
         else
         {
-          printlnA(F("failed to load json config"));
+          printlnA(F("failed to load parameters from json config"));
         }
       }
     }
@@ -81,7 +66,7 @@ bool parameters_read_json(void)
 
 void parameters_write_json(void)
 {
-  printlnA(F("Saving config"));
+  printlnA(F("Saving parameters to file"));
   DynamicJsonBuffer jsonBuffer;
   JsonObject &json = jsonBuffer.createObject();
   json["mqtt_server"] = parameters.mqtt_server;

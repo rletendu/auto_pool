@@ -41,5 +41,6 @@
 #include "NexScrolltext.h"
 #include "NexGpio.h"
 #include "NexRtc.h"
+#include "NexXfloat.h"
 
 #endif /* #ifndef __NEXTION_H__ */
