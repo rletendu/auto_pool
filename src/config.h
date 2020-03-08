@@ -11,4 +11,7 @@
 #define PARAMETER_FILENAME "/config.json"
 #define PARAMETERS_JSON_MESSAGE_LEN 300
 #define MEASURES_JSON_MESSAGE_LEN 300
+
+
+
 #endif

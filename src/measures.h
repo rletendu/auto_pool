@@ -1,3 +1,7 @@
+
+#ifndef __MEASURES_H__
+#define __MEASURES_H__
+
 #include <Arduino.h>
 #include "config.h"
 
@@ -17,3 +21,5 @@ struct MeasuresStructure
 
 extern struct MeasuresStructure measures;
 extern char measures_json_string[MEASURES_JSON_MESSAGE_LEN];
+
+#endif

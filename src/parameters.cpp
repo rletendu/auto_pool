@@ -102,10 +102,11 @@ void parameters_format(void)
 
 void parameters_set_default(void)
 {
-  parameters.target_ph = 7.2;
-  parameters.delta_ph = 0.2;
+  parameters.target_ph = 7.4;
+  parameters.delta_ph = 0.15;
   parameters.target_orp = 650;
-  parameters.delta_orp = 50;
-  parameters.flow_cl = 12.3;
-  parameters.flow_ph_minus = 12.1;
+  parameters.delta_orp = 70;
+  parameters.flow_cl = 25.0;
+  parameters.flow_ph_minus = 25.0;
+  parameters.flow_ph_plus = 25.0;
 }

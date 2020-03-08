@@ -1,3 +1,6 @@
+#ifndef __PH_CONTROL_H__
+#define __PH_CONTROL_H__
+
 #include <Arduino.h>
 #include "config.h"
 
@@ -21,3 +24,4 @@ void ph_control_init(void);
 void ph_control_loop(void);
 
 
+#endif

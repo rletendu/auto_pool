@@ -120,4 +120,7 @@ float water_get_ph(void);
 float water_get_orp(void);
 float pump_filtration_get_pressure(void);
 
+bool rtc_set_time(struct tm time);
+uint8_t rtc_get_hour(void);
+
 #endif

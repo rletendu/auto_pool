@@ -1,3 +1,6 @@
+#ifndef __OPR_CONTROL_H__
+#define __ORP_CONTROL_H__
+
 #include <Arduino.h>
 #include "config.h"
 
@@ -20,3 +23,4 @@ extern enum orp_mode_t orp_mode;
 void orp_control_init(void);
 void orp_control_loop(void);
 
+#endif
