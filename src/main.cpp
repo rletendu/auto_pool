@@ -5,9 +5,11 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include "wifi_manager.h"
-#include <timer.h>
+#include "soft_timer.h"
 #include <SerialDebug.h>
-
+#include "orp_control.h"
+#include "ph_control.h"
+#include "filter_control.h"
 #include "cli.h"
 
 #include "parameters.h"
@@ -17,16 +19,13 @@
 #include "time.h"
 #include <Nextion.h>
 
+SoftTimer timer_pool = SoftTimer();
 
-
-
-auto timer = timer_create_default();
 uintptr_t task;
 
 volatile uint32_t cpt = 0;
 
 uint16_t port;
-
 
 bool toggle_led(void *)
 {
@@ -65,8 +64,9 @@ void setup()
   cli_init();
   configTime(GMTOFFSET, DAYLIGHTOFFSET, NTPSERVER);
   printLocalTime();
-
-
+  filter_control_init();
+  orp_control_init();
+  ph_control_init();
 
   //save the custom parameters to FS
   if (is_should_save_config())
@@ -74,7 +74,7 @@ void setup()
     printlnA(F("Need to write Json config file..."));
     parameters_write_json();
   }
-  task = timer.every(500, toggle_led);
+  task = timer_pool.every(500, toggle_led);
 }
 
 volatile unsigned long tmp = 0;
@@ -88,11 +88,9 @@ void loop()
   mqtt_loop();
   cli_loop();
 
-  timer.tick(); // tick the timer
+  timer_pool.tick(); // tick the timer
   if (cpt > 10)
   {
-    timer.cancel(task);
+    timer_pool.cancel(task);
   }
-
-
 }

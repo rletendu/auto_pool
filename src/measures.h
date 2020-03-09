@@ -22,4 +22,7 @@ struct MeasuresStructure
 extern struct MeasuresStructure measures;
 extern char measures_json_string[MEASURES_JSON_MESSAGE_LEN];
 
+void measures_init(void);
+void measures_loop(void);
+
 #endif

@@ -7,9 +7,8 @@
 #include "mqtt.h"
 #include "parameters.h"
 
-
 display_page_t display_page = PAGE_STATUS;
-uint32_t disp_timer_prog_to_display(uint32_t timer_prog);
+void disp_timer_prog_to_display(uint32_t timer_prog);
 uint32_t disp_disp_to_timer_prog_value(void);
 void disp_options_to_parameters(void);
 
@@ -31,108 +30,77 @@ void disp_enter_options_Callback(void *ptr)
   disp_parameters_to_display();
 }
 
-void disp_control_ph_plus_Callback(void *ptr)
+void disp_control_ph_plus_auto_Callback(void *ptr)
 {
-  NexButton *btn = (NexButton *)ptr;
-  uint16_t id = (btn->getObjPid() << 8) + btn->getObjCid();
-  switch (id)
-  {
-  case ((PID_CONTROL << 8) + CID_CONTROL_PH_PLUS_AUTO):
-    disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GREEN);
-    disp_control_ph_plus_off.Set_background_color_bco(COLOR_GRAY);
-    disp_control_ph_plus_on.Set_background_color_bco(COLOR_GRAY);
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_PH_PLUS_OFF):
-    disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GRAY);
-    disp_control_ph_plus_off.Set_background_color_bco(COLOR_RED);
-    disp_control_ph_plus_on.Set_background_color_bco(COLOR_GRAY);
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_PH_PLUS_ON):
-    disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GRAY);
-    disp_control_ph_plus_off.Set_background_color_bco(COLOR_GRAY);
-    disp_control_ph_plus_on.Set_background_color_bco(COLOR_ORANGE);
-    break;
-  }
+  disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GREEN);
+  disp_control_ph_plus_off.Set_background_color_bco(COLOR_GRAY);
+  disp_control_ph_plus_on.Set_background_color_bco(COLOR_GRAY);
 }
-
-void disp_control_ph_minus_Callback(void *ptr)
+void disp_control_ph_plus_on_Callback(void *ptr)
 {
-  NexButton *btn = (NexButton *)ptr;
-  uint16_t id = (btn->getObjPid() << 8) + btn->getObjCid();
-  switch (id)
-  {
-  case ((PID_CONTROL << 8) + CID_CONTROL_PH_MINUS_AUTO):
-    disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GREEN);
-    disp_control_ph_minus_off.Set_background_color_bco(COLOR_GRAY);
-    disp_control_ph_minus_on.Set_background_color_bco(COLOR_GRAY);
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_PH_MINUS_OFF):
-    disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GRAY);
-    disp_control_ph_minus_off.Set_background_color_bco(COLOR_RED);
-    disp_control_ph_minus_on.Set_background_color_bco(COLOR_GRAY);
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_PH_MINUS_ON):
-    disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GRAY);
-    disp_control_ph_minus_off.Set_background_color_bco(COLOR_GRAY);
-    disp_control_ph_minus_on.Set_background_color_bco(COLOR_ORANGE);
-    break;
-  }
+  disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GRAY);
+  disp_control_ph_plus_off.Set_background_color_bco(COLOR_GRAY);
+  disp_control_ph_plus_on.Set_background_color_bco(COLOR_ORANGE);
 }
-
-void disp_control_filter_Callback(void *ptr)
+void disp_control_ph_plus_off_Callback(void *ptr)
 {
-  NexButton *btn = (NexButton *)ptr;
-  uint16_t id = (btn->getObjPid() << 8) + btn->getObjCid();
-  switch (id)
-  {
-  case ((PID_CONTROL << 8) + CID_CONTROL_FILTER_AUTO):
-    disp_control_filter_auto.Set_background_color_bco(COLOR_GREEN);
-    disp_control_filter_off.Set_background_color_bco(COLOR_GRAY);
-    disp_control_filter_on.Set_background_color_bco(COLOR_GRAY);
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_FILTER_OFF):
-    disp_control_filter_auto.Set_background_color_bco(COLOR_GRAY);
-    disp_control_filter_off.Set_background_color_bco(COLOR_RED);
-    disp_control_filter_on.Set_background_color_bco(COLOR_GRAY);
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_FILTER_ON):
-    disp_control_filter_auto.Set_background_color_bco(COLOR_GRAY);
-    disp_control_filter_off.Set_background_color_bco(COLOR_GRAY);
-    disp_control_filter_on.Set_background_color_bco(COLOR_ORANGE);
-    break;
-  }
+  disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GRAY);
+  disp_control_ph_plus_off.Set_background_color_bco(COLOR_RED);
+  disp_control_ph_plus_on.Set_background_color_bco(COLOR_GRAY);
 }
-
-void disp_control_cl_Callback(void *ptr)
+void disp_control_ph_minus_auto_Callback(void *ptr)
 {
-  NexButton *btn = (NexButton *)ptr;
-  uint16_t id = (btn->getObjPid() << 8) + btn->getObjCid();
-  switch (id)
-  {
-  case ((PID_CONTROL << 8) + CID_CONTROL_CL_AUTO):
-    disp_control_cl_auto.Set_background_color_bco(COLOR_GREEN);
-    disp_control_cl_off.Set_background_color_bco(COLOR_GRAY);
-    disp_control_cl_on.Set_background_color_bco(COLOR_GRAY);
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_CL_OFF):
-    disp_control_cl_auto.Set_background_color_bco(COLOR_GRAY);
-    disp_control_cl_off.Set_background_color_bco(COLOR_RED);
-    disp_control_cl_on.Set_background_color_bco(COLOR_GRAY);
-    break;
-
-  case ((PID_CONTROL << 8) + CID_CONTROL_CL_ON):
-    disp_control_cl_auto.Set_background_color_bco(COLOR_GRAY);
-    disp_control_cl_off.Set_background_color_bco(COLOR_GRAY);
-    disp_control_cl_on.Set_background_color_bco(COLOR_ORANGE);
-    break;
-  }
+  disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GREEN);
+  disp_control_ph_minus_off.Set_background_color_bco(COLOR_GRAY);
+  disp_control_ph_minus_on.Set_background_color_bco(COLOR_GRAY);
+}
+void disp_control_ph_minus_on_Callback(void *ptr)
+{
+  disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GRAY);
+  disp_control_ph_minus_off.Set_background_color_bco(COLOR_GRAY);
+  disp_control_ph_minus_on.Set_background_color_bco(COLOR_ORANGE);
+}
+void disp_control_ph_minus_off_Callback(void *ptr)
+{
+  disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GRAY);
+  disp_control_ph_minus_off.Set_background_color_bco(COLOR_RED);
+  disp_control_ph_minus_on.Set_background_color_bco(COLOR_GRAY);
+}
+void disp_control_cl_auto_Callback(void *ptr)
+{
+  disp_control_cl_auto.Set_background_color_bco(COLOR_GREEN);
+  disp_control_cl_off.Set_background_color_bco(COLOR_GRAY);
+  disp_control_cl_on.Set_background_color_bco(COLOR_GRAY);
+}
+void disp_control_cl_on_Callback(void *ptr)
+{
+  disp_control_cl_auto.Set_background_color_bco(COLOR_GRAY);
+  disp_control_cl_off.Set_background_color_bco(COLOR_GRAY);
+  disp_control_cl_on.Set_background_color_bco(COLOR_ORANGE);
+}
+void disp_control_cl_off_Callback(void *ptr)
+{
+  disp_control_cl_auto.Set_background_color_bco(COLOR_GRAY);
+  disp_control_cl_off.Set_background_color_bco(COLOR_RED);
+  disp_control_cl_on.Set_background_color_bco(COLOR_GRAY);
+}
+void disp_control_filter_auto_Callback(void *ptr)
+{
+  disp_control_filter_auto.Set_background_color_bco(COLOR_GREEN);
+  disp_control_filter_off.Set_background_color_bco(COLOR_GRAY);
+  disp_control_filter_on.Set_background_color_bco(COLOR_GRAY);
+}
+void disp_control_filter_on_Callback(void *ptr)
+{
+  disp_control_filter_auto.Set_background_color_bco(COLOR_GRAY);
+  disp_control_filter_off.Set_background_color_bco(COLOR_GRAY);
+  disp_control_filter_on.Set_background_color_bco(COLOR_ORANGE);
+}
+void disp_control_filter_off_Callback(void *ptr)
+{
+  disp_control_filter_auto.Set_background_color_bco(COLOR_GRAY);
+  disp_control_filter_off.Set_background_color_bco(COLOR_RED);
+  disp_control_filter_on.Set_background_color_bco(COLOR_GRAY);
 }
 
 void disp_next_prev_Callback(void *ptr)
@@ -218,21 +186,21 @@ void display_init()
   disp_options.attachPush(disp_enter_options_Callback, &disp_options);
   disp_options_ok.attachPush(disp_options_ok_Callback, &disp_options_ok);
 
-  disp_control_cl_auto.attachPush(disp_control_cl_Callback, &disp_control_cl_auto);
-  disp_control_cl_on.attachPush(disp_control_cl_Callback, &disp_control_cl_on);
-  disp_control_cl_off.attachPush(disp_control_cl_Callback, &disp_control_cl_off);
+  disp_control_cl_auto.attachPush(disp_control_cl_auto_Callback, &disp_control_cl_auto);
+  disp_control_cl_on.attachPush(disp_control_cl_on_Callback, &disp_control_cl_on);
+  disp_control_cl_off.attachPush(disp_control_cl_off_Callback, &disp_control_cl_off);
 
-  disp_control_ph_minus_auto.attachPush(disp_control_ph_minus_Callback, &disp_control_ph_minus_auto);
-  disp_control_ph_minus_on.attachPush(disp_control_ph_minus_Callback, &disp_control_ph_minus_on);
-  disp_control_ph_minus_off.attachPush(disp_control_ph_minus_Callback, &disp_control_ph_minus_off);
+  disp_control_ph_minus_auto.attachPush(disp_control_ph_minus_auto_Callback, &disp_control_ph_minus_auto);
+  disp_control_ph_minus_on.attachPush(disp_control_ph_minus_on_Callback, &disp_control_ph_minus_on);
+  disp_control_ph_minus_off.attachPush(disp_control_ph_minus_off_Callback, &disp_control_ph_minus_off);
 
-  disp_control_ph_plus_auto.attachPush(disp_control_ph_plus_Callback, &disp_control_ph_plus_auto);
-  disp_control_ph_plus_on.attachPush(disp_control_ph_plus_Callback, &disp_control_ph_plus_on);
-  disp_control_ph_plus_off.attachPush(disp_control_ph_plus_Callback, &disp_control_ph_plus_off);
+  disp_control_ph_plus_auto.attachPush(disp_control_ph_plus_auto_Callback, &disp_control_ph_plus_auto);
+  disp_control_ph_plus_on.attachPush(disp_control_ph_plus_on_Callback, &disp_control_ph_plus_on);
+  disp_control_ph_plus_off.attachPush(disp_control_ph_plus_off_Callback, &disp_control_ph_plus_off);
 
-  disp_control_filter_auto.attachPush(disp_control_filter_Callback, &disp_control_filter_auto);
-  disp_control_filter_on.attachPush(disp_control_filter_Callback, &disp_control_filter_on);
-  disp_control_filter_off.attachPush(disp_control_filter_Callback, &disp_control_filter_off);
+  disp_control_filter_auto.attachPush(disp_control_filter_auto_Callback, &disp_control_filter_auto);
+  disp_control_filter_on.attachPush(disp_control_filter_on_Callback, &disp_control_filter_on);
+  disp_control_filter_off.attachPush(disp_control_filter_off_Callback, &disp_control_filter_off);
 
   page_boot.show();
 }
@@ -318,7 +286,7 @@ void disp_options_to_parameters(void)
   parameters.timer_prog = disp_disp_to_timer_prog_value();
 }
 
-uint32_t disp_timer_prog_to_display(uint32_t timer_prog)
+void disp_timer_prog_to_display(uint32_t timer_prog)
 {
   disp_otions_0h.setValue((timer_prog >> 0) & 0x01);
   disp_otions_1h.setValue((timer_prog >> 1) & 0x01);
@@ -433,4 +401,17 @@ void disp_measures_to_display(void)
   {
     disp_led_level_water.setPic(ID_IMAGE_RED);
   }
+}
+
+void disp_measures_to_graph(void)
+{
+  uint8_t val;
+  val = map(measures.ph, 0, 9, 0, 150);
+  disp_graph_ph.addValue(0, val);
+  val = map(measures.orp, 0, 9, 0, 150);
+  disp_graph_orp.addValue(0, val);
+  val = map(measures.water_temperature, 0, 9, 0, 150);
+  disp_graph_temp.addValue(0, val);
+  val = map(measures.pump_pressure, 0, 9, 0, 150);
+  disp_graph_press.addValue(0, val);
 }

@@ -4,12 +4,15 @@
 #include "config.h"
 #include "measures.h"
 #include "parameters.h"
+#include "timer.h"
 
 enum filter_mode_t filter_mode = FILTER_AUTO;
 
+
+
 void filter_control_init(void)
 {
-
+	
 }
 
 void filter_control_loop(void)

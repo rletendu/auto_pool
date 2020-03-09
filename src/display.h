@@ -20,5 +20,20 @@ void display_loop(void);
 void disp_page_ota();
 void disp_ota_progress(uint8_t progress);
 void disp_parameters_to_display(void);
+void disp_measures_to_display(void);
+void disp_measures_to_graph(void);
+
+void disp_control_ph_plus_auto_Callback(void *ptr);
+void disp_control_ph_plus_on_Callback(void *ptr);
+void disp_control_ph_plus_off_Callback(void *ptr);
+void disp_control_ph_minus_auto_Callback(void *ptr);
+void disp_control_ph_minus_on_Callback(void *ptr);
+void disp_control_ph_minus_off_Callback(void *ptr);
+void disp_control_cl_auto_Callback(void *ptr);
+void disp_control_cl_on_Callback(void *ptr);
+void disp_control_cl_off_Callback(void *ptr);
+void disp_control_filter_auto_Callback(void *ptr);
+void disp_control_filter_on_Callback(void *ptr);
+void disp_control_filter_off_Callback(void *ptr);
 
 #endif

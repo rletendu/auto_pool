@@ -47,9 +47,8 @@ void board_init()
   dht.begin();
   ds18b20.begin();
   ads.begin();
-  ads.setGain(GAIN_ONE);        // 1x gain   +/- 4.096V  1 bit =  0.125mV
+  ads.setGain(GAIN_ONE); // 1x gain   +/- 4.096V  1 bit =  0.125mV
   display_init();
-  
 
   printA(F("DHT Temperature : "));
   printlnA(dht_get_temperature());
@@ -62,8 +61,6 @@ void board_init()
 
   printA(F("Pump Pressure : "));
   printlnA(pump_filtration_get_pressure());
-
-
 }
 
 float dht_get_temperature(void)
@@ -95,7 +92,7 @@ float dht_get_humidity(void)
 float rtc_get_temperature(void)
 {
   float t = rtc.getTemperature();
-  
+
   if (t == NAN || t > 100 || t < -100)
   {
     return 255;
@@ -114,20 +111,19 @@ bool rtc_set_time(struct tm time)
   rtc.setYear(time.tm_year);
   rtc.setMonth(time.tm_mon);
   rtc.setDoW(time.tm_mday);
+  return true;
 }
 
 uint8_t rtc_get_hour(void)
 {
-  bool h12,PM;
-  return rtc.getHour(h12,PM);
+  bool h12, PM;
+  return rtc.getHour(h12, PM);
 }
-
 
 uint8_t ds18_count(void)
 {
   return ds18b20.getDeviceCount();
 }
-
 
 float ds18_get_temperature(uint8_t index)
 {
@@ -153,16 +149,16 @@ float water_get_ph(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_PH);
-  float vout =(adc*0.125);
-  return 3.56*vout-1.889;
+  float vout = (adc * 0.125);
+  return 3.56 * vout - 1.889;
 }
 
 float water_get_orp(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_CL);
-  float vout =(adc*0.125);
-  return (2.5-vout)/1.037;
+  float vout = (adc * 0.125);
+  return (2.5 - vout) / 1.037;
 }
 
 float pump_filtration_get_pressure(void)
@@ -172,10 +168,11 @@ float pump_filtration_get_pressure(void)
   printA(F("Pressure ADC Code : "));
   printlnA(adc);
   // Gain x1 1 bit =  0.125mV
-  float vout =(adc*0.125);
-  if (vout < 0.5) {
+  float vout = (adc * 0.125);
+  if (vout < 0.5)
+  {
     vout = 0;
   }
-  float p = 10*((vout)-(0.5)/(0.6667*5));
+  float p = 10 * ((vout) - (0.5) / (0.6667 * 5));
   return p;
 }

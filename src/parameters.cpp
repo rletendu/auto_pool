@@ -109,4 +109,7 @@ void parameters_set_default(void)
   parameters.flow_cl = 25.0;
   parameters.flow_ph_minus = 25.0;
   parameters.flow_ph_plus = 25.0;
+  parameters.filter_auto_mode = AUTO_TIMER_PROG;
+  parameters.timer_prog=0;
+  parameters.pressure_warning=1.9;
 }
