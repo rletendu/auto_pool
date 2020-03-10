@@ -11,6 +11,7 @@
 #include "ph_control.h"
 #include "filter_control.h"
 #include "cli.h"
+#include "measures.h"
 
 #include "parameters.h"
 #include "mqtt.h"
@@ -67,6 +68,7 @@ void setup()
   filter_control_init();
   orp_control_init();
   ph_control_init();
+  measures_init();
 
   //save the custom parameters to FS
   if (is_should_save_config())
@@ -75,6 +77,7 @@ void setup()
     parameters_write_json();
   }
   task = timer_pool.every(500, toggle_led);
+  printlnA(F("Init Done..."));
 }
 
 volatile unsigned long tmp = 0;
@@ -84,13 +87,18 @@ unsigned long duration;
 void loop()
 {
   ota_loop();
+  measures_loop();
+  
   display_loop();
   mqtt_loop();
+  
   cli_loop();
 
   timer_pool.tick(); // tick the timer
+  
   if (cpt > 10)
   {
     timer_pool.cancel(task);
   }
+  
 }

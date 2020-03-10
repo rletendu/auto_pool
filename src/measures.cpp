@@ -53,10 +53,12 @@ void measures_to_json_string(void)
     json["level_ph_plus"] = measures.level_ph_plus;
     json["level_water"] = measures.level_water;
     json.printTo(measures_json_string);
+    json.printTo(Serial);
 }
 
 void measures_init(void)
 {
+    printlnA(F("Mesures Init"));
     update_measures_task = timer_pool.every(MEASURES_UPDATE_MS, update_measures);
     update_graph_task = timer_pool.every(GRAPH_UPDATE_MS, update_graph);
 }

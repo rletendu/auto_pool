@@ -41,7 +41,7 @@ void board_init()
   pinMode(PIN_FLOW, INPUT);
 
   buzzer_on();
-  delay(10);
+  //  delay(10);
   buzzer_off();
 
   dht.begin();
@@ -149,15 +149,16 @@ float water_get_ph(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_PH);
-  float vout = (adc * 0.125);
-  return 3.56 * vout - 1.889;
+  float vout = (adc * 0.125)/1000;
+  //return 3.56 * vout - 1.889;
+  return 7.3;
 }
 
 float water_get_orp(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_CL);
-  float vout = (adc * 0.125);
+  float vout = (adc * 0.125)/1000;
   return (2.5 - vout) / 1.037;
 }
 
@@ -168,11 +169,14 @@ float pump_filtration_get_pressure(void)
   printA(F("Pressure ADC Code : "));
   printlnA(adc);
   // Gain x1 1 bit =  0.125mV
-  float vout = (adc * 0.125);
-  if (vout < 0.5)
+  double vout = (adc * 0.125)/1000;
+  if (vout < .500)
   {
-    vout = 0;
+    vout = .500;
   }
-  float p = 10 * ((vout) - (0.5) / (0.6667 * 5));
-  return p;
+  printA(F("Pressure Vout : "));
+  printlnA(vout);
+  
+  double p = 10 * ((vout-.500) / (0.6667 * 5));
+  return (float)p;
 }

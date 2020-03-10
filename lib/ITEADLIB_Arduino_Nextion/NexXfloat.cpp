@@ -26,10 +26,9 @@ bool NexXfloat::getValue(float *number)
     bool ret;
     String cmd_alt = String("get ");
     cmd_alt += getObjName();
-    cmd_alt += ".ws1";
+    cmd_alt += ".vvs1";
     sendCommand(cmd_alt.c_str());
     recvRetNumber(&nb_ptleft);
-
     String cmd = String("get ");
     cmd += getObjName();
     cmd += ".val";
@@ -46,7 +45,7 @@ bool NexXfloat::setValue(float number)
     bool ret;
     String cmd_alt = String("get ");
     cmd_alt += getObjName();
-    cmd_alt += ".ws1";
+    cmd_alt += ".vvs1";
     sendCommand(cmd_alt.c_str());
     recvRetNumber(&nb_ptleft);
     char buf[10] = {0};

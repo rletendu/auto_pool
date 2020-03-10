@@ -13,7 +13,7 @@ enum orp_mode_t
 	ORP_AUTO = 2,
 };
 
-enum or_control_state_t
+enum orp_control_state_t
 {
     ORP_IDLE = 0,
 };

@@ -212,7 +212,7 @@ bool recvRetCommandFinished(uint32_t timeout)
     {
         dbSerialPrintln("recvRetCommandFinished err");
     }
-    
+    delay(10);
     return ret;
 }
 

@@ -110,7 +110,7 @@ public:
 
             if (task->handler)
             {
-                const unsigned long t = time_func();
+                const unsigned long t = millis();
                 const unsigned long duration = t - task->start;
 
                 if (duration >= task->expires)
