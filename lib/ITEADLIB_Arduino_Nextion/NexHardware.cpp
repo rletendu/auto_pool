@@ -45,7 +45,7 @@
 bool recvRetNumber(uint32_t *number, uint32_t timeout)
 {
     bool ret = false;
-    uint8_t temp[8] = {0};
+    uint8_t temp[12] = {0};
 
     if (!number)
     {
@@ -53,6 +53,7 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
     }
     
     nexSerial.setTimeout(timeout);
+    
     if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
     {
         goto __return;
@@ -77,9 +78,11 @@ __return:
     }
     else
     {
-        dbSerialPrintln("recvRetNumber err");
+        dbSerialPrint("recvRetNumber err : ");
+        for (int j=0;j<8;j++) dbSerialPrintln(temp[j]);
+        dbSerialPrintln();
     }
-    delay(10);
+    delay(NEXT_DELAY_RETURN);
     return ret;
 }
 
@@ -152,7 +155,7 @@ __return:
     dbSerialPrint(",");
     dbSerialPrint(temp);
     dbSerialPrintln("]");
-
+    delay(NEXT_DELAY_RETURN);
     return ret;
 }
 
@@ -188,12 +191,14 @@ bool recvRetCommandFinished(uint32_t timeout)
 {    
     bool ret = false;
     uint8_t temp[4] = {0};
+    uint8_t nb_read;
     
     nexSerial.setTimeout(timeout);
-			
-    if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
+	nb_read = nexSerial.readBytes((char *)temp, sizeof(temp));		
+    if (sizeof(temp) != nb_read )
     {
         ret = false;
+        dbSerialPrint("recvRetCommand ErrorRead : ");
     }
     if (temp[0] == NEX_RET_CMD_FINISHED
         && temp[1] == 0xFF
@@ -210,9 +215,11 @@ bool recvRetCommandFinished(uint32_t timeout)
     }
     else
     {
-        dbSerialPrintln("recvRetCommandFinished err");
+        dbSerialPrint("recvRetCommandFinished err : ");
+        for (int j=0;j<4;j++) dbSerialPrint(temp[j]);
+        dbSerialPrintln();
     }
-    delay(10);
+    delay(NEXT_DELAY_RETURN);
     return ret;
 }
 
@@ -227,21 +234,17 @@ bool nexInit(int baud)
 {
     bool ret1 = false;
     bool ret2 = false;
+    bool reset_ok = false;
     
-    dbSerialBegin(baud);
-    nexSerial.begin(9600);
-    sendCommand("");
+retry_reset:
+    nexSerial.begin(115200);
+    delay(100);
+    //sendCommand("rest");
+    //recvRetCommandFinished(100);
+    delay(1);
     sendCommand("bkcmd=1");
     ret1 = recvRetCommandFinished();
-    sendCommand("");
-    sendCommand("baud=115200");
-    recvRetCommandFinished();
-    nexSerial.flush();
-    nexSerial.end();
-    nexSerial.begin(115200);
-    sendCommand("page 0");
-    ret2 = recvRetCommandFinished();
-    return ret1 && ret2;
+    delay(1);
 }
 
 void nexLoop(NexTouch *nex_listen_list[])

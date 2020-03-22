@@ -1,3 +1,4 @@
+#include "config.h"
 #include "board.h"
 //#include <arduino.h>
 #include "display.h"
@@ -20,6 +21,9 @@ Adafruit_ADS1115 ads;
 void board_init()
 {
   Wire.begin();
+#ifdef DEBUG_PIN1
+  pinMode(DEBUG_PIN1, OUTPUT);
+#endif
 
   pinMode(PIN_LED0, OUTPUT);
   pinMode(PIN_LED1, OUTPUT);
@@ -149,17 +153,19 @@ float water_get_ph(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_PH);
-  float vout = (adc * 0.125)/1000;
-  //return 3.56 * vout - 1.889;
-  return 7.3;
+  double vout = (adc * 0.125) / 1000;
+  double ph = 3.56 * vout - 1.889;
+  if (ph<0) {ph=0;}
+  return (float)ph;
 }
 
 float water_get_orp(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_CL);
-  float vout = (adc * 0.125)/1000;
-  return (2.5 - vout) / 1.037;
+  double vout = (adc * 0.125) / 1000;
+  double orp = (2.5 - vout) / 1.037;
+  return (float)orp;
 }
 
 float pump_filtration_get_pressure(void)
@@ -169,14 +175,14 @@ float pump_filtration_get_pressure(void)
   printA(F("Pressure ADC Code : "));
   printlnA(adc);
   // Gain x1 1 bit =  0.125mV
-  double vout = (adc * 0.125)/1000;
+  double vout = (adc * 0.125) / 1000;
   if (vout < .500)
   {
     vout = .500;
   }
   printA(F("Pressure Vout : "));
   printlnA(vout);
-  
-  double p = 10 * ((vout-.500) / (0.6667 * 5));
+
+  double p = 10 * ((vout - .500) / (0.6667 * 5));
   return (float)p;
 }

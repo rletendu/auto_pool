@@ -17,6 +17,8 @@ void measures_to_json_string(void);
 
 bool update_measures(void *)
 {
+    debug_pin1_on();
+    led0_toggle();
     measures.system_temperature = dht_get_temperature();
     measures.system_humidity = dht_get_humidity();
     measures.water_temperature = water_get_temperature();
@@ -29,6 +31,7 @@ bool update_measures(void *)
     measures.level_water = level_water_is_ok();
     measures_to_json_string();
     disp_measures_to_display();
+    debug_pin1_off();
     return true;
 }
 
@@ -61,7 +64,9 @@ void measures_init(void)
     printlnA(F("Mesures Init"));
     update_measures_task = timer_pool.every(MEASURES_UPDATE_MS, update_measures);
     update_graph_task = timer_pool.every(GRAPH_UPDATE_MS, update_graph);
+    update_measures(NULL);
 }
+
 void measures_loop(void)
 {
 }

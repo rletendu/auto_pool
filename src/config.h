@@ -15,6 +15,6 @@
 #define MEASURES_UPDATE_MS 2000
 #define GRAPH_UPDATE_MS 5000
 
-
+#define DEBUG_PIN1 PIN_EXT1
 
 #endif

@@ -174,7 +174,9 @@ NexTouch *nex_listen_list[] =
 
 void display_init()
 {
+  printlnA(F("Display Init"));
   nexInit();
+  printlnA(F("Display CallBack Init"));
   disp_next_status.attachPush(disp_next_prev_Callback, &disp_next_status);
   disp_prev_status.attachPush(disp_next_prev_Callback, &disp_prev_status);
   disp_next_control.attachPush(disp_next_prev_Callback, &disp_next_control);
@@ -201,8 +203,10 @@ void display_init()
   disp_control_filter_auto.attachPush(disp_control_filter_auto_Callback, &disp_control_filter_auto);
   disp_control_filter_on.attachPush(disp_control_filter_on_Callback, &disp_control_filter_on);
   disp_control_filter_off.attachPush(disp_control_filter_off_Callback, &disp_control_filter_off);
-
+  printlnA(F("Display Display boot page"));
   page_boot.show();
+  delay(2000);
+  printlnA(F("Display Init Done"));
 }
 
 void display_loop(void)
@@ -401,6 +405,7 @@ void disp_measures_to_display(void)
   {
     disp_led_level_water.setPic(ID_IMAGE_RED);
   }
+  
 }
 
 void disp_measures_to_graph(void)

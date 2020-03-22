@@ -3,6 +3,7 @@
 #define __BOARD_H__
 
 #include <Arduino.h>
+#include "config.h"
 
 #define PIN_LED0 2
 #define PIN_LED1 12
@@ -91,6 +92,12 @@ inline bool pump_ph_plus_is_on(void) { return digitalRead(PIN_RELAY_PUMP_PH_P) =
 inline void pump_cl_on(void) { digitalWrite(PIN_RELAY_PUMP_CL, PUMP_ACTIVE_VALUE); }
 inline void pump_cl_off(void) { digitalWrite(PIN_RELAY_PUMP_CL, PUMP_INACTIVE_VALUE); }
 inline bool pump_cl_is_on(void) { return digitalRead(PIN_RELAY_PUMP_CL) == PUMP_ACTIVE_VALUE ? true : false; }
+
+
+
+inline void debug_pin1_off(void) { digitalWrite(DEBUG_PIN1, false); }
+inline void debug_pin1_on(void) { digitalWrite(DEBUG_PIN1, true); }
+inline void debug_pin1_toggle(void) { digitalWrite(DEBUG_PIN1, !digitalRead(DEBUG_PIN1)); }
 
 inline void pump_all_off(void)
 {
