@@ -164,7 +164,7 @@ float water_get_orp(void)
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_CL);
   double vout = (adc * 0.125) / 1000;
-  double orp = (2.5 - vout) / 1.037;
+  double orp = 1000*((2.5 - vout) / 1.037);
   return (float)orp;
 }
 
@@ -172,17 +172,12 @@ float pump_filtration_get_pressure(void)
 {
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_PRESSURE);
-  printA(F("Pressure ADC Code : "));
-  printlnA(adc);
   // Gain x1 1 bit =  0.125mV
   double vout = (adc * 0.125) / 1000;
   if (vout < .500)
   {
     vout = .500;
   }
-  printA(F("Pressure Vout : "));
-  printlnA(vout);
-
   double p = 10 * ((vout - .500) / (0.6667 * 5));
   return (float)p;
 }

@@ -89,6 +89,9 @@ void parameters_write_json(void)
   {
     printlnA(F("failed to open config file for writing"));
   }
+  printlnA("Parameter Json:");
+  json.printTo(Serial);
+  printlnA("");
   json.printTo(Serial);
   json.printTo(configFile);
   json.printTo(parameters_json_string);
@@ -110,6 +113,6 @@ void parameters_set_default(void)
   parameters.flow_ph_minus = 25.0;
   parameters.flow_ph_plus = 25.0;
   parameters.filter_auto_mode = AUTO_TIMER_PROG;
-  parameters.timer_prog=0;
-  parameters.pressure_warning=1.9;
+  parameters.timer_prog = 0;
+  parameters.pressure_warning = 1.9;
 }

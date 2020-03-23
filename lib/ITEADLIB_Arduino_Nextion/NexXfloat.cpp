@@ -50,7 +50,7 @@ bool NexXfloat::setValue(float number)
     recvRetNumber(&nb_ptleft);
     char buf[10] = {0};
     String cmd;
-    utoa((uint32_t)(number*pow(10,nb_ptleft)), buf, 10);
+    itoa((int32_t)(number*pow(10,nb_ptleft)), buf, 10);
     cmd += getObjName();
     cmd += ".val=";
     cmd += buf;
