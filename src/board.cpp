@@ -20,6 +20,7 @@ Adafruit_ADS1115 ads;
 
 void board_init()
 {
+  uint8_t current_page=0;
   Wire.begin();
 #ifdef DEBUG_PIN1
   pinMode(DEBUG_PIN1, OUTPUT);
@@ -53,6 +54,7 @@ void board_init()
   ads.begin();
   ads.setGain(GAIN_ONE); // 1x gain   +/- 4.096V  1 bit =  0.125mV
   display_init();
+  
 
   printA(F("DHT Temperature : "));
   printlnA(dht_get_temperature());
@@ -65,6 +67,12 @@ void board_init()
 
   printA(F("Pump Pressure : "));
   printlnA(pump_filtration_get_pressure());
+  /*
+  while(current_page!=2) {
+    GetPageId(&current_page);
+  }
+  */
+
 }
 
 float dht_get_temperature(void)

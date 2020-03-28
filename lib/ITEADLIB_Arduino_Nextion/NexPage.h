@@ -23,7 +23,7 @@
  * @addtogroup Component 
  * @{ 
  */
-
+bool GetPageId(uint8_t *page_id);
 /**
  * A special component , which can contain other components such as NexButton, 
  * NexText and NexWaveform, etc. 

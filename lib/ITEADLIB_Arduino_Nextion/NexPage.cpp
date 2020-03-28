@@ -36,3 +36,13 @@ bool NexPage::show(void)
     return recvRetCommandFinished();
 }
 
+bool GetPageId(uint8_t *page_id)
+{
+    uint32_t nb_ptleft;
+    uint32_t val;
+    bool ret;
+    String cmd_alt = String("sendme");
+    sendCommand(cmd_alt.c_str());
+    ret = recvRetPageId(page_id);
+    return ret; 
+}

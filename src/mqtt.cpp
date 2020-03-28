@@ -78,6 +78,17 @@ void mqtt_publish_measures()
 	}
 }
 
+void mqtt_publish_state()
+{
+	char topic[40];
+	strcpy(topic, parameters.mqtt_base_topic);
+	strcat(topic, "/STATE");
+	if (mqtt_client.connected())
+	{
+		mqtt_client.publish(topic, measures_json_string);
+	}
+}
+
 void mqtt_loop()
 {
 	if (!mqtt_client.connected())
@@ -89,3 +100,4 @@ void mqtt_loop()
 		mqtt_client.loop();
 	}
 }
+

@@ -3,6 +3,7 @@
 #include "display_components.h"
 
 
+
 NexPage page_boot = NexPage(PID_BOOT, 0, "boot");
 NexPage page_status = NexPage(PID_STATUS, 0, "status");
 NexPage page_control = NexPage(PID_CONTROL, 0, "control");

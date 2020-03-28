@@ -1,6 +1,7 @@
 #include "board.h"
 #include "display.h"
 #include "display_components.h"
+#include "display_ctrl.h"
 #include <Nextion.h>
 #include <SerialDebug.h>
 #include "measures.h"
@@ -30,78 +31,6 @@ void disp_enter_options_Callback(void *ptr)
   disp_parameters_to_display();
 }
 
-void disp_control_ph_plus_auto_Callback(void *ptr)
-{
-  disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GREEN);
-  disp_control_ph_plus_off.Set_background_color_bco(COLOR_GRAY);
-  disp_control_ph_plus_on.Set_background_color_bco(COLOR_GRAY);
-}
-void disp_control_ph_plus_on_Callback(void *ptr)
-{
-  disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GRAY);
-  disp_control_ph_plus_off.Set_background_color_bco(COLOR_GRAY);
-  disp_control_ph_plus_on.Set_background_color_bco(COLOR_ORANGE);
-}
-void disp_control_ph_plus_off_Callback(void *ptr)
-{
-  disp_control_ph_plus_auto.Set_background_color_bco(COLOR_GRAY);
-  disp_control_ph_plus_off.Set_background_color_bco(COLOR_RED);
-  disp_control_ph_plus_on.Set_background_color_bco(COLOR_GRAY);
-}
-void disp_control_ph_minus_auto_Callback(void *ptr)
-{
-  disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GREEN);
-  disp_control_ph_minus_off.Set_background_color_bco(COLOR_GRAY);
-  disp_control_ph_minus_on.Set_background_color_bco(COLOR_GRAY);
-}
-void disp_control_ph_minus_on_Callback(void *ptr)
-{
-  disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GRAY);
-  disp_control_ph_minus_off.Set_background_color_bco(COLOR_GRAY);
-  disp_control_ph_minus_on.Set_background_color_bco(COLOR_ORANGE);
-}
-void disp_control_ph_minus_off_Callback(void *ptr)
-{
-  disp_control_ph_minus_auto.Set_background_color_bco(COLOR_GRAY);
-  disp_control_ph_minus_off.Set_background_color_bco(COLOR_RED);
-  disp_control_ph_minus_on.Set_background_color_bco(COLOR_GRAY);
-}
-void disp_control_cl_auto_Callback(void *ptr)
-{
-  disp_control_cl_auto.Set_background_color_bco(COLOR_GREEN);
-  disp_control_cl_off.Set_background_color_bco(COLOR_GRAY);
-  disp_control_cl_on.Set_background_color_bco(COLOR_GRAY);
-}
-void disp_control_cl_on_Callback(void *ptr)
-{
-  disp_control_cl_auto.Set_background_color_bco(COLOR_GRAY);
-  disp_control_cl_off.Set_background_color_bco(COLOR_GRAY);
-  disp_control_cl_on.Set_background_color_bco(COLOR_ORANGE);
-}
-void disp_control_cl_off_Callback(void *ptr)
-{
-  disp_control_cl_auto.Set_background_color_bco(COLOR_GRAY);
-  disp_control_cl_off.Set_background_color_bco(COLOR_RED);
-  disp_control_cl_on.Set_background_color_bco(COLOR_GRAY);
-}
-void disp_control_filter_auto_Callback(void *ptr)
-{
-  disp_control_filter_auto.Set_background_color_bco(COLOR_GREEN);
-  disp_control_filter_off.Set_background_color_bco(COLOR_GRAY);
-  disp_control_filter_on.Set_background_color_bco(COLOR_GRAY);
-}
-void disp_control_filter_on_Callback(void *ptr)
-{
-  disp_control_filter_auto.Set_background_color_bco(COLOR_GRAY);
-  disp_control_filter_off.Set_background_color_bco(COLOR_GRAY);
-  disp_control_filter_on.Set_background_color_bco(COLOR_ORANGE);
-}
-void disp_control_filter_off_Callback(void *ptr)
-{
-  disp_control_filter_auto.Set_background_color_bco(COLOR_GRAY);
-  disp_control_filter_off.Set_background_color_bco(COLOR_RED);
-  disp_control_filter_on.Set_background_color_bco(COLOR_GRAY);
-}
 
 void disp_next_prev_Callback(void *ptr)
 {

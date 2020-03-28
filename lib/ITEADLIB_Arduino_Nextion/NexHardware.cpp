@@ -224,6 +224,56 @@ bool recvRetCommandFinished(uint32_t timeout)
     return ret;
 }
 
+/*
+ * Receive page id. 
+ * 
+ * @param number - save uint32_t data. 
+ * @param timeout - set timeout time. 
+ *
+ * @retval true - success. 
+ * @retval false - failed.
+ *
+ */
+bool recvRetPageId(uint8_t *page_id, uint32_t timeout)
+{
+    bool ret = false;
+    uint8_t temp[2] = {0};
+    uint8_t nb_read;
+
+    if (!page_id)
+    {
+        goto __return;
+    }
+    
+    nexSerial.setTimeout(timeout);
+    nb_read = nexSerial.readBytes((char *)temp, sizeof(temp));
+    if (sizeof(temp) != nb_read )
+    {
+        goto __return;
+    }
+
+    if (temp[0] == NEX_RET_CURRENT_PAGE_ID_HEAD
+        )
+    {
+        *page_id = (temp[1]);
+        ret = true;
+    }
+
+__return:
+
+    if (ret) 
+    {
+        dbSerialPrint("recvRetPageId :");
+        dbSerialPrintln(*page_id);
+    }
+    else
+    {
+        dbSerialPrint("recvRetPageId err : ");
+
+    }
+    delay(NEXT_DELAY_RETURN);
+}
+ 
 
 bool nexInit()
 {

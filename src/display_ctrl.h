@@ -1,28 +1,17 @@
+#ifndef __DISPLAY_CTRL_H__
+#define __DISPLAY_CTRL_H__
 
-#ifndef __DISPLAY_H__
-#define __DISPLAY_H__
 
-#include "display_ctrl.h"
+#include "board.h"
+#include "display.h"
+#include "display_components.h"
+#include <Nextion.h>
+#include <SerialDebug.h>
+#include "measures.h"
+#include "mqtt.h"
+#include "parameters.h"
 
-enum display_page_t
-{
-    PAGE_BOOT,
-    PAGE_STATUS,
-    PAGE_CONTROL,
-    PAGE_GRAPH,
-    PAGE_LOG,
-    PAGE_OPTIONS,
-    PAGE_OTA
-};
 
-void display_init(void);
-void display_loop(void);
-
-void disp_page_ota();
-void disp_ota_progress(uint8_t progress);
-void disp_parameters_to_display(void);
-void disp_measures_to_display(void);
-void disp_measures_to_graph(void);
 
 void disp_control_ph_plus_auto_Callback(void *ptr);
 void disp_control_ph_plus_on_Callback(void *ptr);
@@ -36,5 +25,16 @@ void disp_control_cl_off_Callback(void *ptr);
 void disp_control_filter_auto_Callback(void *ptr);
 void disp_control_filter_on_Callback(void *ptr);
 void disp_control_filter_off_Callback(void *ptr);
+void control_ph_plus_auto(void);
+void control_ph_plus_on(void);
+void control_ph_minus_auto(void);
+void control_ph_minus_on(void);
+void control_ph_minus_off(void);
+void control_cl_auto(void);
+void control_cl_on(void);
+void control_cl_off(void);
+void control_filter_auto(void);
+void control_filter_on_(void);
+void control_filter_off(void);
 
 #endif

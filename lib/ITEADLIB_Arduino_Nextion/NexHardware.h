@@ -54,5 +54,6 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout = 100);
 uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout = 100);
 void sendCommand(const char* cmd);
 bool recvRetCommandFinished(uint32_t timeout = 100);
+bool recvRetPageId(uint8_t *page_id, uint32_t timeout = 100);
 
 #endif /* #ifndef __NEXHARDWARE_H__ */
