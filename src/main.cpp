@@ -93,6 +93,7 @@ void loop()
   mqtt_loop();
   
   cli_loop();
+  filter_control_loop();
 
   timer_pool.tick(); // tick the timer
   

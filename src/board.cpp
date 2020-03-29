@@ -20,7 +20,7 @@ Adafruit_ADS1115 ads;
 
 void board_init()
 {
-  uint8_t current_page=0;
+  uint8_t current_page = 0;
   Wire.begin();
 #ifdef DEBUG_PIN1
   pinMode(DEBUG_PIN1, OUTPUT);
@@ -49,12 +49,11 @@ void board_init()
   //  delay(10);
   buzzer_off();
 
-  dht.begin();
+  dht.begin(30);
   ds18b20.begin();
   ads.begin();
   ads.setGain(GAIN_ONE); // 1x gain   +/- 4.096V  1 bit =  0.125mV
   display_init();
-  
 
   printA(F("DHT Temperature : "));
   printlnA(dht_get_temperature());
@@ -64,7 +63,6 @@ void board_init()
   printlnA(rtc_get_temperature());
   printA(F("Water Temperature : "));
   printlnA(ds18_get_temperature(0));
-
   printA(F("Pump Pressure : "));
   printlnA(pump_filtration_get_pressure());
   /*
@@ -72,15 +70,19 @@ void board_init()
     GetPageId(&current_page);
   }
   */
-
 }
 
 float dht_get_temperature(void)
 {
+read_temp:
   float t = dht.readTemperature();
-  if (t == NAN || t > 100 || t < -100)
+  if (isnan(t))
   {
-    return 255;
+    goto read_temp;
+  }
+  if ((t == NAN) || (t > 100) || (t < 0))
+  {
+    goto read_temp;
   }
   else
   {
@@ -90,10 +92,15 @@ float dht_get_temperature(void)
 
 float dht_get_humidity(void)
 {
+read_hum:
   float t = dht.readHumidity();
-  if (t == NAN || t > 100 || t < 0)
+  if (isnan(t))
   {
-    return 255;
+    goto read_hum;
+  }
+  if ((t == NAN) || (t > 100) || (t < 0))
+  {
+    goto read_hum;
   }
   else
   {
@@ -103,9 +110,9 @@ float dht_get_humidity(void)
 
 float rtc_get_temperature(void)
 {
-  float t = rtc.getTemperature();
 
-  if (t == NAN || t > 100 || t < -100)
+  float t = rtc.getTemperature();
+  if ((t == NAN) || (t > 100) || (t < 0))
   {
     return 255;
   }
@@ -163,7 +170,10 @@ float water_get_ph(void)
   adc = ads.readADC_SingleEnded(ADS_CH_PH);
   double vout = (adc * 0.125) / 1000;
   double ph = 3.56 * vout - 1.889;
-  if (ph<0) {ph=0;}
+  if (ph < 0)
+  {
+    ph = 0;
+  }
   return (float)ph;
 }
 
@@ -172,7 +182,7 @@ float water_get_orp(void)
   int16_t adc;
   adc = ads.readADC_SingleEnded(ADS_CH_CL);
   double vout = (adc * 0.125) / 1000;
-  double orp = 1000*((2.5 - vout) / 1.037);
+  double orp = 1000 * ((2.5 - vout) / 1.037);
   return (float)orp;
 }
 

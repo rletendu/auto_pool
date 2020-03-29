@@ -3,25 +3,13 @@
 
 #include <Arduino.h>
 #include "config.h"
-
-
-
-
-enum cl_mode_t
-{
-    CL_OFF = 0,
-    CL_ON = 1,
-	CL_AUTO = 2,
-};
-
-enum orp_control_state_t
-{
-    ORP_IDLE = 0,
-};
+#include "state.h"
 
 
 
 void orp_control_init(void);
 void orp_control_loop(void);
+void cl_enter_mode(enum cl_mode_t cl_mode);
+
 
 #endif

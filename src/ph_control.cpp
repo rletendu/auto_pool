@@ -5,16 +5,98 @@
 #include "parameters.h"
 #include <SerialDebug.h>
 #include "display_ctrl.h"
+#include "state.h"
 
 
 enum ph_control_state_t ph_control_state = PH_IDLE;
+
+
+
+static void ph_minus_on(void)
+{
+	pump_ph_minus_on();
+	state.ph_minus_pump = PUMP_ON;
+}
+
+static void ph_minus_off(void)
+{
+	pump_ph_minus_off();
+	state.ph_minus_pump = PUMP_OFF;
+}
+
+static void ph_plus_on(void)
+{
+	pump_ph_plus_on();
+	state.ph_minus_pump = PUMP_ON;
+}
+
+static void ph_plus_off(void)
+{
+	pump_ph_plus_off();
+	state.ph_plus_pump = PUMP_OFF;
+}
+
+void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
+{
+	switch (ph_plus_mode)
+	{
+	case PH_PLUS_AUTO:
+		control_ph_plus_auto();
+		state.ph_plus_mode = PH_PLUS_AUTO;
+		break;
+
+	case PH_PLUS_OFF:
+		control_ph_plus_off();
+		state.ph_plus_mode = PH_PLUS_OFF;
+		ph_plus_off();
+		break;
+
+	case PH_PLUS_ON:
+		control_ph_plus_on();
+		state.ph_plus_mode = PH_PLUS_ON;
+		ph_plus_on();
+		break;
+
+	default:
+		break;
+	}
+}
+
+void ph_minus_enter_mode(enum ph_minus_mode_t ph_minus_mode)
+{
+	switch (ph_minus_mode)
+	{
+	case PH_PLUS_AUTO:
+		control_ph_minus_auto();
+		state.ph_minus_mode = PH_MINUS_AUTO;
+		break;
+
+	case PH_PLUS_OFF:
+		control_ph_minus_off();
+		state.ph_minus_mode = PH_MINUS_OFF;
+		ph_minus_off();
+		break;
+
+	case PH_PLUS_ON:
+		control_ph_minus_on();
+		state.ph_minus_mode = PH_MINUS_ON;
+		ph_minus_on();
+		break;
+
+	default:
+		break;
+	}
+}
+
 
 void ph_control_init(void)
 {
 	ph_control_state = PH_IDLE;
 	printlnA(F("Ph Control Init"));
-	control_ph_minus_auto();
-    control_ph_plus_auto();
+	ph_minus_enter_mode(PH_MINUS_OFF);
+	ph_minus_enter_mode(PH_MINUS_AUTO);
+	ph_plus_enter_mode(PH_PLUS_OFF);
+	ph_plus_enter_mode(PH_PLUS_AUTO);
 }
 
 void ph_control_loop(void)
