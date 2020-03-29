@@ -21,6 +21,7 @@ NexXfloat disp_pressure = NexXfloat(PID_STATUS, CID_STATUS_PRESSURE, "status.pre
 NexXfloat disp_sys_temperature = NexXfloat(PID_STATUS, CID_STATUS_SYSTEM_TEMP, "status.sys_temp_value");
 NexXfloat disp_sys_humidity = NexXfloat(PID_STATUS, CID_STATUS_SYSTEM_HUMIDITY, "status.sys_hum_value");
 NexPicture disp_wifi = NexPicture(PID_STATUS, CID_STATUS_WIFI, "status.wifi_value");
+NexText dis_sys_hour = NexText(PID_STATUS,CID_STATUS_SYSTEM_HOUR, "status.sys_hour");
 
 NexPicture disp_led_ph = NexPicture(PID_STATUS, CID_STATUS_LED_PH, "status.ph_led");
 NexPicture disp_led_orp = NexPicture(PID_STATUS, CID_STATUS_LED_ORP, "status.orp_led");

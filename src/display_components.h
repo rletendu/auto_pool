@@ -32,6 +32,7 @@
 #define CID_STATUS_PH_MINUS_LEVEL 29
 #define CID_STATUS_SYSTEM_TEMP 33
 #define CID_STATUS_SYSTEM_HUMIDITY 37
+#define CID_STATUS_SYSTEM_HOUR 18
 
 #define CID_CONTROL_FILTER_AUTO 3
 #define CID_CONTROL_FILTER_ON 4
@@ -122,6 +123,7 @@ extern NexXfloat disp_pressure;
 extern NexXfloat disp_sys_temperature;
 extern NexXfloat disp_sys_humidity;
 extern NexPicture disp_wifi;
+extern NexText dis_sys_hour;
 
 extern NexPicture disp_led_ph;
 extern NexPicture disp_led_orp;

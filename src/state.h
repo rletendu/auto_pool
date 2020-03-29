@@ -30,6 +30,11 @@ enum filter_mode_t
     FILTER_AUTO = 2,
 };
 
+enum filter_control_state_t
+{
+	FILTER_IDLE = 0,
+};
+
 enum orp_control_state_t
 {
     ORP_IDLE = 0,
@@ -55,6 +60,8 @@ enum ph_control_state_t
     PH_IDLE = 0,
 };
 
+
+
 struct StateStructure
 {
 	enum cl_mode_t cl_mode;
@@ -68,7 +75,7 @@ struct StateStructure
 	enum pump_state_t filter_pump;
 
 	enum ph_control_state_t ph_control_state;
-	//enum filter_control_state_t filter_control_state;
+	enum filter_control_state_t filter_control_state;
 	enum orp_control_state_t orp_control_state;
 
 };
