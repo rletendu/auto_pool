@@ -139,6 +139,27 @@ uint8_t rtc_get_hour(void)
   return rtc.getHour(h12, PM);
 }
 
+uint8_t rtc_get_minute(void)
+{
+  return rtc.getMinute();
+}
+
+uint16_t rtc_get_year(void)
+{
+  return rtc.getYear();
+}
+
+uint8_t rtc_get_month(void)
+{
+  bool century=false;
+  return rtc.getMonth(century);
+}
+
+uint8_t rtc_get_day(void)
+{
+  return rtc.getDate();
+}
+
 uint8_t ds18_count(void)
 {
   return ds18b20.getDeviceCount();

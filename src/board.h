@@ -128,6 +128,11 @@ float water_get_orp(void);
 float pump_filtration_get_pressure(void);
 
 bool rtc_set_time(struct tm time);
+
 uint8_t rtc_get_hour(void);
+uint8_t rtc_get_minute(void);
+uint16_t rtc_get_year(void);
+uint8_t rtc_get_month(void);
+uint8_t rtc_get_day(void);
 
 #endif
