@@ -25,7 +25,7 @@ bool update_measures(void *)
     measures.pump_pressure = pump_filtration_get_pressure();
     measures.ph = water_get_ph();
     measures.orp = water_get_orp();
-    measures.level_cl = level_water_is_ok();
+    measures.level_cl = level_cl_is_ok();
     measures.level_ph_minus = level_ph_minus_is_ok();
     measures.level_ph_plus = level_ph_plus_is_ok();
     measures.level_water = level_water_is_ok();

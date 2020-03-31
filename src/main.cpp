@@ -12,26 +12,22 @@
 #include "filter_control.h"
 #include "cli.h"
 #include "measures.h"
-
+#include "display_components.h"
 #include "parameters.h"
 #include "mqtt.h"
-
 #include <ArduinoOTA.h>
 #include "time.h"
 #include <Nextion.h>
 
 SoftTimer timer_pool = SoftTimer();
+uintptr_t time_update_task;
 
-uintptr_t task;
 
-volatile uint32_t cpt = 0;
-
-uint16_t port;
-
-bool toggle_led(void *)
+bool time_update(void *)
 {
-  cpt++;
-  led0_toggle();
+  char msg[20];
+  sprintf(msg,"%02u/%02u§%02u %02u:%02u",rtc_get_day(),rtc_get_month(),rtc_get_year(),rtc_get_hour(),rtc_get_minute());
+  dis_sys_hour.setText(msg);
   return true; // repeat? true
 }
 
@@ -53,7 +49,6 @@ void setup()
   //parameters_format();
   board_init();
   delay(500);
-
   printlnA(F("AutoPool Starting..."));
   wifimanager_init();
   wifimanager_autoconnect();
@@ -76,7 +71,7 @@ void setup()
     printlnA(F("Need to write Json config file..."));
     parameters_write_json();
   }
-  task = timer_pool.every(500, toggle_led);
+  time_update_task = timer_pool.every(60*100, time_update);
   printlnA(F("Init Done..."));
 }
 
@@ -88,18 +83,9 @@ void loop()
 {
   ota_loop();
   measures_loop();
-  
   display_loop();
   mqtt_loop();
-  
   cli_loop();
   filter_control_loop();
-
   timer_pool.tick(); // tick the timer
-  
-  if (cpt > 10)
-  {
-    timer_pool.cancel(task);
-  }
-  
 }
