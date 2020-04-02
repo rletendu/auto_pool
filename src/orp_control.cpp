@@ -52,7 +52,7 @@ void cl_enter_mode(enum cl_mode_t orp_mode)
 
 void orp_control_init(void)
 {
-    printlnA(F("ORP Control Init"));
+	printlnA(F("ORP Control Init"));
 
 	cl_enter_mode(CL_OFF);
 	cl_enter_mode(CL_AUTO);
@@ -61,7 +61,6 @@ void orp_control_init(void)
 
 void orp_control_loop(void)
 {
-
 }
 
 bool orp_control_update(void *)
@@ -70,8 +69,6 @@ bool orp_control_update(void *)
 
 	if (state.cl_mode == CL_AUTO)
 	{
-
 	}
 	return true;
 }
-
