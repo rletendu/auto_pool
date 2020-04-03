@@ -129,7 +129,7 @@ bool rtc_set_time(struct tm time)
   rtc.setSecond(time.tm_sec);
   rtc.setYear(time.tm_year);
   rtc.setMonth(time.tm_mon);
-  rtc.setDoW(time.tm_mday);
+  rtc.setDate(time.tm_mday);
   return true;
 }
 

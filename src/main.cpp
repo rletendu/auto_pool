@@ -22,16 +22,15 @@
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
 
-
 bool time_update(void *)
 {
   char msg[20];
-  sprintf(msg,"%02u/%02u§%02u %02u:%02u",rtc_get_day(),rtc_get_month(),rtc_get_year(),rtc_get_hour(),rtc_get_minute());
+  sprintf(msg, "%02u/%02u/%02u %02u:%02u", rtc_get_day(), rtc_get_month(), rtc_get_year(), rtc_get_hour(), rtc_get_minute());
   dis_sys_hour.setText(msg);
   return true; // repeat? true
 }
 
-void printLocalTime()
+void rtc_init()
 {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo))
@@ -39,6 +38,8 @@ void printLocalTime()
     printlnA(F("Failed to obtain time"));
     return;
   }
+  timeinfo.tm_year -= 100;
+  timeinfo.tm_mon += 1;
   rtc_set_time(timeinfo);
   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 }
@@ -59,7 +60,7 @@ void setup()
   mqtt_init();
   cli_init();
   configTime(GMTOFFSET, DAYLIGHTOFFSET, NTPSERVER);
-  printLocalTime();
+  rtc_init();
   filter_control_init();
   orp_control_init();
   ph_control_init();
@@ -71,7 +72,7 @@ void setup()
     printlnA(F("Need to write Json config file..."));
     parameters_write_json();
   }
-  time_update_task = timer_pool.every(60*100, time_update);
+  time_update_task = timer_pool.every(60 * 100, time_update);
   printlnA(F("Init Done..."));
 }
 
