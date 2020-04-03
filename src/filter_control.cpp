@@ -17,12 +17,20 @@ bool filter_control_update(void *);
 static void filter_on(void)
 {
 	pump_filtration_on();
+	if (state.filter_pump != PUMP_ON)
+	{
+		mqtt_publish_filter_state();
+	}
 	state.filter_pump = PUMP_ON;
 }
 
 static void filter_off(void)
 {
 	pump_filtration_off();
+	if (state.filter_pump != PUMP_OFF)
+	{
+		mqtt_publish_filter_state();
+	}
 	state.filter_pump = PUMP_OFF;
 }
 
@@ -32,17 +40,29 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 	{
 	case FILTER_AUTO:
 		control_filter_auto();
+		if (state.filter_mode != FILTER_AUTO)
+		{
+			mqtt_publish_filter_state();
+		}
 		state.filter_mode = FILTER_AUTO;
 		break;
 
 	case FILTER_OFF:
 		control_filter_off();
+		if (state.filter_mode != FILTER_OFF)
+		{
+			mqtt_publish_filter_state();
+		}
 		state.filter_mode = FILTER_OFF;
 		filter_off();
 		break;
 
 	case FILTER_ON:
 		control_filter_on();
+		if (state.filter_mode != FILTER_ON)
+		{
+			mqtt_publish_filter_state();
+		}
 		state.filter_mode = FILTER_ON;
 		filter_on();
 		break;
@@ -50,7 +70,6 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 	default:
 		break;
 	}
-	
 }
 
 void filter_control_init(void)
@@ -82,6 +101,7 @@ bool filter_control_update(void *)
 		}
 		else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
 		{
+
 		}
 	}
 	return true;
@@ -89,5 +109,5 @@ bool filter_control_update(void *)
 
 void filter_control_loop(void)
 {
-
+	
 }

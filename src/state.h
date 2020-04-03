@@ -60,8 +60,6 @@ enum ph_control_state_t
 	PH_ACTIVE_CORRECTION,
 };
 
-
-
 struct StateStructure
 {
 	enum filter_mode_t filter_mode;
@@ -83,6 +81,10 @@ extern struct StateStructure state;
 extern char state_filter_json_string[STATE_FILTER_CTRL_JSON_MESSAGE_LEN];
 extern char state_ph_json_string[STATE_PH_CTRL_JSON_MESSAGE_LEN];
 extern char state_orp_json_string[STATE_ORP_CTRL_JSON_MESSAGE_LEN];
+
+void filter_state_to_json_string(void);
+void orp_state_to_json_string(void);
+void ph_state_to_json_string(void);
 
 
 #endif
