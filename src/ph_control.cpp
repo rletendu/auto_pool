@@ -133,9 +133,10 @@ void ph_control_init(void)
 	ph_minus_enter_mode(PH_MINUS_AUTO);
 	ph_plus_enter_mode(PH_PLUS_OFF);
 	ph_plus_enter_mode(PH_PLUS_AUTO);
+	mqtt_publish_ph_state();
 }
 
 void ph_control_loop(void)
 {
-	
+
 }

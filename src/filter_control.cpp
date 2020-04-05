@@ -78,6 +78,7 @@ void filter_control_init(void)
 	filter_enter_mode(FILTER_OFF);
 	filter_enter_mode(FILTER_AUTO);
 	filter_control_update_task = timer_pool.every(FILTER_CONTROL_UPDATE_MS, filter_control_update);
+	mqtt_publish_filter_state();
 }
 
 bool filter_control_update(void *)

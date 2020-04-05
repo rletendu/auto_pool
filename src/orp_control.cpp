@@ -76,6 +76,7 @@ void orp_control_init(void)
 	cl_enter_mode(CL_OFF);
 	cl_enter_mode(CL_AUTO);
 	orp_control_update_task = timer_pool.every(ORP_CONTROL_UPDATE_MS, orp_control_update);
+	mqtt_publish_orp_state();
 }
 
 void orp_control_loop(void)
