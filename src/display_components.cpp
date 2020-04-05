@@ -106,3 +106,5 @@ NexButton disp_control_ph_plus_auto = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS
 NexButton disp_control_ph_plus_off = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_OFF, "control.php_off");
 NexButton disp_control_ph_plus_on = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_ON, "control.php_on");
 
+NexText disp_log_logger = NexText(PID_LOG,1, "log.logger");
+
