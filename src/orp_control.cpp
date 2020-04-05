@@ -55,7 +55,7 @@ void cl_enter_mode(enum cl_mode_t orp_mode)
 		cl_off();
 		break;
 
-	case FILTER_ON:
+	case CL_ON:
 		control_cl_on();
 		if (state.cl_mode != CL_ON)
 		{
@@ -86,9 +86,11 @@ bool orp_control_update(void *)
 {
 	uint8_t h;
 
-	if (state.cl_mode == CL_AUTO)
+	if (state.filter_pump == PUMP_ON && state.cl_mode == CL_AUTO && state.orp_control_state == ORP_IDLE)
 	{
-		
+		if (measures.orp-parameters.target_orp > parameters.delta_orp) {
+			printlnA(F("ORP Correction Needed"));
+		}
 	}
 	return true;
 }

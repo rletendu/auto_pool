@@ -96,7 +96,12 @@ bool filter_control_update(void *)
 			}
 			else
 			{
-				filter_off();
+				if (state.ph_control_state == PH_IDLE && state.orp_control_state == ORP_IDLE) {
+					filter_off();
+				} else {
+					printlnA(F("Filter OFF on hold, pH or ORP active"));
+					asm("NOP");
+				}
 			}
 		}
 		else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
@@ -109,5 +114,5 @@ bool filter_control_update(void *)
 
 void filter_control_loop(void)
 {
-	
+
 }
