@@ -208,5 +208,7 @@ extern NexButton disp_control_ph_minus_on;
 extern NexButton disp_control_ph_plus_auto;
 extern NexButton disp_control_ph_plus_off;
 extern NexButton disp_control_ph_plus_on;
+
+extern NexText disp_log_logger;
  
 #endif

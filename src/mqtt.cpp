@@ -5,6 +5,7 @@
 #include <WiFi.h>
 #include <SerialDebug.h>
 #include "config.h"
+#include "state.h"
 
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
@@ -70,6 +71,7 @@ void mqtt_publish_parameters()
 void mqtt_publish_measures()
 {
 	char topic[40];
+	measures_to_json_string();
 	strcpy(topic, parameters.mqtt_base_topic);
 	strcat(topic, "/MEAS");
 	if (mqtt_client.connected())
@@ -78,16 +80,51 @@ void mqtt_publish_measures()
 	}
 }
 
-void mqtt_publish_state()
+void mqtt_publish_states()
+{
+	mqtt_publish_filter_state();
+	mqtt_publish_ph_state();
+	mqtt_publish_orp_state();
+}
+
+void mqtt_publish_filter_state()
 {
 	char topic[40];
+	filter_state_to_json_string();
 	strcpy(topic, parameters.mqtt_base_topic);
-	strcat(topic, "/STATE");
+	strcat(topic, "/STATE_FILTER");
 	if (mqtt_client.connected())
 	{
-		mqtt_client.publish(topic, measures_json_string);
+		mqtt_client.publish(topic, state_filter_json_string);
 	}
 }
+
+void mqtt_publish_ph_state()
+{
+	char topic[40];
+	ph_state_to_json_string();
+	strcpy(topic, parameters.mqtt_base_topic);
+	strcat(topic, "/STATE_PH");
+	if (mqtt_client.connected())
+	{
+		mqtt_client.publish(topic, state_ph_json_string);
+	}
+}
+
+void mqtt_publish_orp_state()
+{
+	char topic[40];
+	orp_state_to_json_string();
+	strcpy(topic, parameters.mqtt_base_topic);
+	strcat(topic, "/STATE_ORP");
+	if (mqtt_client.connected())
+	{
+		mqtt_client.publish(topic, state_orp_json_string);
+	}
+}
+
+
+
 
 void mqtt_loop()
 {

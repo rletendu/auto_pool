@@ -7,7 +7,11 @@
 
 struct StateStructure state;
 
-void filer_state_to_json_string(void)
+char state_filter_json_string[STATE_FILTER_CTRL_JSON_MESSAGE_LEN];
+char state_ph_json_string[STATE_PH_CTRL_JSON_MESSAGE_LEN];
+char state_orp_json_string[STATE_ORP_CTRL_JSON_MESSAGE_LEN];
+
+void filter_state_to_json_string(void)
 {
     DynamicJsonBuffer jsonBuffer;
     JsonObject &json = jsonBuffer.createObject();
@@ -45,6 +49,3 @@ void ph_state_to_json_string(void)
     printlnA(state_ph_json_string);
 }
 
-extern char state_filter_json_string[STATE_FILTER_CTRL_JSON_MESSAGE_LEN];
-extern char state_ph_json_string[STATE_PH_CTRL_JSON_MESSAGE_LEN];
-extern char state_orp_json_string[STATE_ORP_CTRL_JSON_MESSAGE_LEN];
