@@ -13,6 +13,11 @@ static void log_read(void)
   disp_log_logger.getText(old_log_content, sizeof(old_log_content));
 }
 
+void log_clear(void)
+{
+    disp_log_logger.setText("");
+}
+
 void log_append(char *msg)
 {
   uint16_t cr_table[10];
@@ -29,7 +34,10 @@ void log_append(char *msg)
       cr_cnt++;
     }
   }
-  if (cr_cnt < 9)
+  printA("cr_cnt : ");
+  printlnA(cr_cnt);
+
+  if (cr_cnt >= 10)
   {
     strcpy(new_log_content, old_log_content + cr_table[0] + 2);
   }
@@ -40,5 +48,6 @@ void log_append(char *msg)
   strcat(new_log_content, timestamp);
   strcat(new_log_content, msg);
   strcat(new_log_content, "\r\n");
+    printlnA(new_log_content);
   disp_log_logger.setText(new_log_content);
 }

@@ -18,6 +18,7 @@
 #include <ArduinoOTA.h>
 #include "time.h"
 #include <Nextion.h>
+#include "display_logger.h"
 
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
@@ -49,6 +50,7 @@ void setup()
   Serial.begin(115200);
   //parameters_format();
   board_init();
+  log_clear();
   delay(500);
   printlnA(F("AutoPool Starting..."));
   wifimanager_init();
