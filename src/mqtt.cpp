@@ -12,12 +12,27 @@ PubSubClient mqtt_client(espClient);
 
 void mqtt_callback(char *topic, byte *message, unsigned int length)
 {
+	char basetopic[20];
+	strcpy(basetopic, parameters.mqtt_base_topic);
+	strcat(basetopic, "/CMD/");
+	String in_topic = topic;
+	in_topic.replace(basetopic,"");
+	printA("IN topic:");
+	printlnA(in_topic);
 	String payload_buff;
 	for (int i = 0; i < length; i++)
 	{
 		payload_buff = payload_buff + String((char)message[i]);
 	}
-	Serial.println(payload_buff); // Print out messages.
+
+	if (in_topic=="filter_pump") {
+		printlnA("Found in topic");	
+	}
+
+	printA("Topic :")
+	printlnA(topic); // Print out messages.
+	printA("Payload :")
+	printlnA(payload_buff); // Print out messages.
 }
 
 void mqtt_init(void)
@@ -36,7 +51,7 @@ void mqtt_reconnect()
 		{
 			// Subscribe
 			strcpy(topic, parameters.mqtt_base_topic);
-			strcat(topic, "/CMD");
+			strcat(topic, "/CMD/#");
 			mqtt_client.subscribe(topic);
 			mqtt_publish_log("AUTOPOOL (Re)connected");
 		}

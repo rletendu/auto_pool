@@ -15,7 +15,7 @@ static void log_read(void)
 
 void log_clear(void)
 {
-    disp_log_logger.setText("");
+  disp_log_logger.setText("");
 }
 
 void log_append(char *msg)
@@ -34,9 +34,6 @@ void log_append(char *msg)
       cr_cnt++;
     }
   }
-  printA("cr_cnt : ");
-  printlnA(cr_cnt);
-
   if (cr_cnt >= 10)
   {
     strcpy(new_log_content, old_log_content + cr_table[0] + 2);
@@ -48,6 +45,5 @@ void log_append(char *msg)
   strcat(new_log_content, timestamp);
   strcat(new_log_content, msg);
   strcat(new_log_content, "\r\n");
-    printlnA(new_log_content);
   disp_log_logger.setText(new_log_content);
 }

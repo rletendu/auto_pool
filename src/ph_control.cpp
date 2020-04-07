@@ -14,9 +14,9 @@ static void ph_minus_on(void)
 	pump_ph_minus_on();
 	if (state.ph_minus_pump != PUMP_ON)
 	{
+		state.ph_minus_pump = PUMP_ON;
 		mqtt_publish_ph_state();
 	}
-	state.ph_minus_pump = PUMP_ON;
 }
 
 static void ph_minus_off(void)
@@ -24,9 +24,9 @@ static void ph_minus_off(void)
 	pump_ph_minus_off();
 	if (state.ph_minus_pump != PUMP_OFF)
 	{
+		state.ph_minus_pump = PUMP_OFF;
 		mqtt_publish_ph_state();
 	}
-	state.ph_minus_pump = PUMP_OFF;
 }
 
 static void ph_plus_on(void)
@@ -34,9 +34,9 @@ static void ph_plus_on(void)
 	pump_ph_plus_on();
 	if (state.ph_plus_pump != PUMP_ON)
 	{
+		state.ph_minus_pump = PUMP_ON;
 		mqtt_publish_ph_state();
 	}
-	state.ph_minus_pump = PUMP_ON;
 }
 
 static void ph_plus_off(void)
@@ -44,9 +44,9 @@ static void ph_plus_off(void)
 	pump_ph_plus_off();
 	if (state.ph_plus_pump != PUMP_OFF)
 	{
+		state.ph_plus_pump = PUMP_OFF;
 		mqtt_publish_ph_state();
 	}
-	state.ph_plus_pump = PUMP_OFF;
 }
 
 void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
@@ -57,18 +57,18 @@ void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
 		control_ph_plus_auto();
 		if (state.ph_plus_mode != PH_PLUS_AUTO)
 		{
+			state.ph_plus_mode = PH_PLUS_AUTO;
 			mqtt_publish_ph_state();
 		}
-		state.ph_plus_mode = PH_PLUS_AUTO;
 		break;
 
 	case PH_PLUS_OFF:
 		control_ph_plus_off();
 		if (state.ph_plus_mode != PH_PLUS_OFF)
 		{
+			state.ph_plus_mode = PH_PLUS_OFF;
 			mqtt_publish_ph_state();
 		}
-		state.ph_plus_mode = PH_PLUS_OFF;
 		ph_plus_off();
 		break;
 
@@ -76,9 +76,9 @@ void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
 		control_ph_plus_on();
 		if (state.ph_plus_mode != PH_PLUS_ON)
 		{
+			state.ph_plus_mode = PH_PLUS_ON;
 			mqtt_publish_ph_state();
 		}
-		state.ph_plus_mode = PH_PLUS_ON;
 		ph_plus_on();
 		break;
 
@@ -95,18 +95,18 @@ void ph_minus_enter_mode(enum ph_minus_mode_t ph_minus_mode)
 		control_ph_minus_auto();
 		if (state.ph_minus_mode != PH_MINUS_AUTO)
 		{
+			state.ph_minus_mode = PH_MINUS_AUTO;
 			mqtt_publish_ph_state();
 		}
-		state.ph_minus_mode = PH_MINUS_AUTO;
 		break;
 
 	case PH_PLUS_OFF:
 		control_ph_minus_off();
 		if (state.ph_minus_mode != PH_MINUS_OFF)
 		{
+			state.ph_minus_mode = PH_MINUS_OFF;
 			mqtt_publish_ph_state();
 		}
-		state.ph_minus_mode = PH_MINUS_OFF;
 		ph_minus_off();
 		break;
 
@@ -114,9 +114,9 @@ void ph_minus_enter_mode(enum ph_minus_mode_t ph_minus_mode)
 		control_ph_minus_on();
 		if (state.ph_minus_mode != PH_MINUS_ON)
 		{
+			state.ph_minus_mode = PH_MINUS_ON;
 			mqtt_publish_ph_state();
 		}
-		state.ph_minus_mode = PH_MINUS_ON;
 		ph_minus_on();
 		break;
 
@@ -138,5 +138,4 @@ void ph_control_init(void)
 
 void ph_control_loop(void)
 {
-
 }

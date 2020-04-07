@@ -17,9 +17,9 @@ static void cl_on(void)
 	pump_cl_on();
 	if (state.cl_pump != PUMP_ON)
 	{
+		state.cl_pump = PUMP_ON;
 		mqtt_publish_orp_state();
 	}
-	state.cl_pump = PUMP_ON;
 }
 
 static void cl_off(void)
@@ -27,9 +27,9 @@ static void cl_off(void)
 	pump_cl_off();
 	if (state.cl_pump != PUMP_OFF)
 	{
+		state.cl_pump = PUMP_OFF;
 		mqtt_publish_orp_state();
 	}
-	state.cl_pump = PUMP_OFF;
 }
 
 void cl_enter_mode(enum cl_mode_t orp_mode)
@@ -40,18 +40,18 @@ void cl_enter_mode(enum cl_mode_t orp_mode)
 		control_cl_auto();
 		if (state.cl_mode != CL_AUTO)
 		{
+			state.cl_mode = CL_AUTO;
 			mqtt_publish_orp_state();
 		}
-		state.cl_mode = CL_AUTO;
 		break;
 
 	case CL_OFF:
 		control_cl_off();
 		if (state.cl_mode != CL_OFF)
 		{
+			state.cl_mode = CL_OFF;
 			mqtt_publish_orp_state();
 		}
-		state.cl_mode = CL_OFF;
 		cl_off();
 		break;
 
@@ -59,9 +59,9 @@ void cl_enter_mode(enum cl_mode_t orp_mode)
 		control_cl_on();
 		if (state.cl_mode != CL_ON)
 		{
+			state.cl_mode = CL_ON;
 			mqtt_publish_orp_state();
 		}
-		state.cl_mode = CL_ON;
 		cl_on();
 		break;
 
@@ -89,7 +89,8 @@ bool orp_control_update(void *)
 
 	if (state.filter_pump == PUMP_ON && state.cl_mode == CL_AUTO && state.orp_control_state == ORP_IDLE)
 	{
-		if (measures.orp-parameters.target_orp > parameters.delta_orp) {
+		if (measures.orp - parameters.target_orp > parameters.delta_orp)
+		{
 			printlnA(F("ORP Correction Needed"));
 		}
 	}

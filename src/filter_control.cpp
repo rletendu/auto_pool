@@ -19,9 +19,9 @@ static void filter_on(void)
 	pump_filtration_on();
 	if (state.filter_pump != PUMP_ON)
 	{
+		state.filter_pump = PUMP_ON;
 		mqtt_publish_filter_state();
 	}
-	state.filter_pump = PUMP_ON;
 }
 
 static void filter_off(void)
@@ -29,9 +29,9 @@ static void filter_off(void)
 	pump_filtration_off();
 	if (state.filter_pump != PUMP_OFF)
 	{
+		state.filter_pump = PUMP_OFF;
 		mqtt_publish_filter_state();
 	}
-	state.filter_pump = PUMP_OFF;
 }
 
 void filter_enter_mode(enum filter_mode_t filter_mode)
@@ -42,18 +42,18 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 		control_filter_auto();
 		if (state.filter_mode != FILTER_AUTO)
 		{
+			state.filter_mode = FILTER_AUTO;
 			mqtt_publish_filter_state();
 		}
-		state.filter_mode = FILTER_AUTO;
 		break;
 
 	case FILTER_OFF:
 		control_filter_off();
 		if (state.filter_mode != FILTER_OFF)
 		{
+			state.filter_mode = FILTER_OFF;
 			mqtt_publish_filter_state();
 		}
-		state.filter_mode = FILTER_OFF;
 		filter_off();
 		break;
 
@@ -61,9 +61,9 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 		control_filter_on();
 		if (state.filter_mode != FILTER_ON)
 		{
+			state.filter_mode = FILTER_ON;
 			mqtt_publish_filter_state();
 		}
-		state.filter_mode = FILTER_ON;
 		filter_on();
 		break;
 
