@@ -9,6 +9,7 @@
 #include <SerialDebug.h>
 
 
-
+void log_append(char *msg);
+void log_clear(void);
 
 #endif

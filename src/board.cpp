@@ -139,6 +139,11 @@ uint8_t rtc_get_hour(void)
   return rtc.getHour(h12, PM);
 }
 
+uint8_t rtc_get_second(void)
+{
+  return rtc.getSecond();
+}
+
 uint8_t rtc_get_minute(void)
 {
   return rtc.getMinute();

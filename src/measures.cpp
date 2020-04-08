@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include "soft_timer.h"
 #include "display.h"
+#include "display_logger.h"
 
 struct MeasuresStructure measures;
 char measures_json_string[MEASURES_JSON_MESSAGE_LEN];
@@ -33,6 +34,7 @@ bool update_measures(void *)
     disp_measures_to_display();
     debug_pin1_off();
     mqtt_publish_measures();
+    log_append("Measure...");
     return true;
 }
 

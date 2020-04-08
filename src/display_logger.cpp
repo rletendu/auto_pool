@@ -7,33 +7,43 @@
 
 char old_log_content[800];
 char new_log_content[800];
-uint8_t cr_table[10];
 
-void log_read(void)
+static void log_read(void)
 {
   disp_log_logger.getText(old_log_content, sizeof(old_log_content));
 }
 
-void log_append(char *line)
+void log_clear(void)
 {
-  uint32_t i, j = 0;
+  disp_log_logger.setText("");
+}
+
+void log_append(char *msg)
+{
+  uint16_t cr_table[10];
+  char timestamp[20];
+  sprintf(timestamp, "%02u:%02u:%02u : ", rtc_get_hour(), rtc_get_minute(), rtc_get_second());
+  uint16_t i;
+  uint16_t cr_cnt = 0;
   log_read();
   for (i = 0; i < strlen(old_log_content); i++)
   {
-    if (old_log_content[i] == '\n')
+    if (old_log_content[i] == '\r')
     {
-      cr_table[j] = i;
-      j++;
+      cr_table[cr_cnt] = i;
+      cr_cnt++;
     }
   }
-  if (j)
+  if (cr_cnt >= 10)
   {
-    strcpy(new_log_content, old_log_content + cr_table[0] + 1);
+    strcpy(new_log_content, old_log_content + cr_table[0] + 2);
   }
   else
   {
     strcpy(new_log_content, old_log_content);
   }
-  strcat(new_log_content, line);
+  strcat(new_log_content, timestamp);
+  strcat(new_log_content, msg);
+  strcat(new_log_content, "\r\n");
   disp_log_logger.setText(new_log_content);
 }
