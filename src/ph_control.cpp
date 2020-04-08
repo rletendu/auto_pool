@@ -125,6 +125,88 @@ void ph_minus_enter_mode(enum ph_minus_mode_t ph_minus_mode)
 	}
 }
 
+bool ph_auto_correction_possible(void)
+{
+	bool is_possible = true;
+#if HAS_PH_PLUS_PUMP
+	if (state.ph_plus_mode != PH_PLUS_AUTO)
+	{
+		is_possible = false;
+	}
+	if (measures.level_ph_plus == false)
+	{
+		is_possible = false;
+	}
+#endif
+	if (state.ph_minus_mode != PH_MINUS_AUTO)
+	{
+		is_possible = false;
+	}
+	if (state.filter_mode != FILTER_AUTO)
+	{
+		is_possible = false;
+	}
+	if (state.filter_pump == PUMP_OFF)
+	{
+		is_possible = false;
+	}
+	if (measures.level_ph_minus == false)
+	{
+		is_possible = false;
+	}
+	return is_possible;
+}
+
+enum correction_need_t ph_plus_correction_needed(void)
+{
+	float delta = (parameters.target_ph - measures.ph);
+	if (delta < parameters.delta_ph)
+	{
+		return NO_CORRECTION;
+	}
+	else if (delta > (1 * parameters.delta_ph))
+	{
+		return STEP1_CORRECTION;
+	}
+	else if (delta > (2 * parameters.delta_ph))
+	{
+		return STEP2_CORRECTION;
+	}
+	else if (delta > (3 * parameters.delta_ph))
+	{
+		return STEP3_CORRECTION;
+	}
+	else if (delta > (4 * parameters.delta_ph))
+	{
+		return STEP4_CORRECTION;
+	}
+}
+
+enum correction_need_t ph_minus_correction_needed(void)
+{
+	float delta = (parameters.target_ph - measures.ph);
+	if (delta < parameters.delta_ph)
+	{
+		return NO_CORRECTION;
+	}
+	else if (delta > (1 * parameters.delta_ph))
+	{
+		return STEP1_CORRECTION;
+	}
+	else if (delta > (2 * parameters.delta_ph))
+	{
+		return STEP2_CORRECTION;
+	}
+	else if (delta > (3 * parameters.delta_ph))
+	{
+		return STEP3_CORRECTION;
+	}
+	else if (delta > (4 * parameters.delta_ph))
+	{
+		return STEP4_CORRECTION;
+	}
+}
+
 void ph_control_init(void)
 {
 	ph_control_state = PH_IDLE;

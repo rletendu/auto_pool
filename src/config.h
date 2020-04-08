@@ -22,4 +22,6 @@
 
 #define DEBUG_PIN1 PIN_EXT1
 
+#define HAS_PH_PLUS_PUMP 0
+
 #endif

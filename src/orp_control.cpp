@@ -79,6 +79,53 @@ void orp_control_init(void)
 	mqtt_publish_orp_state();
 }
 
+enum correction_need_t orp_correction_needed(void)
+{
+	float delta_orp = (parameters.target_orp - measures.orp);
+	if (delta_orp < parameters.delta_orp)
+	{
+		return NO_CORRECTION;
+	}
+	else if (delta_orp > (1 * parameters.delta_orp))
+	{
+		return STEP1_CORRECTION;
+	}
+	else if (delta_orp > (2 * parameters.delta_orp))
+	{
+		return STEP2_CORRECTION;
+	}
+	else if (delta_orp > (3 * parameters.delta_orp))
+	{
+		return STEP3_CORRECTION;
+	}
+	else if (delta_orp > (4 * parameters.delta_orp))
+	{
+		return STEP4_CORRECTION;
+	}
+}
+
+bool orp_auto_correction_possible(void)
+{
+	bool is_possible = true;
+	if (state.cl_mode != CL_AUTO)
+	{
+		is_possible = false;
+	}
+	if (state.filter_mode != FILTER_AUTO)
+	{
+		is_possible = false;
+	}
+	if (state.filter_pump == PUMP_OFF)
+	{
+		is_possible = false;
+	}
+	if (measures.level_cl == false)
+	{
+		is_possible = false;
+	}
+	return is_possible;
+}
+
 void orp_control_loop(void)
 {
 }
