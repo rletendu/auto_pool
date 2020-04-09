@@ -6,13 +6,13 @@
 
 enum display_page_t
 {
-    PAGE_BOOT,
-    PAGE_STATUS,
-    PAGE_CONTROL,
-    PAGE_GRAPH,
-    PAGE_LOG,
-    PAGE_OPTIONS,
-    PAGE_OTA
+	PAGE_BOOT,
+	PAGE_STATUS,
+	PAGE_CONTROL,
+	PAGE_GRAPH,
+	PAGE_LOG,
+	PAGE_OPTIONS,
+	PAGE_OTA
 };
 
 void display_init(void);

@@ -1,8 +1,7 @@
 #ifndef __WIFI_MANAGER_H__
 #define __WIFI_MANAGER_H__
 
-
-#include <WiFiManager.h>          //https://github.com/Brunez3BD/WIFIMANAGER-ESP32
+#include <WiFiManager.h> //https://github.com/Brunez3BD/WIFIMANAGER-ESP32
 
 extern WiFiManager wifiManager;
 

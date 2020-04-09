@@ -48,159 +48,157 @@
 class SoftTimer
 {
 public:
+	typedef uintptr_t Task;			 /* public task handle */
+	typedef bool (*handler_t)(void *opaque); /* task handler func signature */
+	SoftTimer()
+	{
+	}
+	/* Calls handler with opaque as argument in delay units of time */
+	Task
+	in(unsigned long delay, handler_t h, void *opaque = NULL)
+	{
+		return task_id(add_task(millis(), delay, h, opaque));
+	}
 
-    typedef uintptr_t Task;                  /* public task handle */
-    typedef bool (*handler_t)(void *opaque); /* task handler func signature */
-    SoftTimer()
-    {
+	/* Calls handler with opaque as argument at time */
+	Task
+	at(unsigned long time, handler_t h, void *opaque = NULL)
+	{
+		const unsigned long now = millis();
+		return task_id(add_task(now, time - now, h, opaque));
+	}
 
-    }
-    /* Calls handler with opaque as argument in delay units of time */
-    Task
-    in(unsigned long delay, handler_t h, void *opaque = NULL)
-    {
-        return task_id(add_task(millis(), delay, h, opaque));
-    }
+	/* Calls handler with opaque as argument every interval units of time */
+	Task
+	every(unsigned long interval, handler_t h, void *opaque = NULL)
+	{
+		return task_id(add_task(millis(), interval, h, opaque, interval));
+	}
 
-    /* Calls handler with opaque as argument at time */
-    Task
-    at(unsigned long time, handler_t h, void *opaque = NULL)
-    {
-        const unsigned long now = millis();
-        return task_id(add_task(now, time - now, h, opaque));
-    }
+	/* Cancel the timer task */
+	void
+	cancel(Task &task)
+	{
+		if (!task)
+			return;
 
-    /* Calls handler with opaque as argument every interval units of time */
-    Task
-    every(unsigned long interval, handler_t h, void *opaque = NULL)
-    {
-        return task_id(add_task(millis(), interval, h, opaque, interval));
-    }
+		for (size_t i = 0; i < TIMER_MAX_TASKS; ++i)
+		{
+			struct task *const t = &tasks[i];
 
-    /* Cancel the timer task */
-    void
-    cancel(Task &task)
-    {
-        if (!task)
-            return;
+			if (t->handler && (t->id ^ task) == (uintptr_t)t)
+			{
+				remove(t);
+				break;
+			}
+		}
 
-        for (size_t i = 0; i < TIMER_MAX_TASKS; ++i)
-        {
-            struct task *const t = &tasks[i];
+		task = (Task)NULL;
+	}
 
-            if (t->handler && (t->id ^ task) == (uintptr_t)t)
-            {
-                remove(t);
-                break;
-            }
-        }
+	/* Ticks the timer forward - call this function in loop() */
+	unsigned long
+	tick()
+	{
+		unsigned long ticks = (unsigned long)-1;
 
-        task = (Task)NULL;
-    }
+		for (size_t i = 0; i < TIMER_MAX_TASKS; ++i)
+		{
+			struct task *const task = &tasks[i];
 
-    /* Ticks the timer forward - call this function in loop() */
-    unsigned long
-    tick()
-    {
-        unsigned long ticks = (unsigned long)-1;
+			if (task->handler)
+			{
+				const unsigned long t = millis();
+				const unsigned long duration = t - task->start;
 
-        for (size_t i = 0; i < TIMER_MAX_TASKS; ++i)
-        {
-            struct task *const task = &tasks[i];
+				if (duration >= task->expires)
+				{
+					task->repeat = task->handler(task->opaque) && task->repeat;
 
-            if (task->handler)
-            {
-                const unsigned long t = millis();
-                const unsigned long duration = t - task->start;
+					if (task->repeat)
+						task->start = t;
+					else
+						remove(task);
+				}
+				else
+				{
+					const unsigned long remaining = task->expires - duration;
+					ticks = remaining < ticks ? remaining : ticks;
+				}
+			}
+		}
 
-                if (duration >= task->expires)
-                {
-                    task->repeat = task->handler(task->opaque) && task->repeat;
-
-                    if (task->repeat)
-                        task->start = t;
-                    else
-                        remove(task);
-                }
-                else
-                {
-                    const unsigned long remaining = task->expires - duration;
-                    ticks = remaining < ticks ? remaining : ticks;
-                }
-            }
-        }
-
-        return ticks == (unsigned long)-1 ? 0 : ticks;
-    }
+		return ticks == (unsigned long)-1 ? 0 : ticks;
+	}
 
 private:
-    size_t ctr;
+	size_t ctr;
 
-    unsigned long (*time_func)();
+	unsigned long (*time_func)();
 
-    struct task
-    {
-        handler_t handler; /* task handler callback func */
-        void *opaque;      /* argument given to the callback handler */
-        unsigned long start,
-            expires;   /* when the task expires */
-        size_t repeat, /* repeat task */
-            id;
-    } tasks[TIMER_MAX_TASKS];
+	struct task
+	{
+		handler_t handler; /* task handler callback func */
+		void *opaque;	   /* argument given to the callback handler */
+		unsigned long start,
+		    expires;   /* when the task expires */
+		size_t repeat, /* repeat task */
+		    id;
+	} tasks[TIMER_MAX_TASKS];
 
-    inline void
-    remove(struct task *task)
-    {
-        task->handler = NULL;
-        task->opaque = NULL;
-        task->start = 0;
-        task->expires = 0;
-        task->repeat = 0;
-        task->id = 0;
-    }
+	inline void
+	remove(struct task *task)
+	{
+		task->handler = NULL;
+		task->opaque = NULL;
+		task->start = 0;
+		task->expires = 0;
+		task->repeat = 0;
+		task->id = 0;
+	}
 
-    inline Task
-    task_id(const struct task *const t)
-    {
-        const Task id = (Task)t;
+	inline Task
+	task_id(const struct task *const t)
+	{
+		const Task id = (Task)t;
 
-        return id ? id ^ t->id : id;
-    }
+		return id ? id ^ t->id : id;
+	}
 
-    inline struct task *
-    next_task_slot()
-    {
-        for (size_t i = 0; i < TIMER_MAX_TASKS; ++i)
-        {
-            struct task *const slot = &tasks[i];
-            if (slot->handler == NULL)
-                return slot;
-        }
+	inline struct task *
+	next_task_slot()
+	{
+		for (size_t i = 0; i < TIMER_MAX_TASKS; ++i)
+		{
+			struct task *const slot = &tasks[i];
+			if (slot->handler == NULL)
+				return slot;
+		}
 
-        return NULL;
-    }
+		return NULL;
+	}
 
-    inline struct task *
-    add_task(unsigned long start, unsigned long expires,
-             handler_t h, void *opaque, bool repeat = 0)
-    {
-        struct task *const slot = next_task_slot();
+	inline struct task *
+	add_task(unsigned long start, unsigned long expires,
+		 handler_t h, void *opaque, bool repeat = 0)
+	{
+		struct task *const slot = next_task_slot();
 
-        if (!slot)
-            return NULL;
+		if (!slot)
+			return NULL;
 
-        if (++ctr == 0)
-            ++ctr; // overflow
+		if (++ctr == 0)
+			++ctr; // overflow
 
-        slot->id = ctr;
-        slot->handler = h;
-        slot->opaque = opaque;
-        slot->start = start;
-        slot->expires = expires;
-        slot->repeat = repeat;
+		slot->id = ctr;
+		slot->handler = h;
+		slot->opaque = opaque;
+		slot->start = start;
+		slot->expires = expires;
+		slot->repeat = repeat;
 
-        return slot;
-    }
+		return slot;
+	}
 };
 
 #endif

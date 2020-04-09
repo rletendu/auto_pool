@@ -16,7 +16,7 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	strcpy(basetopic, parameters.mqtt_base_topic);
 	strcat(basetopic, "/CMD/");
 	String in_topic = topic;
-	in_topic.replace(basetopic,"");
+	in_topic.replace(basetopic, "");
 	printA("IN topic:");
 	printlnA(in_topic);
 	String payload_buff;
@@ -25,14 +25,15 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 		payload_buff = payload_buff + String((char)message[i]);
 	}
 
-	if (in_topic=="filter_pump") {
-		printlnA("Found in topic");	
+	if (in_topic == "filter_pump")
+	{
+		printlnA("Found in topic");
 	}
 
 	printA("Topic :")
-	printlnA(topic); // Print out messages.
+	    printlnA(topic); // Print out messages.
 	printA("Payload :")
-	printlnA(payload_buff); // Print out messages.
+	    printlnA(payload_buff); // Print out messages.
 }
 
 void mqtt_init(void)
@@ -138,9 +139,6 @@ void mqtt_publish_orp_state()
 	}
 }
 
-
-
-
 void mqtt_loop()
 {
 	if (!mqtt_client.connected())
@@ -152,4 +150,3 @@ void mqtt_loop()
 		mqtt_client.loop();
 	}
 }
-
