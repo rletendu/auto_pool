@@ -133,7 +133,18 @@ void orp_control_loop(void)
 bool orp_control_update(void *)
 {
 	uint8_t h;
-
+	if ( orp_auto_correction_possible() )
+	{
+		switch (orp_correction_needed())
+		{
+		case NO_CORRECTION:
+			/* code */
+			break;
+		
+		default:
+			break;
+		}
+	}
 	if (state.filter_pump == PUMP_ON && state.cl_mode == CL_AUTO && state.orp_control_state == ORP_IDLE)
 	{
 		if (measures.orp - parameters.target_orp > parameters.delta_orp)
