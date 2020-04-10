@@ -4,13 +4,12 @@
 #include <Arduino.h>
 #include "config.h"
 
-
 #define PARAM_MAX_STR 50
 
 enum filter_auto_mode_t
 {
-    AUTO_TIMER_PROG = 0,
-    AUTO_TIMER_FCT_T = 1,
+	AUTO_TIMER_PROG = 0,
+	AUTO_TIMER_FCT_T = 1,
 };
 
 struct ParametersStruture
@@ -35,8 +34,9 @@ struct ParametersStruture
 extern struct ParametersStruture parameters;
 extern char parameters_json_string[PARAMETERS_JSON_MESSAGE_LEN];
 
-bool parameters_read_json(void);
-void parameters_write_json(void);
+bool parameters_read_file(void);
+void parameters_write_file(void);
 void parameters_format(void);
+bool parameters_json_to_param(char *json_str);
 
 #endif

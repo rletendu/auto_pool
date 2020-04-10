@@ -91,4 +91,8 @@ void filter_state_to_json_string(void);
 void orp_state_to_json_string(void);
 void ph_state_to_json_string(void);
 
+bool filter_state_json_to_state(char *json_str);
+bool orp_state_json_to_state(char *json_str);
+bool ph_state_json_to_state(char *json_str);
+
 #endif

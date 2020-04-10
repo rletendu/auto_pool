@@ -34,14 +34,7 @@ void disp_enter_options_Callback(void *ptr)
 void disp_next_prev_Callback(void *ptr)
 {
 	NexPicture *btn = (NexPicture *)ptr;
-	printA(btn->getObjName());
-	printA(':');
-	printA(btn->getObjPid());
-	printA(',');
-	printA(btn->getObjCid());
 	uint16_t id = (btn->getObjPid() << 8) + btn->getObjCid();
-	printA(':');
-	printlnA(id);
 
 	switch (id)
 	{

@@ -55,7 +55,7 @@ void setup()
 	printlnA(F("AutoPool Starting..."));
 	wifimanager_init();
 	wifimanager_autoconnect();
-	parameters_read_json();
+	parameters_read_file();
 	printlnA(F("Ip Address : "));
 	printlnA(WiFi.localIP());
 	ota_init();
@@ -72,11 +72,11 @@ void setup()
 	if (is_should_save_config())
 	{
 		printlnA(F("Need to write Json config file..."));
-		parameters_write_json();
+		parameters_write_file();
 	}
 	time_update_task = timer_pool.every(60 * 100, time_update);
 	printlnA(F("Init Done..."));
-		//NexSleep();
+	//NexSleep();
 }
 
 volatile unsigned long tmp = 0;

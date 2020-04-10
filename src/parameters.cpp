@@ -9,7 +9,7 @@ struct ParametersStruture parameters;
 void parameters_set_default(void);
 char parameters_json_string[PARAMETERS_JSON_MESSAGE_LEN];
 
-bool parameters_read_json(void)
+bool parameters_read_file(void)
 {
 	parameters_set_default();
 	printlnA(F("mounting FS..."));
@@ -26,32 +26,14 @@ bool parameters_read_json(void)
 				size_t size = configFile.size();
 				std::unique_ptr<char[]> buf(new char[size]);
 				configFile.readBytes(buf.get(), size);
-				DynamicJsonBuffer jsonBuffer;
-				JsonObject &json = jsonBuffer.parseObject(buf.get());
-				json.printTo(Serial);
-				if (json.success())
+				if (parameters_json_to_param(buf.get()))
 				{
-					strcpy(parameters.mqtt_server, json["mqtt_server"]);
-					strcpy(parameters.mqtt_port, json["mqtt_port"]);
-					strcpy(parameters.mqtt_user, json["mqtt_user"]);
-					strcpy(parameters.mqtt_pass, json["mqtt_pass"]);
-					strcpy(parameters.mqtt_base_topic, json["base_topic"]);
-					parameters.target_ph = json["target_ph"];
-					parameters.delta_ph = json["delta_ph"];
-					parameters.target_orp = json["target_orp"];
-					parameters.delta_orp = json["delta_orp"];
-					parameters.flow_cl = json["flow_cl"];
-					parameters.flow_ph_minus = json["flow_ph_minus"];
-					parameters.pressure_warning = json["pressure_warning"];
-					parameters.flow_ph_plus = json["flow_ph_plus"];
-					int mode = json["filter_auto_mode"];
-					parameters.filter_auto_mode = (filter_auto_mode_t)mode;
-					parameters.timer_prog = json["timer_prog"];
 					return true;
 				}
 				else
 				{
 					printlnA(F("failed to load parameters from json config"));
+					return false;
 				}
 			}
 		}
@@ -64,7 +46,7 @@ bool parameters_read_json(void)
 	return false;
 }
 
-void parameters_write_json(void)
+void parameters_write_file(void)
 {
 	printlnA(F("Saving parameters to file"));
 	DynamicJsonBuffer jsonBuffer;
@@ -115,4 +97,33 @@ void parameters_set_default(void)
 	parameters.filter_auto_mode = AUTO_TIMER_PROG;
 	parameters.timer_prog = 0;
 	parameters.pressure_warning = 1.9;
+}
+
+bool parameters_json_to_param(char *json_str)
+{
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.parseObject(json_str);
+	if (json.success())
+	{
+		strcpy(parameters.mqtt_server, json["mqtt_server"]);
+		strcpy(parameters.mqtt_port, json["mqtt_port"]);
+		strcpy(parameters.mqtt_user, json["mqtt_user"]);
+		strcpy(parameters.mqtt_pass, json["mqtt_pass"]);
+		strcpy(parameters.mqtt_base_topic, json["base_topic"]);
+		parameters.target_ph = json["target_ph"];
+		parameters.delta_ph = json["delta_ph"];
+		parameters.target_orp = json["target_orp"];
+		parameters.delta_orp = json["delta_orp"];
+		parameters.flow_cl = json["flow_cl"];
+		parameters.flow_ph_minus = json["flow_ph_minus"];
+		parameters.pressure_warning = json["pressure_warning"];
+		parameters.flow_ph_plus = json["flow_ph_plus"];
+		parameters.filter_auto_mode = (filter_auto_mode_t)(int)json["filter_auto_mode"];;
+		parameters.timer_prog = json["timer_prog"];
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

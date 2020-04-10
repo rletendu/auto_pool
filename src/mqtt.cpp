@@ -16,7 +16,7 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	strcpy(basetopic, parameters.mqtt_base_topic);
 	strcat(basetopic, "/CMD/");
 	String in_topic = topic;
-	in_topic.replace(basetopic,"");
+	in_topic.replace(basetopic, "");
 
 	String payload_buff;
 	for (int i = 0; i < length; i++)
@@ -24,11 +24,14 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 		payload_buff = payload_buff + String((char)message[i]);
 	}
 
-	if (in_topic == "filter_pump")
+	if (in_topic == "FILTER_PUMP")
 	{
 		printlnA("Found in topic");
 	}
-
+	else if (in_topic == "FILTER_MODE")
+	{
+		
+	}
 }
 
 void mqtt_init(void)

@@ -23,6 +23,23 @@ void filter_state_to_json_string(void)
 	printlnA(state_filter_json_string);
 }
 
+bool filter_state_json_to_state(char *json_str)
+{
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.parseObject(json_str);
+	if (json.success())
+	{
+		state.filter_mode = (filter_mode_t)(int)json["filter_mode"];
+		state.filter_pump = (pump_state_t)(int)json["filter_pump"];
+		state.filter_control_state = (filter_control_state_t)(int)json["filter_control_state"];
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void orp_state_to_json_string(void)
 {
 	DynamicJsonBuffer jsonBuffer;
@@ -33,6 +50,23 @@ void orp_state_to_json_string(void)
 	json.printTo(state_orp_json_string, sizeof(state_orp_json_string));
 	printA("ORP Json:");
 	printlnA(state_orp_json_string);
+}
+
+bool orp_state_json_to_state(char *json_str)
+{
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.parseObject(json_str);
+	if (json.success())
+	{
+		state.cl_mode = (cl_mode_t)(int)json["cl_mode"];
+		state.cl_pump = (pump_state_t)(int)json["cl_pump"];
+		state.orp_control_state = (orp_control_state_t)(int)json["orp_control_state"];
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void ph_state_to_json_string(void)
@@ -47,4 +81,23 @@ void ph_state_to_json_string(void)
 	json.printTo(state_ph_json_string, sizeof(state_ph_json_string));
 	printA("pH Json:");
 	printlnA(state_ph_json_string);
+}
+
+bool ph_state_json_to_state(char *json_str)
+{
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.parseObject(json_str);
+	if (json.success())
+	{
+		state.ph_minus_mode = (ph_minus_mode_t)(int)json["ph_minus_mode"];
+		state.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
+		state.ph_minus_pump = (pump_state_t)(int)json["ph_minus_pump"];
+		state.ph_plus_pump = (pump_state_t)(int)json["ph_plus_pump"];
+		state.ph_control_state = (ph_control_state_t)(int)json["ph_control_state"];
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

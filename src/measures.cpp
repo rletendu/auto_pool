@@ -58,8 +58,32 @@ void measures_to_json_string(void)
 	json["level_ph_plus"] = measures.level_ph_plus;
 	json["level_water"] = measures.level_water;
 	json.printTo(measures_json_string, sizeof(measures_json_string));
-	printA("Measure Json:");
-	printlnA(measures_json_string);
+	// printA("Measure Json:");
+	// printlnA(measures_json_string);
+}
+
+bool measures_json_to_measures(char *json_str)
+{
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.parseObject(json_str);
+	if (json.success())
+	{
+		measures.system_temperature = json["system_temperature"];
+		measures.system_humidity = json["system_humidity"];
+		measures.water_temperature = json["water_temperature"];
+		measures.pump_pressure = json["pump_pressure"];
+		measures.ph = json["ph"];
+		measures.orp = json["orp"];
+		measures.level_cl = json["level_cl"];
+		measures.level_ph_minus = json["level_ph_minus"];
+		measures.level_ph_plus = json["level_ph_plus"];
+		measures.level_water = json["level_water"];
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void measures_init(void)

@@ -35,7 +35,7 @@ void wifimanager_init(void)
 	wifiManager.addParameter(&custom_mqtt_user);
 	wifiManager.addParameter(&custom_mqtt_pass);
 	wifiManager.addParameter(&custom_mqtt_base_topic);
-	if (parameters_read_json())
+	if (parameters_read_file())
 	{
 		custom_mqtt_server.setValue(parameters.mqtt_server);
 		custom_mqtt_port.setValue(parameters.mqtt_port);
@@ -64,7 +64,7 @@ void wifimanager_autoconnect(void)
 	if (is_should_save_config())
 	{
 		printlnA(F("Saveconfig Detected !"));
-		parameters_write_json();
+		parameters_write_file();
 	}
 }
 
@@ -80,6 +80,6 @@ void wifimanager_start_portal(void)
 	if (is_should_save_config())
 	{
 		printlnA(F("Need to write Json config file..."));
-		parameters_write_json();
+		parameters_write_file();
 	}
 }
