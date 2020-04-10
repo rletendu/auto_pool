@@ -21,7 +21,7 @@ void disp_options_ok_Callback(void *ptr)
 	disp_options_to_parameters();
 	page_status.show();
 	display_page = PAGE_STATUS;
-	parameters_write_json();
+	parameters_write_file();
 	mqtt_publish_parameters();
 }
 
@@ -34,7 +34,14 @@ void disp_enter_options_Callback(void *ptr)
 void disp_next_prev_Callback(void *ptr)
 {
 	NexPicture *btn = (NexPicture *)ptr;
+	printA(btn->getObjName());
+	printA(':');
+	printA(btn->getObjPid());
+	printA(',');
+	printA(btn->getObjCid());
 	uint16_t id = (btn->getObjPid() << 8) + btn->getObjCid();
+	printA(':');
+	printlnA(id);
 
 	switch (id)
 	{
@@ -108,7 +115,7 @@ void display_init()
 	disp_next_status.attachPush(disp_next_prev_Callback, &disp_next_status);
 	disp_prev_status.attachPush(disp_next_prev_Callback, &disp_prev_status);
 	disp_next_control.attachPush(disp_next_prev_Callback, &disp_next_control);
-	disp_prev_control.attachPush(disp_next_prev_Callback, &disp_next_control);
+	disp_prev_control.attachPush(disp_next_prev_Callback, &disp_prev_control);
 	disp_next_graph.attachPush(disp_next_prev_Callback, &disp_next_graph);
 	disp_prev_graph.attachPush(disp_next_prev_Callback, &disp_prev_graph);
 	disp_next_log.attachPush(disp_next_prev_Callback, &disp_next_log);
