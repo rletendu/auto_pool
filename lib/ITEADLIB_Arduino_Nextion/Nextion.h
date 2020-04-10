@@ -42,5 +42,6 @@
 #include "NexGpio.h"
 #include "NexRtc.h"
 #include "NexXfloat.h"
+#include "NexSystem.h"
 
 #endif /* #ifndef __NEXTION_H__ */

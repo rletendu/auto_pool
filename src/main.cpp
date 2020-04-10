@@ -76,6 +76,7 @@ void setup()
 	}
 	time_update_task = timer_pool.every(60 * 100, time_update);
 	printlnA(F("Init Done..."));
+		//NexSleep();
 }
 
 volatile unsigned long tmp = 0;
@@ -84,6 +85,7 @@ unsigned long duration;
 
 void loop()
 {
+
 	ota_loop();
 	measures_loop();
 	display_loop();
