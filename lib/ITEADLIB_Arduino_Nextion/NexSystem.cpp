@@ -14,14 +14,22 @@
  */
 #include "NexSystem.h"
 
-
+bool NexDim(uint8_t dim)
+{
+	char buf[10] = {0};
+	itoa(dim, buf, 10);
+	String cmd = String("dim=");
+	cmd += buf;
+	sendCommand(cmd.c_str());
+	return recvRetCommandFinished();
+}
 
 bool NexSleep(void)
 {
-    sendCommand("thsp=10");
-    recvRetCommandFinished();
-    sendCommand("thup=1");
-    recvRetCommandFinished();
-    //sendCommand("sleep=1");
-    //return recvRetCommandFinished();
+	sendCommand("thsp=10");
+	recvRetCommandFinished();
+	sendCommand("thup=1");
+	recvRetCommandFinished();
+	//sendCommand("sleep=1");
+	//return recvRetCommandFinished();
 }
