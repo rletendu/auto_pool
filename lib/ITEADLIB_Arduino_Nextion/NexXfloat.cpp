@@ -41,7 +41,7 @@ bool NexXfloat::getValue(float *number)
 bool NexXfloat::setValue(float number)
 {
     uint32_t nb_ptleft;
-    uint32_t val;
+    float val;
     bool ret;
     String cmd_alt = String("get ");
     cmd_alt += getObjName();
@@ -50,7 +50,8 @@ bool NexXfloat::setValue(float number)
     recvRetNumber(&nb_ptleft);
     char buf[10] = {0};
     String cmd;
-    itoa((int32_t)(number*pow(10,nb_ptleft)), buf, 10);
+    val = number*pow(10,nb_ptleft);
+    itoa((int)val, buf, 10);
     cmd += getObjName();
     cmd += ".val=";
     cmd += buf;
