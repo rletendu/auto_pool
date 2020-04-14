@@ -10,6 +10,8 @@
 
 extern SoftTimer timer_pool;
 uintptr_t orp_control_update_task;
+uintptr_t orp_control_timer_injection_task;
+
 bool orp_control_update(void *);
 bool orp_control_injection_timer_completed(void *);
 
@@ -83,6 +85,10 @@ void orp_control_init(void)
 
 bool orp_control_injection_timer_completed(void *)
 {
+	mqtt_publish_log("ORP Injection Completed");
+	state.orp_control_state = ORP_IDLE;
+	cl_off();
+	return false;
 }
 
 enum correction_need_t orp_correction_needed(void)
@@ -114,6 +120,11 @@ enum correction_need_t orp_correction_needed(void)
 bool orp_auto_correction_possible(void)
 {
 	bool is_possible = true;
+	
+	if (state.ph_control_state != PH_IDLE) 
+	{
+		is_possible = false;
+	}
 	if (state.cl_mode != CL_AUTO)
 	{
 		is_possible = false;
@@ -135,13 +146,12 @@ bool orp_auto_correction_possible(void)
 
 void orp_control_loop(void)
 {
-	state.orp_control_state = ORP_IDLE;
-	cl_off();
+	
 }
 
 bool orp_control_update(void *)
 {
-	uint8_t h;
+	printlnA("ORP task update");
 	switch (state.orp_control_state)
 	{
 	case ORP_IDLE:
@@ -154,13 +164,15 @@ bool orp_control_update(void *)
 				break;
 			case STEP1_CORRECTION:
 				printlnA("ORP Step 1 correction needed");
+				mqtt_publish_log("ORP Step 1 correction needed");
 				state.orp_control_state = ORP_ACTIVE_CORRECTION;
-				timer_pool.in(((10 * 60 * 1000) * 20) / 100, orp_control_injection_timer_completed);
+				orp_control_timer_injection_task = timer_pool.in(((10 * 60 * 1000) * 20) / 100, orp_control_injection_timer_completed);
 				mqtt_publish_orp_state();
 				cl_on();
 				break;
 			case STEP2_CORRECTION:
 				printlnA("ORP Step 2 correction needed");
+				mqtt_publish_log("ORP Step 2 correction needed");
 				state.orp_control_state = ORP_ACTIVE_CORRECTION;
 				timer_pool.in(((10 * 60 * 1000) * 50) / 100, orp_control_injection_timer_completed);
 				mqtt_publish_orp_state();
@@ -168,6 +180,7 @@ bool orp_control_update(void *)
 				break;
 			case STEP3_CORRECTION:
 				printlnA("ORP Step 3 correction needed");
+				mqtt_publish_log("ORP Step 3 correction needed");
 				state.orp_control_state = ORP_ACTIVE_CORRECTION;
 				timer_pool.in(((10 * 60 * 1000) * 75) / 100, orp_control_injection_timer_completed);
 				mqtt_publish_orp_state();
@@ -175,6 +188,7 @@ bool orp_control_update(void *)
 				break;
 			case STEP4_CORRECTION:
 				printlnA("ORP Step 4 correction needed");
+				mqtt_publish_log("ORP Step 4 correction needed");
 				state.orp_control_state = ORP_ACTIVE_CORRECTION;
 				timer_pool.in(((10 * 60 * 1000) * 100) / 100, orp_control_injection_timer_completed);
 				mqtt_publish_orp_state();
@@ -187,6 +201,7 @@ bool orp_control_update(void *)
 		}
 		else
 		{
+			printlnA("ORP correction not possible")
 		}
 		break;
 
@@ -194,9 +209,9 @@ bool orp_control_update(void *)
 		if (orp_auto_correction_possible() == false)
 		{
 			printlnA("Need to stop active ORP correction");
-		}
-		else
-		{
+			mqtt_publish_log("Need to stop active ORP correction");
+			timer_pool.cancel(orp_control_timer_injection_task);
+			orp_control_injection_timer_completed(NULL);
 		}
 		break;
 

@@ -6,6 +6,7 @@
 #include <SerialDebug.h>
 #include "config.h"
 #include "state.h"
+#include "board.h"
 
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
@@ -13,6 +14,7 @@ PubSubClient mqtt_client(espClient);
 void mqtt_callback(char *topic, byte *message, unsigned int length)
 {
 	char basetopic[20];
+	char payload[MQTT_MAX_PACKET_SIZE];
 	strcpy(basetopic, parameters.mqtt_base_topic);
 	strcat(basetopic, "/CMD/");
 	String in_topic = topic;
@@ -22,6 +24,7 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	for (int i = 0; i < length; i++)
 	{
 		payload_buff = payload_buff + String((char)message[i]);
+		payload[i] = message[i];
 	}
 
 	if (in_topic == "FILTER_PUMP")
@@ -30,7 +33,41 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	}
 	else if (in_topic == "FILTER_MODE")
 	{
-		
+	}
+	else if (in_topic == "RESET")
+	{
+		ESP.restart();
+	}
+	else if (in_topic == "MEASURES")
+	{
+		measures_set_virtual(true);
+		measures_json_to_measures(payload);
+	}
+	else if (in_topic == "PARAMETERS")
+	{
+		parameters_json_to_param(payload);
+	}
+	else if (in_topic == "FILTER_STATE")
+	{
+		filter_state_json_to_state(payload);
+	}
+	else if (in_topic == "ORP_STATE")
+	{
+		orp_state_json_to_state(payload);
+	}
+	else if (in_topic == "PH_STATE")
+	{
+		ph_state_json_to_state(payload);
+	}
+	else if (in_topic == "BEEP")
+	{
+		buzzer_on();
+		delay(10);
+		buzzer_off();
+	}
+	else if (in_topic == "GET_PARAMETERS")
+	{
+		mqtt_publish_parameters();
 	}
 }
 

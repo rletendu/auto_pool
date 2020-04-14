@@ -36,5 +36,5 @@ void disp_control_cl_off_Callback(void *ptr);
 void disp_control_filter_auto_Callback(void *ptr);
 void disp_control_filter_on_Callback(void *ptr);
 void disp_control_filter_off_Callback(void *ptr);
-
+void control_ph_plus_disable_controls(void);
 #endif

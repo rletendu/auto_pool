@@ -53,7 +53,8 @@ enum ph_plus_mode_t
 enum ph_control_state_t
 {
 	PH_IDLE = 0,
-	PH_ACTIVE_CORRECTION,
+	PH_MINUS_ACTIVE_CORRECTION,
+	PH_PLUS_ACTIVE_CORRECTION,
 };
 
 struct StateStructure

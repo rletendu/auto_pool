@@ -71,13 +71,11 @@ void parameters_write_file(void)
 	{
 		printlnA(F("failed to open config file for writing"));
 	}
-	printlnA("Parameter Json:");
-	json.printTo(Serial);
-	printlnA("");
-	json.printTo(Serial);
 	json.printTo(configFile);
 	json.printTo(parameters_json_string);
 	configFile.close();
+	printlnA("Parameter Json:");
+	printlnA(parameters_json_string);
 }
 
 void parameters_format(void)
@@ -118,12 +116,13 @@ bool parameters_json_to_param(char *json_str)
 		parameters.flow_ph_minus = json["flow_ph_minus"];
 		parameters.pressure_warning = json["pressure_warning"];
 		parameters.flow_ph_plus = json["flow_ph_plus"];
-		parameters.filter_auto_mode = (filter_auto_mode_t)(int)json["filter_auto_mode"];;
+		parameters.filter_auto_mode = (filter_auto_mode_t)(int)json["filter_auto_mode"];
 		parameters.timer_prog = json["timer_prog"];
 		return true;
 	}
 	else
 	{
+		printlnA("Json str to parameters fail")
 		return false;
 	}
 }

@@ -7,6 +7,7 @@
 
 struct MeasuresStructure
 {
+	uint32_t index;
 	float water_temperature;
 	float system_temperature;
 	float system_humidity;
@@ -25,5 +26,6 @@ void measures_to_json_string(void);
 bool measures_json_to_measures(char *json_str);
 void measures_init(void);
 void measures_loop(void);
+void measures_set_virtual(bool state);
 
 #endif

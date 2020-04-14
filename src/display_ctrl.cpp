@@ -131,3 +131,10 @@ void control_filter_off(void)
 	disp_control_filter_off.Set_background_color_bco(COLOR_RED);
 	disp_control_filter_on.Set_background_color_bco(COLOR_GRAY);
 }
+
+void control_ph_plus_disable_controls(void)
+{
+	disp_control_ph_plus_auto.setVisibility(false);
+	disp_control_ph_plus_off.setVisibility(false);
+	disp_control_ph_plus_on.setVisibility(false);
+}
