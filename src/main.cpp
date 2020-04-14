@@ -74,7 +74,8 @@ void setup()
 		printlnA(F("Need to write Json config file..."));
 		parameters_write_file();
 	}
-	time_update_task = timer_pool.every(60 * 100, time_update);
+	
+	time_update_task = timer_pool.every(60 * 1000, time_update);
 	printlnA(F("Init Done..."));
 	//NexSleep();
 }
