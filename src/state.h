@@ -33,7 +33,8 @@ enum filter_control_state_t
 enum orp_control_state_t
 {
 	ORP_IDLE = 0,
-	ORP_ACTIVE_CORRECTION,
+	ORP_INJECTION_ON,
+	ORP_INJECTION_OFF,
 };
 
 enum ph_minus_mode_t

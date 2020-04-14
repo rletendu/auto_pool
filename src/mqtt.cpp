@@ -45,7 +45,10 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	}
 	else if (in_topic == "PARAMETERS")
 	{
-		parameters_json_to_param(payload);
+		if (parameters_json_to_param(payload))
+		{
+			parameters_write_file();
+		}
 	}
 	else if (in_topic == "FILTER_STATE")
 	{
@@ -68,6 +71,10 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	else if (in_topic == "GET_PARAMETERS")
 	{
 		mqtt_publish_parameters();
+	}
+	else if (in_topic == "GET_STATES")
+	{
+		mqtt_publish_states();
 	}
 }
 

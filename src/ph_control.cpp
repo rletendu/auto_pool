@@ -157,10 +157,6 @@ bool ph_minus_auto_correction_possible(void)
 	{
 		is_possible = false;
 	}
-	if (state.ph_control_state != PH_IDLE)
-	{
-		is_possible = false;
-	}
 	if (state.ph_minus_mode != PH_MINUS_AUTO)
 	{
 		is_possible = false;
@@ -242,7 +238,7 @@ enum correction_need_t ph_plus_correction_needed(void)
 
 enum correction_need_t ph_minus_correction_needed(void)
 {
-	float delta = parameters.target_ph - measures.ph;
+	float delta = measures.ph - parameters.target_ph;
 
 	if (delta > (3 * parameters.delta_ph))
 	{

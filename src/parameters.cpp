@@ -118,6 +118,7 @@ bool parameters_json_to_param(char *json_str)
 		parameters.flow_ph_plus = json["flow_ph_plus"];
 		parameters.filter_auto_mode = (filter_auto_mode_t)(int)json["filter_auto_mode"];
 		parameters.timer_prog = json["timer_prog"];
+		json.printTo(parameters_json_string);
 		return true;
 	}
 	else
