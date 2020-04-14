@@ -86,7 +86,6 @@ unsigned long duration;
 
 void loop()
 {
-
 	ota_loop();
 	measures_loop();
 	display_loop();

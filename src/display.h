@@ -22,6 +22,8 @@ void disp_page_ota();
 void disp_ota_progress(uint8_t progress);
 void disp_parameters_to_display(void);
 void disp_measures_to_display(void);
+void disp_orp_state_to_display(void);
+void disp_orp_state_to_display(void);
 void disp_measures_to_graph(void);
 
 void disp_control_ph_plus_auto_Callback(void *ptr);

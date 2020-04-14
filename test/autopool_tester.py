@@ -4,7 +4,6 @@
 import paho.mqtt.client as mqtt
 import json
 import keyboard
-import msvcrt
 
 SERVER = "192.168.1.39"
 PORT = 1883
@@ -20,6 +19,7 @@ PARAM = {"mqtt_server": "192.168.1.39", "mqtt_port": "1883", "mqtt_user": "admin
 
 
 measures_count = 0
+parameters_count = 0
 
 
 def on_connect(client, userdata, flags, rc):
@@ -55,28 +55,30 @@ def on_measures(client, userdata, msg):
     measures = json.loads(msg.payload)
     print("\tMeasure index:", measures["index"])
     if measures_count:
-        print(measures)
+        pass
+        #print(measures)
     else:
         print("Enter Virtual measures mode")
         measures["level_cl"] = True
         measures["level_ph_minus"] = True
-        measures["orp"] = 750.1
-        #measures["ph"] = 8.1
+        #measures["orp"] = 50.1
+        measures["ph"] = 8.1
         client.publish("autopool/CMD/MEASURES", json.dumps(measures))
     measures_count += 1
 
 
 def on_parameters(client, userdata, msg):
+    global parameters_count
     print(msg.topic, str(msg.payload))
     parameters = json.loads(msg.payload)
     print("Parameters", parameters)
-    if measures_count > 1:
+    if parameters_count:
         pass
     else:
         parameters["timer_prog"] = 16776960
         client.publish("autopool/CMD/PARAMETERS", json.dumps(parameters))
         client.publish("autopool/CMD/GET_PARAMETERS")
-
+    parameters_count +=1
 
 if __name__ == '__main__':
     measures_count = 0

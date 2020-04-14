@@ -284,7 +284,9 @@ bool ph_plus_control_injection_timer_completed(void *)
 
 bool ph_control_update(void *)
 {
-	printlnA("pH control task") switch (state.ph_control_state)
+	printlnA("pH control task");
+	disp_orp_state_to_display();
+	switch (state.ph_control_state)
 	{
 	case PH_IDLE:
 		if (ph_minus_auto_correction_possible())

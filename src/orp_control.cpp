@@ -147,6 +147,7 @@ void orp_control_loop(void)
 bool orp_control_update(void *)
 {
 	printlnA("ORP task update");
+	disp_orp_state_to_display();
 	switch (state.orp_control_state)
 	{
 	case ORP_IDLE:
@@ -229,6 +230,12 @@ bool orp_control_update(void *)
 			mqtt_publish_log("ORP Cycle Completed");
 			state.orp_control_state = ORP_INJECTION_OFF;
 			cl_off();
+			state.orp_control_state = ORP_IDLE;
+		}
+		if (orp_auto_correction_possible() == false)
+		{
+			printlnA("Need to stop active ORP correction");
+			mqtt_publish_log("Need to stop active ORP correction");
 			state.orp_control_state = ORP_IDLE;
 		}
 
