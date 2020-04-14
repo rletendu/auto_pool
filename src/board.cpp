@@ -49,7 +49,7 @@ void board_init()
 	//  delay(10);
 	buzzer_off();
 
-	dht.begin(30);
+	dht.begin(60);
 	ds18b20.begin();
 	ads.begin();
 	ads.setGain(GAIN_ONE); // 1x gain   +/- 4.096V  1 bit =  0.125mV
@@ -74,10 +74,16 @@ void board_init()
 
 float dht_get_temperature(void)
 {
+	int retry = 0;
 read_temp:
 	float t = dht.readTemperature();
 	if (isnan(t))
 	{
+		delay(200);
+		if (++retry > 3)
+		{
+			return 255;
+		}
 		goto read_temp;
 	}
 	if ((t == NAN) || (t > 100) || (t < 0))
@@ -92,10 +98,17 @@ read_temp:
 
 float dht_get_humidity(void)
 {
+	int retry = 0;
 read_hum:
 	float t = dht.readHumidity();
 	if (isnan(t))
 	{
+		delay(200);
+		if (++retry > 3)
+		{
+			return 255;
+		}
+
 		goto read_hum;
 	}
 	if ((t == NAN) || (t > 100) || (t < 0))
