@@ -61,8 +61,9 @@ def on_measures(client, userdata, msg):
         print("Enter Virtual measures mode")
         measures["level_cl"] = True
         measures["level_ph_minus"] = True
-        #measures["orp"] = 50.1
-        measures["ph"] = 8.1
+        measures["orp"] = 50.1
+        #measures["orp"] = 750.3
+        measures["ph"] = 6.5
         client.publish("autopool/CMD/MEASURES", json.dumps(measures))
     measures_count += 1
 

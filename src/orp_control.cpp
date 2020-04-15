@@ -157,7 +157,7 @@ bool orp_control_update(void *)
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 20 % injection time
 				counter_injection_on = ((ORP_REGULATION_CYCLE_MS * 20) / 100) / ORP_CONTROL_UPDATE_MS;
-				counter_injection_off = (ORP_REGULATION_CYCLE_MS - counter_injection_on) / ORP_CONTROL_UPDATE_MS;
+				counter_injection_off =((ORP_REGULATION_CYCLE_MS * 80) / 100) / ORP_CONTROL_UPDATE_MS;
 				mqtt_publish_orp_state();
 				orp_on();
 				break;
@@ -167,7 +167,7 @@ bool orp_control_update(void *)
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 50 % injection time
 				counter_injection_on = ((ORP_REGULATION_CYCLE_MS * 50) / 100) / ORP_CONTROL_UPDATE_MS;
-				counter_injection_off = (ORP_REGULATION_CYCLE_MS - counter_injection_on) / ORP_CONTROL_UPDATE_MS;
+				counter_injection_off = ((ORP_REGULATION_CYCLE_MS * 50) / 100) / ORP_CONTROL_UPDATE_MS;
 				mqtt_publish_orp_state();
 				orp_on();
 				break;
@@ -177,7 +177,7 @@ bool orp_control_update(void *)
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 75 % injection time
 				counter_injection_on = ((ORP_REGULATION_CYCLE_MS * 75) / 100) / ORP_CONTROL_UPDATE_MS;
-				counter_injection_off = (ORP_REGULATION_CYCLE_MS - counter_injection_on) / ORP_CONTROL_UPDATE_MS;
+				counter_injection_off = ((ORP_REGULATION_CYCLE_MS * 25) / 100) / ORP_CONTROL_UPDATE_MS;
 				mqtt_publish_orp_state();
 				orp_on();
 				break;
@@ -187,7 +187,7 @@ bool orp_control_update(void *)
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 100% injection time
 				counter_injection_on = ((ORP_REGULATION_CYCLE_MS * 100) / 100) / ORP_CONTROL_UPDATE_MS;
-				counter_injection_off = (ORP_REGULATION_CYCLE_MS - counter_injection_on) / ORP_CONTROL_UPDATE_MS;
+				counter_injection_off = 0;
 				mqtt_publish_orp_state();
 				orp_on();
 				break;
@@ -203,7 +203,7 @@ bool orp_control_update(void *)
 		break;
 
 	case ORP_INJECTION_ON:
-		measures.daily_ml_orp += (float)((double)(parameters.flow_cl / 60.0) * (ORP_REGULATION_CYCLE_MS / 1000));
+		measures.daily_ml_orp += (float)((double)(parameters.flow_cl / 60.0) * (ORP_CONTROL_UPDATE_MS / 1000));
 		if (--counter_injection_on <= 0)
 		{
 			mqtt_publish_log("ORP Injection time Completed");
@@ -231,6 +231,7 @@ bool orp_control_update(void *)
 			mqtt_publish_log("Need to stop active ORP correction");
 			state.orp_control_state = ORP_IDLE;
 		}
+		break;
 
 	default:
 		break;
