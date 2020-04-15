@@ -77,30 +77,30 @@ void disp_next_prev_Callback(void *ptr)
   Register object textNumber, buttonPlus, buttonMinus, to the touch event list.
 */
 NexTouch *nex_listen_list[] =
-	{
-		&disp_next_status,
-		&disp_prev_status,
-		&disp_next_control,
-		&disp_prev_control,
-		&disp_next_graph,
-		&disp_prev_graph,
-		&disp_next_log,
-		&disp_prev_log,
-		&disp_options_ok,
-		&disp_options,
-		&disp_control_cl_auto,
-		&disp_control_cl_off,
-		&disp_control_cl_on,
-		&disp_control_ph_minus_auto,
-		&disp_control_ph_minus_off,
-		&disp_control_ph_minus_on,
-		&disp_control_ph_plus_auto,
-		&disp_control_ph_plus_off,
-		&disp_control_ph_plus_on,
-		&disp_control_filter_auto,
-		&disp_control_filter_off,
-		&disp_control_filter_on,
-		NULL};
+    {
+	&disp_next_status,
+	&disp_prev_status,
+	&disp_next_control,
+	&disp_prev_control,
+	&disp_next_graph,
+	&disp_prev_graph,
+	&disp_next_log,
+	&disp_prev_log,
+	&disp_options_ok,
+	&disp_options,
+	&disp_control_cl_auto,
+	&disp_control_cl_off,
+	&disp_control_cl_on,
+	&disp_control_ph_minus_auto,
+	&disp_control_ph_minus_off,
+	&disp_control_ph_minus_on,
+	&disp_control_ph_plus_auto,
+	&disp_control_ph_plus_off,
+	&disp_control_ph_plus_on,
+	&disp_control_filter_auto,
+	&disp_control_filter_off,
+	&disp_control_filter_on,
+	NULL};
 
 void display_init()
 {
@@ -334,6 +334,14 @@ void disp_measures_to_display(void)
 	else
 	{
 		disp_led_level_water.setPic(ID_IMAGE_RED);
+	}
+	if (measures.pump_pressure <= parameters.pressure_warning)
+	{
+		disp_led_pressure.setPic(ID_IMAGE_GREEN);
+	}
+	else
+	{
+		disp_led_pressure.setPic(ID_IMAGE_RED);
 	}
 }
 

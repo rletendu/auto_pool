@@ -36,15 +36,15 @@ void disp_control_ph_minus_off_Callback(void *ptr)
 }
 void disp_control_cl_auto_Callback(void *ptr)
 {
-	cl_enter_mode(CL_AUTO);
+	orp_enter_mode(ORP_AUTO);
 }
 void disp_control_cl_on_Callback(void *ptr)
 {
-	cl_enter_mode(CL_ON);
+	orp_enter_mode(ORP_ON);
 }
 void disp_control_cl_off_Callback(void *ptr)
 {
-	cl_enter_mode(CL_OFF);
+	orp_enter_mode(ORP_OFF);
 }
 void disp_control_filter_auto_Callback(void *ptr)
 {

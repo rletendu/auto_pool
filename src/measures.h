@@ -18,6 +18,10 @@ struct MeasuresStructure
 	bool level_cl;
 	bool level_ph_minus;
 	bool level_ph_plus;
+	float daily_ml_orp;
+	float daily_ml_ph_plus;
+	float daily_ml_ph_minus;
+	uint32_t boot_count;
 };
 
 extern struct MeasuresStructure measures;
@@ -25,7 +29,6 @@ extern char measures_json_string[MEASURES_JSON_MESSAGE_LEN];
 void measures_to_json_string(void);
 bool measures_json_to_measures(char *json_str);
 void measures_init(void);
-void measures_loop(void);
 void measures_set_virtual(bool state);
 
 #endif

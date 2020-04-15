@@ -11,11 +11,11 @@ enum pump_state_t
 	PUMP_ON = 1,
 };
 
-enum cl_mode_t
+enum orp_mode_t
 {
-	CL_OFF = 0,
-	CL_ON = 1,
-	CL_AUTO = 2,
+	ORP_OFF = 0,
+	ORP_ON = 1,
+	ORP_AUTO = 2,
 };
 
 enum filter_mode_t
@@ -54,8 +54,10 @@ enum ph_plus_mode_t
 enum ph_control_state_t
 {
 	PH_IDLE = 0,
-	PH_MINUS_ACTIVE_CORRECTION,
-	PH_PLUS_ACTIVE_CORRECTION,
+	PH_MINUS_INJECTION_ON,
+	PH_PLUS_INJECTION_ON,
+	PH_MINUS_INJECTION_OFF,
+	PH_PLUS_INJECTION_OFF
 };
 
 struct StateStructure
@@ -64,9 +66,9 @@ struct StateStructure
 	enum pump_state_t filter_pump;
 	enum filter_control_state_t filter_control_state;
 
-	enum cl_mode_t cl_mode;
+	enum orp_mode_t orp_mode;
 	enum orp_control_state_t orp_control_state;
-	enum pump_state_t cl_pump;
+	enum pump_state_t orp_pump;
 
 	enum ph_minus_mode_t ph_minus_mode;
 	enum ph_plus_mode_t ph_plus_mode;

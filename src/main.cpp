@@ -23,11 +23,26 @@
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
 
+RTC_DATA_ATTR int bootCount = 0;
+RTC_DATA_ATTR float daily_ml_ph_minus_backup = 0;
+RTC_DATA_ATTR float daily_ml_ph_plus_backup = 0;
+RTC_DATA_ATTR float daily_ml_orp_backup = 0;
+
 bool time_update(void *)
 {
 	char msg[20];
 	sprintf(msg, "%02u/%02u/%02u %02u:%02u", rtc_get_day(), rtc_get_month(), rtc_get_year(), rtc_get_hour(), rtc_get_minute());
 	dis_sys_hour.setText(msg);
+	if (rtc_get_hour()==0 && rtc_get_minute()==0) {
+		measures.daily_ml_ph_minus = 0;
+		measures.daily_ml_ph_plus = 0;
+		measures.daily_ml_orp = 0;
+		mqtt_publish_log("Reset injecion counters");
+	}
+	// Backup injection counters in RTC memory
+	daily_ml_ph_minus_backup = measures.daily_ml_ph_minus;
+	daily_ml_ph_plus_backup = measures.daily_ml_ph_plus;
+	daily_ml_orp_backup = measures.daily_ml_orp;
 	return true; // repeat? true
 }
 
@@ -47,6 +62,7 @@ void rtc_init()
 
 void setup()
 {
+	bootCount++;
 	Serial.begin(115200);
 	//parameters_format();
 	board_init();
@@ -87,10 +103,8 @@ unsigned long duration;
 void loop()
 {
 	ota_loop();
-	measures_loop();
 	display_loop();
 	mqtt_loop();
 	cli_loop();
-	filter_control_loop();
 	timer_pool.tick(); // tick the timer
 }

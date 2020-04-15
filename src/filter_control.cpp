@@ -112,8 +112,3 @@ bool filter_control_update(void *)
 	}
 	return true;
 }
-
-void filter_control_loop(void)
-{
-
-}

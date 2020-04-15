@@ -7,7 +7,6 @@
 
 
 void filter_control_init(void);
-void filter_control_loop(void);
 void filter_enter_mode(enum filter_mode_t filter_mode);
 
 #endif

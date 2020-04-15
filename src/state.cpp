@@ -44,8 +44,8 @@ void orp_state_to_json_string(void)
 {
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject &json = jsonBuffer.createObject();
-	json["cl_mode"] = (int)state.cl_mode;
-	json["cl_pump"] = (int)state.cl_pump;
+	json["orp_mode"] = (int)state.orp_mode;
+	json["orp_pump"] = (int)state.orp_pump;
 	json["orp_control_state"] = (int)state.orp_control_state;
 	json.printTo(state_orp_json_string, sizeof(state_orp_json_string));
 	printA("ORP Json:");
@@ -58,8 +58,8 @@ bool orp_state_json_to_state(char *json_str)
 	JsonObject &json = jsonBuffer.parseObject(json_str);
 	if (json.success())
 	{
-		state.cl_mode = (cl_mode_t)(int)json["cl_mode"];
-		state.cl_pump = (pump_state_t)(int)json["cl_pump"];
+		state.orp_mode = (orp_mode_t)(int)json["orp_mode"];
+		state.orp_pump = (pump_state_t)(int)json["orp_pump"];
 		state.orp_control_state = (orp_control_state_t)(int)json["orp_control_state"];
 		return true;
 	}
