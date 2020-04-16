@@ -20,20 +20,23 @@
 #include <Nextion.h>
 #include "display_logger.h"
 
+
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
 
-RTC_DATA_ATTR int bootCount = 0;
-RTC_DATA_ATTR float daily_ml_ph_minus_backup = 0;
-RTC_DATA_ATTR float daily_ml_ph_plus_backup = 0;
-RTC_DATA_ATTR float daily_ml_orp_backup = 0;
+RTC_NOINIT_ATTR int bootCount;
+RTC_NOINIT_ATTR float daily_ml_ph_minus_backup;
+RTC_NOINIT_ATTR float daily_ml_ph_plus_backup;
+RTC_NOINIT_ATTR float daily_ml_orp_backup;
+RTC_NOINIT_ATTR uint32_t boot_key;
 
 bool time_update(void *)
 {
 	char msg[20];
 	sprintf(msg, "%02u/%02u/%02u %02u:%02u", rtc_get_day(), rtc_get_month(), rtc_get_year(), rtc_get_hour(), rtc_get_minute());
 	dis_sys_hour.setText(msg);
-	if (rtc_get_hour()==0 && rtc_get_minute()==0) {
+	if (rtc_get_hour() == 0 && rtc_get_minute() == 0)
+	{
 		measures.daily_ml_ph_minus = 0;
 		measures.daily_ml_ph_plus = 0;
 		measures.daily_ml_orp = 0;
@@ -62,7 +65,15 @@ void rtc_init()
 
 void setup()
 {
-	bootCount++;
+	if (boot_key == BOOT_KEY_MAGIC)
+	{
+		bootCount++;
+	}
+	else
+	{
+		bootCount = 0;
+	}
+
 	Serial.begin(115200);
 	//parameters_format();
 	board_init();
@@ -90,10 +101,11 @@ void setup()
 		printlnA(F("Need to write Json config file..."));
 		parameters_write_file();
 	}
-	
+
 	time_update_task = timer_pool.every(60 * 1000, time_update);
 	printlnA(F("Init Done..."));
 	//NexSleep();
+	boot_key = BOOT_KEY_MAGIC;
 }
 
 volatile unsigned long tmp = 0;

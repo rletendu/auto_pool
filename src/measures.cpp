@@ -15,10 +15,11 @@ static bool measures_are_vitual = false;
 uintptr_t update_measures_task;
 uintptr_t update_graph_task;
 
-extern RTC_DATA_ATTR float daily_ml_ph_minus_backup;
-extern RTC_DATA_ATTR float daily_ml_ph_plus_backup;
-extern RTC_DATA_ATTR float daily_ml_orp_backup;
-extern RTC_DATA_ATTR int bootCount;
+extern RTC_NOINIT_ATTR float daily_ml_ph_minus_backup;
+extern RTC_NOINIT_ATTR float daily_ml_ph_plus_backup;
+extern RTC_NOINIT_ATTR float daily_ml_orp_backup;
+extern RTC_NOINIT_ATTR int bootCount;
+extern RTC_NOINIT_ATTR uint32_t boot_key;
 
 void measures_to_json_string(void);
 bool update_measures(void *);
@@ -28,9 +29,11 @@ void measures_init(void)
 {
 	printlnA(F("Mesures Init"));
 	measures.index = millis();
-	measures.daily_ml_orp = daily_ml_orp_backup;
-	measures.daily_ml_ph_minus = daily_ml_ph_minus_backup;
-	measures.daily_ml_ph_plus = daily_ml_ph_plus_backup;
+	if (boot_key == BOOT_KEY_MAGIC) {
+		measures.daily_ml_orp = daily_ml_orp_backup;
+		measures.daily_ml_ph_minus = daily_ml_ph_minus_backup;
+		measures.daily_ml_ph_plus = daily_ml_ph_plus_backup;
+	}
 	measures.boot_count = bootCount;
 	measures_are_vitual = false;
 	update_measures_task = timer_pool.every(MEASURES_UPDATE_MS, update_measures);
