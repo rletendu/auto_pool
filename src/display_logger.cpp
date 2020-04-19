@@ -20,12 +20,13 @@ void display_log_clear(void)
 
 void display_log_append(char *msg)
 {
-	uint16_t cr_table[DISP_LOG_NB_LINES+1];
+	uint16_t cr_table[DISP_LOG_NB_LINES + 1];
 	char timestamp[20];
 	sprintf(timestamp, "%02u:%02u:%02u : ", rtc_get_hour(), rtc_get_minute(), rtc_get_second());
 	uint16_t i;
 	uint16_t cr_cnt = 0;
 	log_read();
+
 	for (i = 0; i < strlen(old_log_content); i++)
 	{
 		if (old_log_content[i] == '\r')
@@ -33,7 +34,7 @@ void display_log_append(char *msg)
 			cr_table[cr_cnt] = i;
 			cr_cnt++;
 		}
-	}
+	}	
 	if (cr_cnt >= DISP_LOG_NB_LINES)
 	{
 		strcpy(new_log_content, old_log_content + cr_table[0] + 2);
@@ -42,8 +43,12 @@ void display_log_append(char *msg)
 	{
 		strcpy(new_log_content, old_log_content);
 	}
+
+	if (strlen(old_log_content))
+	{
+		strcat(new_log_content, "\r\n");
+	}
 	strcat(new_log_content, timestamp);
 	strcat(new_log_content, msg);
-	strcat(new_log_content, "\r\n");
 	disp_log_logger.setText(new_log_content);
 }

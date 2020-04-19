@@ -7,12 +7,15 @@
 #include "config.h"
 #include "state.h"
 #include "board.h"
+#include "display_logger.h"
 
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
 
 void mqtt_callback(char *topic, byte *message, unsigned int length)
 {
+
+	int i;
 	char basetopic[20];
 	char payload[MQTT_MAX_PACKET_SIZE];
 	strcpy(basetopic, parameters.mqtt_base_topic);
@@ -21,11 +24,12 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	in_topic.replace(basetopic, "");
 
 	String payload_buff;
-	for (int i = 0; i < length; i++)
+	for (i = 0; i < length; i++)
 	{
 		payload_buff = payload_buff + String((char)message[i]);
 		payload[i] = message[i];
 	}
+	payload[++i] = 0;
 
 	if (in_topic == "FILTER_PUMP")
 	{
@@ -75,6 +79,10 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	else if (in_topic == "GET_STATES")
 	{
 		mqtt_publish_states();
+	}
+	else if (in_topic == "LOG")
+	{
+		display_log_append(payload);
 	}
 }
 
