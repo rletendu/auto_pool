@@ -22,6 +22,11 @@ NexXfloat disp_sys_temperature = NexXfloat(PID_STATUS, CID_STATUS_SYSTEM_TEMP, "
 NexXfloat disp_sys_humidity = NexXfloat(PID_STATUS, CID_STATUS_SYSTEM_HUMIDITY, "status.sys_hum_value");
 NexPicture disp_wifi = NexPicture(PID_STATUS, CID_STATUS_WIFI, "status.wifi_value");
 NexText dis_sys_hour = NexText(PID_STATUS,CID_STATUS_SYSTEM_HOUR, "status.sys_hour");
+NexText dis_sys_user0 = NexText(PID_STATUS,51, "status.sys_user0");
+
+
+NexXfloat disp_phm_day = NexXfloat(PID_STATUS, 39, "status.phm_day");
+NexXfloat disp_cl_day = NexXfloat(PID_STATUS, 40, "status.cl_day");
 
 NexPicture disp_led_ph = NexPicture(PID_STATUS, CID_STATUS_LED_PH, "status.ph_led");
 NexPicture disp_led_orp = NexPicture(PID_STATUS, CID_STATUS_LED_ORP, "status.orp_led");
@@ -30,6 +35,10 @@ NexPicture disp_led_pressure = NexPicture(PID_STATUS, CID_STATUS_LED_PRESSURE, "
 NexPicture disp_led_level_water = NexPicture(PID_STATUS, CID_STATUS_WATER_LEVEL, "status.water_lev");
 NexPicture disp_led_level_cl = NexPicture(PID_STATUS, CID_STATUS_CL_LEVEL, "status.cl_level");
 NexPicture disp_led_level_ph_minus = NexPicture(PID_STATUS, CID_STATUS_PH_MINUS_LEVEL, "status.phm_level");
+
+NexPicture disp_led_pump_water = NexPicture(PID_STATUS, 46, "status.filter_pump");
+NexPicture disp_led_pump_cl = NexPicture(PID_STATUS, 47, "status.cl_pump");
+NexPicture disp_led_pump_ph_minus = NexPicture(PID_STATUS, 48, "status.phm_pump");
 
 NexPicture disp_options = NexPicture(PID_STATUS, CID_OPTIONS, "p1");
 

@@ -42,6 +42,7 @@ static void ph_minus_on(void)
 	if (state.ph_minus_pump != PUMP_ON)
 	{
 		state.ph_minus_pump = PUMP_ON;
+		disp_led_pump_ph_minus.setPic(ID_IMAGE_GREEN);
 		mqtt_publish_ph_state();
 	}
 }
@@ -52,6 +53,7 @@ static void ph_minus_off(void)
 	if (state.ph_minus_pump != PUMP_OFF)
 	{
 		state.ph_minus_pump = PUMP_OFF;
+		disp_led_pump_ph_minus.setPic(ID_IMAGE_RED);
 		mqtt_publish_ph_state();
 	}
 }

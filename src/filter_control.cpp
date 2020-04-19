@@ -20,6 +20,7 @@ static void filter_on(void)
 	if (state.filter_pump != PUMP_ON)
 	{
 		state.filter_pump = PUMP_ON;
+		disp_led_pump_water.setPic(ID_IMAGE_GREEN);
 		mqtt_publish_filter_state();
 	}
 }
@@ -30,6 +31,7 @@ static void filter_off(void)
 	if (state.filter_pump != PUMP_OFF)
 	{
 		state.filter_pump = PUMP_OFF;
+		disp_led_pump_water.setPic(ID_IMAGE_RED);
 		mqtt_publish_filter_state();
 	}
 }
