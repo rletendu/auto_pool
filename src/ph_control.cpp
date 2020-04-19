@@ -23,14 +23,13 @@ void ph_control_init(void)
 {
 	ph_control_state = PH_IDLE;
 	printlnA(F("Ph Control Init"));
+	disp_led_pump_ph_minus.setPic(ID_IMAGE_RED);
 	ph_minus_enter_mode(PH_MINUS_OFF);
 	ph_minus_enter_mode(PH_MINUS_AUTO);
 
 #if HAS_PH_PLUS_PUMP
 	ph_plus_enter_mode(PH_PLUS_OFF);
 	ph_plus_enter_mode(PH_PLUS_AUTO);
-#else
-	control_ph_plus_disable_controls();
 #endif
 	ph_control_update_task = timer_pool.every(PH_CONTROL_UPDATE_MS, ph_control_update);
 	mqtt_publish_ph_state();

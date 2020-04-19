@@ -77,6 +77,7 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 void filter_control_init(void)
 {
 	printlnA(F("Filter Control Init"));
+	disp_led_pump_water.setPic(ID_IMAGE_RED);
 	filter_enter_mode(FILTER_OFF);
 	filter_enter_mode(FILTER_AUTO);
 	filter_control_update_task = timer_pool.every(FILTER_CONTROL_UPDATE_MS, filter_control_update);

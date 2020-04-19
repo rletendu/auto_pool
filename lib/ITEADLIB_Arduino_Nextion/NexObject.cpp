@@ -26,7 +26,7 @@ bool NexObject::setVisibility(bool visibility)
 {
     char buf[10] = {0};
     String cmd = "vis ";
-    cmd += getObjName();
+    cmd += getObjCid();
     if (visibility) {
         cmd += ",1";
     } else {

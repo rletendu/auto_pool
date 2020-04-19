@@ -7,6 +7,8 @@
 #include "measures.h"
 #include "mqtt.h"
 #include "parameters.h"
+#include "orp_control.h"
+#include "state.h"
 
 display_page_t display_page = PAGE_STATUS;
 void disp_timer_prog_to_display(uint32_t timer_prog);
@@ -337,6 +339,39 @@ void disp_measures_to_display(void)
     disp_led_level_water.setPic(ID_IMAGE_RED);
   }
   
+}
+
+void disp_orp_state_to_display(void)
+{
+
+	if (state.orp_control_state != ORP_IDLE)
+	{
+		disp_led_orp.setPic(ID_IMAGE_ORANGE);
+	}
+	else if (orp_correction_needed() != NO_CORRECTION)
+	{
+		disp_led_orp.setPic(ID_IMAGE_RED);
+	}
+	else
+	{
+		disp_led_orp.setPic(ID_IMAGE_GREEN);
+	}
+}
+
+void disp_ph_state_to_display(void)
+{
+	if (state.ph_control_state != PH_IDLE)
+	{
+		disp_led_ph.setPic(ID_IMAGE_ORANGE);
+	}
+	else if (orp_correction_needed() != NO_CORRECTION)
+	{
+		disp_led_ph.setPic(ID_IMAGE_RED);
+	}
+	else
+	{
+		disp_led_ph.setPic(ID_IMAGE_GREEN);
+	}
 }
 
 void disp_measures_to_graph(void)

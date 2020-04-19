@@ -24,11 +24,11 @@
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
 
-RTC_NOINIT_ATTR int bootCount;
+int bootCount RTC_NOINIT_ATTR;
 RTC_NOINIT_ATTR float daily_ml_ph_minus_backup;
 RTC_NOINIT_ATTR float daily_ml_ph_plus_backup;
 RTC_NOINIT_ATTR float daily_ml_orp_backup;
-RTC_NOINIT_ATTR uint32_t boot_key;
+ uint32_t boot_key RTC_NOINIT_ATTR;
 
 bool time_update(void *)
 {

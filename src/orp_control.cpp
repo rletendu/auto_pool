@@ -79,6 +79,7 @@ void orp_enter_mode(enum orp_mode_t orp_mode)
 void orp_control_init(void)
 {
 	printlnA(F("ORP Control Init"));
+	disp_led_pump_cl.setPic(ID_IMAGE_RED);
 	state.orp_control_state = ORP_IDLE;
 	orp_enter_mode(ORP_OFF);
 	orp_enter_mode(ORP_AUTO);
