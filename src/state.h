@@ -28,6 +28,8 @@ enum filter_mode_t
 enum filter_control_state_t
 {
 	FILTER_IDLE = 0,
+	FILTER_AUTO_ACTIVE,
+	FILTER_AUTO_ACTIVE_EXTENDED,
 };
 
 enum orp_control_state_t

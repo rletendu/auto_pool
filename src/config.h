@@ -29,6 +29,8 @@
 
 #define HAS_PH_PLUS_PUMP 0
 
+#define DISP_LOG_NB_LINES 10
+#define DISP_LOG_NB_CHAR 900
 
 
 #endif

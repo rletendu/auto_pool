@@ -56,7 +56,7 @@ bool update_measures(void *)
 	float dht;
 	debug_pin1_on();
 	led0_on();
-	measures.index = millis();
+	measures.index = millis()/1000;
 	printlnA(measures.index);
 	if (measures_are_vitual)
 	{
@@ -91,7 +91,7 @@ bool update_measures(void *)
 	measures_to_json_string();
 	disp_measures_to_display();
 	mqtt_publish_measures();
-	//log_append("Measure...");
+	//display_log_append("Measure...");
 	debug_pin1_off();
 	led0_off();
 	return true;

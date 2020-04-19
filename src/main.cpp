@@ -19,7 +19,7 @@
 #include "time.h"
 #include <Nextion.h>
 #include "display_logger.h"
-
+#include "logger.h"
 
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
@@ -28,7 +28,7 @@ int bootCount RTC_NOINIT_ATTR;
 RTC_NOINIT_ATTR float daily_ml_ph_minus_backup;
 RTC_NOINIT_ATTR float daily_ml_ph_plus_backup;
 RTC_NOINIT_ATTR float daily_ml_orp_backup;
- uint32_t boot_key RTC_NOINIT_ATTR;
+uint32_t boot_key RTC_NOINIT_ATTR;
 
 bool time_update(void *)
 {
@@ -77,7 +77,7 @@ void setup()
 	Serial.begin(115200);
 	//parameters_format();
 	board_init();
-	log_clear();
+	display_log_clear();
 	delay(500);
 	printlnA(F("AutoPool Starting..."));
 	wifimanager_init();
@@ -106,6 +106,9 @@ void setup()
 	printlnA(F("Init Done..."));
 	//NexSleep();
 	boot_key = BOOT_KEY_MAGIC;
+	char boot_msg[25];
+	sprintf(boot_msg, "Autopool rebooted (%u)", measures.boot_count);
+	log_append(boot_msg);
 }
 
 volatile unsigned long tmp = 0;

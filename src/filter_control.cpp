@@ -9,6 +9,8 @@
 #include "board.h"
 #include "soft_timer.h"
 #include "filter_control.h"
+#include "logger.h"
+#include "display_components.h"
 
 extern SoftTimer timer_pool;
 uintptr_t filter_control_update_task;
@@ -87,30 +89,63 @@ void filter_control_init(void)
 bool filter_control_update(void *)
 {
 	uint8_t h;
-	uint32_t r;
+	uint32_t timer_prog_ok;
+
+	timer_prog_ok = parameters.timer_prog & uint32_t(1 << rtc_get_hour());
 	if (state.filter_mode == FILTER_AUTO)
 	{
-		if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
+		switch (state.filter_control_state)
 		{
-			h = rtc_get_hour();
-			r = parameters.timer_prog & uint32_t(1 << h);
-			if (r)
+		case FILTER_IDLE:
+			if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
 			{
-				filter_on();
+				if (timer_prog_ok)
+				{
+					filter_on();
+					state.filter_control_state = FILTER_AUTO_ACTIVE;
+					log_append("Filter started from timer prog");
+				}
+			}
+			else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
+			{
+#warning TODO not implemented yet
+			}
+			break;
+		case FILTER_AUTO_ACTIVE:
+			if (timer_prog_ok)
+			{
+				// Ok Keep going;
 			}
 			else
 			{
-				if (state.ph_control_state == PH_IDLE && state.orp_control_state == ORP_IDLE) {
+				if (state.ph_control_state == PH_IDLE && state.orp_control_state == ORP_IDLE)
+				{
+					state.filter_control_state = FILTER_IDLE;
 					filter_off();
-				} else {
+					log_append("Filter stoped from timer prog");
+				}
+				else
+				{
+					state.filter_control_state = FILTER_AUTO_ACTIVE_EXTENDED;
 					printlnA(F("Filter OFF on hold, pH or ORP active"));
-					asm("NOP");
+					log_append("Filter time Extended (ORP/PH)");
 				}
 			}
-		}
-		else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
-		{
-
+			break;
+		case FILTER_AUTO_ACTIVE_EXTENDED:
+			if (state.ph_control_state == PH_IDLE && state.orp_control_state == ORP_IDLE)
+			{
+				state.filter_control_state = FILTER_IDLE;
+				filter_off();
+				log_append("Filter Extended stoped");
+			}
+			else
+			{
+				// Continue extension time
+			}
+			break;
+		default:
+			break;
 		}
 	}
 	return true;

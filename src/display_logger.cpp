@@ -5,22 +5,22 @@
 #include <SerialDebug.h>
 #include "measures.h"
 
-char old_log_content[800];
-char new_log_content[800];
+char old_log_content[DISP_LOG_NB_CHAR];
+char new_log_content[DISP_LOG_NB_CHAR];
 
 static void log_read(void)
 {
 	disp_log_logger.getText(old_log_content, sizeof(old_log_content));
 }
 
-void log_clear(void)
+void display_log_clear(void)
 {
 	disp_log_logger.setText("");
 }
 
-void log_append(char *msg)
+void display_log_append(char *msg)
 {
-	uint16_t cr_table[10];
+	uint16_t cr_table[DISP_LOG_NB_LINES+1];
 	char timestamp[20];
 	sprintf(timestamp, "%02u:%02u:%02u : ", rtc_get_hour(), rtc_get_minute(), rtc_get_second());
 	uint16_t i;
@@ -34,7 +34,7 @@ void log_append(char *msg)
 			cr_cnt++;
 		}
 	}
-	if (cr_cnt >= 10)
+	if (cr_cnt >= DISP_LOG_NB_LINES)
 	{
 		strcpy(new_log_content, old_log_content + cr_table[0] + 2);
 	}
