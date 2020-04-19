@@ -124,6 +124,9 @@ extern NexXfloat disp_sys_temperature;
 extern NexXfloat disp_sys_humidity;
 extern NexPicture disp_wifi;
 extern NexText dis_sys_hour;
+extern NexText dis_sys_user0;
+extern NexXfloat disp_phm_day;
+extern NexXfloat disp_cl_day;
 
 extern NexPicture disp_led_ph;
 extern NexPicture disp_led_orp;
@@ -132,6 +135,10 @@ extern NexPicture disp_led_pressure;
 extern NexPicture disp_led_level_water;
 extern NexPicture disp_led_level_cl;
 extern NexPicture disp_led_level_ph_minus;
+
+extern NexPicture disp_led_pump_water;
+extern NexPicture disp_led_pump_cl;
+extern NexPicture disp_led_pump_ph_minus;
 
 extern NexPicture disp_options;
 
