@@ -112,6 +112,7 @@ void disp_page_saver_Callback(void *ptr)
 {
 	page_status.show();
 	NexDim(100);
+	touch_timeout = millis() + TOUCH_TIMEOUT_S * 1000;
 }
 
 void display_init()
@@ -150,7 +151,7 @@ void display_init()
 	page_boot.show();
 	nexSetGlobalPushCb(disp_global_push_Callback);
 	delay(2000);
-	touch_timeout = TOUCH_TIMEOUT_S;
+	touch_timeout = TOUCH_TIMEOUT_S*1000;
 	printlnA(F("Display Init Done"));
 }
 
@@ -167,6 +168,7 @@ void display_loop(void)
 void disp_page_ota()
 {
 	page_ota.show();
+	NexDim(100);
 }
 
 void disp_ota_progress(uint8_t progress)

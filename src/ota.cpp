@@ -18,11 +18,11 @@ void ota_init(void)
 		    disp_page_ota();
 		    pump_all_off();
 		    buzzer_on();
-		    delay(50);
+		    delay(10);
 		    buzzer_off();
-		    delay(50);
+		    delay(10);
 		    buzzer_on();
-		    delay(50);
+		    delay(10);
 		    buzzer_off();
 	    })
 	    .onEnd([]() {
