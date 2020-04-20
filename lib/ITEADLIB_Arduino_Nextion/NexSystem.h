@@ -21,5 +21,6 @@
 #include "NexHardware.h"
 
 bool NexSleep(void);
+bool NexDim(uint8_t dim);
 
 #endif /* #ifndef __NEXXFLOAT_H__ */

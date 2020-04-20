@@ -53,7 +53,12 @@ void nexLoop(NexTouch *nex_listen_list[]);
 bool recvRetNumber(uint32_t *number, uint32_t timeout = 100);
 uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout = 100);
 void sendCommand(const char* cmd);
+void sendRaw(const char* raw_data, uint8_t len);
 bool recvRetCommandFinished(uint32_t timeout = 100);
 bool recvRetPageId(uint8_t *page_id, uint32_t timeout = 100);
+
+
+void nexSetGlobalPushCb(NexTouchEventCb cb_push);
+void nexSetGlobalPopCb(NexTouchEventCb cb_pop);
 
 #endif /* #ifndef __NEXHARDWARE_H__ */

@@ -32,7 +32,7 @@ void ph_control_init(void)
 	ph_plus_enter_mode(PH_PLUS_OFF);
 	ph_plus_enter_mode(PH_PLUS_AUTO);
 #endif
-	ph_control_update_task = timer_pool.every(PH_CONTROL_UPDATE_MS, ph_control_update);
+	ph_control_update_task = timer_pool.every(PH_CONTROL_UPDATE_S*1000, ph_control_update);
 	mqtt_publish_ph_state();
 }
 
@@ -283,8 +283,8 @@ bool ph_control_update(void *)
 				log_append("PH MINUS Step 1 correction needed");
 				state.ph_control_state = PH_MINUS_INJECTION_ON;
 				// 20 % injection time
-				counter_injection_on = ((PH_REGULATION_CYCLE_MS * 20) / 100) / PH_CONTROL_UPDATE_MS;
-				counter_injection_off = ((PH_REGULATION_CYCLE_MS * 80) / 100) / PH_CONTROL_UPDATE_MS;
+				counter_injection_on = ((PH_REGULATION_CYCLE_S * 20) / 100) / PH_CONTROL_UPDATE_S;
+				counter_injection_off = ((PH_REGULATION_CYCLE_S * 80) / 100) / PH_CONTROL_UPDATE_S;
 				mqtt_publish_ph_state();
 				ph_minus_on();
 				break;
@@ -294,8 +294,8 @@ bool ph_control_update(void *)
 				log_append("PH MINUS Step 2 correction needed");
 				state.ph_control_state = PH_MINUS_INJECTION_ON;
 				// 50 % injection time
-				counter_injection_on = ((PH_REGULATION_CYCLE_MS * 50) / 100) / PH_CONTROL_UPDATE_MS;
-				counter_injection_off =((PH_REGULATION_CYCLE_MS * 50) / 100) / PH_CONTROL_UPDATE_MS;
+				counter_injection_on = ((PH_REGULATION_CYCLE_S * 50) / 100) / PH_CONTROL_UPDATE_S;
+				counter_injection_off =((PH_REGULATION_CYCLE_S * 50) / 100) / PH_CONTROL_UPDATE_S;
 				mqtt_publish_ph_state();
 				ph_minus_on();
 				break;
@@ -305,8 +305,8 @@ bool ph_control_update(void *)
 				log_append("PH MINUS Step 3 correction needed");
 				state.ph_control_state = PH_MINUS_INJECTION_ON;
 				// 75 % injection time
-				counter_injection_on = ((PH_REGULATION_CYCLE_MS * 75) / 100) / PH_CONTROL_UPDATE_MS;
-				counter_injection_off = ((PH_REGULATION_CYCLE_MS * 25) / 100) / PH_CONTROL_UPDATE_MS;
+				counter_injection_on = ((PH_REGULATION_CYCLE_S * 75) / 100) / PH_CONTROL_UPDATE_S;
+				counter_injection_off = ((PH_REGULATION_CYCLE_S * 25) / 100) / PH_CONTROL_UPDATE_S;
 				mqtt_publish_ph_state();
 				ph_minus_on();
 				break;
@@ -316,7 +316,7 @@ bool ph_control_update(void *)
 				log_append("PH MINUS Step 4 correction needed");
 				state.ph_control_state = PH_MINUS_INJECTION_ON;
 				// 100% injection time
-				counter_injection_on = ((PH_REGULATION_CYCLE_MS * 100) / 100) / PH_CONTROL_UPDATE_MS;
+				counter_injection_on = ((PH_REGULATION_CYCLE_S * 100) / 100) / PH_CONTROL_UPDATE_S;
 				counter_injection_off = 0;
 				mqtt_publish_ph_state();
 				ph_minus_on();
@@ -340,8 +340,8 @@ bool ph_control_update(void *)
 				log_append("PH PLUS Step 1 correction needed");
 				state.ph_control_state = PH_PLUS_INJECTION_ON;
 				// 20 % injection time
-				counter_injection_on = ((PH_REGULATION_CYCLE_MS * 20) / 100) / PH_CONTROL_UPDATE_MS;
-				counter_injection_off = ((PH_REGULATION_CYCLE_MS * 80) / 100) / PH_CONTROL_UPDATE_MS;
+				counter_injection_on = ((PH_REGULATION_CYCLE_S * 20) / 100) / PH_CONTROL_UPDATE_S;
+				counter_injection_off = ((PH_REGULATION_CYCLE_S * 80) / 100) / PH_CONTROL_UPDATE_S;
 				mqtt_publish_ph_state();
 				ph_plus_on();
 				break;
@@ -350,8 +350,8 @@ bool ph_control_update(void *)
 				printlnA("PH PLUS Step 2 correction needed");
 				log_append("PH PLUS Step 2 correction needed");
 				// 50 % injection time
-				counter_injection_on = ((PH_REGULATION_CYCLE_MS * 50) / 100) / PH_CONTROL_UPDATE_MS;
-				counter_injection_off = ((PH_REGULATION_CYCLE_MS * 50) / 100) / PH_CONTROL_UPDATE_MS;
+				counter_injection_on = ((PH_REGULATION_CYCLE_S * 50) / 100) / PH_CONTROL_UPDATE_S;
+				counter_injection_off = ((PH_REGULATION_CYCLE_S * 50) / 100) / PH_CONTROL_UPDATE_S;
 				mqtt_publish_ph_state();
 				ph_plus_on();
 				break;
@@ -361,8 +361,8 @@ bool ph_control_update(void *)
 				log_append("PH PLUS Step 3 correction needed");
 				state.ph_control_state = PH_PLUS_INJECTION_ON;
 				// 75 % injection time
-				counter_injection_on = ((PH_REGULATION_CYCLE_MS * 75) / 100) / PH_CONTROL_UPDATE_MS;
-				counter_injection_off = ((PH_REGULATION_CYCLE_MS * 25) / 100) / PH_CONTROL_UPDATE_MS;
+				counter_injection_on = ((PH_REGULATION_CYCLE_S * 75) / 100) / PH_CONTROL_UPDATE_S;
+				counter_injection_off = ((PH_REGULATION_CYCLE_S * 25) / 100) / PH_CONTROL_UPDATE_S;
 				mqtt_publish_ph_state();
 				ph_plus_on();
 				break;
@@ -372,7 +372,7 @@ bool ph_control_update(void *)
 				log_append("PH PLUS Step 4 correction needed");
 				state.ph_control_state = PH_PLUS_INJECTION_ON;
 				// 100% injection time
-				counter_injection_on = ((PH_REGULATION_CYCLE_MS * 100) / 100) / PH_CONTROL_UPDATE_MS;
+				counter_injection_on = ((PH_REGULATION_CYCLE_S * 100) / 100) / PH_CONTROL_UPDATE_S;
 				counter_injection_off = 0;
 				mqtt_publish_ph_state();
 				ph_plus_on();
@@ -390,7 +390,7 @@ bool ph_control_update(void *)
 		break;
 
 	case PH_MINUS_INJECTION_ON:
-		measures.daily_ml_ph_minus += (float)((double)(parameters.flow_ph_minus / 60.0) * (PH_CONTROL_UPDATE_MS / 1000));
+		measures.daily_ml_ph_minus += (float)((double)(parameters.flow_ph_minus / 60.0) * (PH_CONTROL_UPDATE_S));
 		if (--counter_injection_on <= 0)
 		{
 			log_append("pH Minus Injection time Completed");
@@ -407,7 +407,7 @@ bool ph_control_update(void *)
 		break;
 
 	case PH_PLUS_INJECTION_ON:
-		measures.daily_ml_ph_plus += (float)((double)(parameters.flow_ph_plus / 60.0) * (PH_CONTROL_UPDATE_MS / 1000));
+		measures.daily_ml_ph_plus += (float)((double)(parameters.flow_ph_plus / 60.0) * (PH_CONTROL_UPDATE_S));
 		if (--counter_injection_on <= 0)
 		{
 			log_append("pH Plus Injection time Completed");

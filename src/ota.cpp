@@ -17,6 +17,13 @@ void ota_init(void)
 		    printlnA(F("Start updating "));
 		    disp_page_ota();
 		    pump_all_off();
+		    buzzer_on();
+		    delay(50);
+		    buzzer_off();
+		    delay(50);
+		    buzzer_on();
+		    delay(50);
+		    buzzer_off();
 	    })
 	    .onEnd([]() {
 		    printlnA(F("End Update"));

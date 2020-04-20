@@ -17,6 +17,7 @@
 #define PID_LOG 4
 #define PID_OPTIONS 5
 #define PID_OTA 6
+#define PID_SAVER 7
 
 #define CID_STATUS_WIFI 6
 #define CID_OPTIONS 7
@@ -113,6 +114,7 @@ extern NexPage page_graph;
 extern NexPage page_log;
 extern NexPage page_options;
 extern NexPage page_ota;
+extern NexPage page_saver;
 
 extern NexProgressBar ota_progress;
 

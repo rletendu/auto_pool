@@ -40,8 +40,8 @@ void measures_init(void)
 	measures.daily_ml_ph_plus = daily_ml_ph_plus_backup;
 	measures.boot_count = bootCount;
 	measures_are_vitual = false;
-	update_measures_task = timer_pool.every(MEASURES_UPDATE_MS, update_measures);
-	update_graph_task = timer_pool.every(GRAPH_UPDATE_MS, update_graph);
+	update_measures_task = timer_pool.every(MEASURES_UPDATE_S*1000, update_measures);
+	update_graph_task = timer_pool.every(GRAPH_UPDATE_S*1000, update_graph);
 	update_measures(NULL);
 }
 

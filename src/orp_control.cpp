@@ -84,7 +84,7 @@ void orp_control_init(void)
 	state.orp_control_state = ORP_IDLE;
 	orp_enter_mode(ORP_OFF);
 	orp_enter_mode(ORP_AUTO);
-	orp_control_update_task = timer_pool.every(ORP_CONTROL_UPDATE_MS, orp_control_update);
+	orp_control_update_task = timer_pool.every(ORP_CONTROL_UPDATE_S*1000, orp_control_update);
 	mqtt_publish_orp_state();
 }
 
@@ -160,8 +160,8 @@ bool orp_control_update(void *)
 				log_append("ORP Step 1 correction needed");
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 20 % injection time
-				counter_injection_on = ((ORP_REGULATION_CYCLE_MS * 20) / 100) / ORP_CONTROL_UPDATE_MS;
-				counter_injection_off =((ORP_REGULATION_CYCLE_MS * 80) / 100) / ORP_CONTROL_UPDATE_MS;
+				counter_injection_on = ((ORP_REGULATION_CYCLE_S * 20) / 100) / ORP_CONTROL_UPDATE_S;
+				counter_injection_off =((ORP_REGULATION_CYCLE_S * 80) / 100) / ORP_CONTROL_UPDATE_S;
 				mqtt_publish_orp_state();
 				orp_on();
 				break;
@@ -170,8 +170,8 @@ bool orp_control_update(void *)
 				log_append("ORP Step 2 correction needed");
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 50 % injection time
-				counter_injection_on = ((ORP_REGULATION_CYCLE_MS * 50) / 100) / ORP_CONTROL_UPDATE_MS;
-				counter_injection_off = ((ORP_REGULATION_CYCLE_MS * 50) / 100) / ORP_CONTROL_UPDATE_MS;
+				counter_injection_on = ((ORP_REGULATION_CYCLE_S * 50) / 100) / ORP_CONTROL_UPDATE_S;
+				counter_injection_off = ((ORP_REGULATION_CYCLE_S * 50) / 100) / ORP_CONTROL_UPDATE_S;
 				mqtt_publish_orp_state();
 				orp_on();
 				break;
@@ -180,8 +180,8 @@ bool orp_control_update(void *)
 				log_append("ORP Step 3 correction needed");
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 75 % injection time
-				counter_injection_on = ((ORP_REGULATION_CYCLE_MS * 75) / 100) / ORP_CONTROL_UPDATE_MS;
-				counter_injection_off = ((ORP_REGULATION_CYCLE_MS * 25) / 100) / ORP_CONTROL_UPDATE_MS;
+				counter_injection_on = ((ORP_REGULATION_CYCLE_S * 75) / 100) / ORP_CONTROL_UPDATE_S;
+				counter_injection_off = ((ORP_REGULATION_CYCLE_S * 25) / 100) / ORP_CONTROL_UPDATE_S;
 				mqtt_publish_orp_state();
 				orp_on();
 				break;
@@ -190,7 +190,7 @@ bool orp_control_update(void *)
 				log_append("ORP Step 4 correction needed");
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 100% injection time
-				counter_injection_on = ((ORP_REGULATION_CYCLE_MS * 100) / 100) / ORP_CONTROL_UPDATE_MS;
+				counter_injection_on = ((ORP_REGULATION_CYCLE_S * 100) / 100) / ORP_CONTROL_UPDATE_S;
 				counter_injection_off = 0;
 				mqtt_publish_orp_state();
 				orp_on();
@@ -207,7 +207,7 @@ bool orp_control_update(void *)
 		break;
 
 	case ORP_INJECTION_ON:
-		measures.daily_ml_orp += (float)((double)(parameters.flow_cl / 60.0) * (ORP_CONTROL_UPDATE_MS / 1000));
+		measures.daily_ml_orp += (float)((double)(parameters.flow_cl / 60.0) * (ORP_CONTROL_UPDATE_S));
 		if (--counter_injection_on <= 0)
 		{
 			log_append("ORP Injection time Completed");

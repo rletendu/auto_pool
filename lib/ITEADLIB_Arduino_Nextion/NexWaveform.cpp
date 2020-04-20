@@ -34,6 +34,23 @@ bool NexWaveform::addValue(uint8_t ch, uint8_t number)
     return true;
 }
 
+bool NexWaveform::addValues(uint8_t ch, uint8_t qty, uint8_t *values)
+{
+    char buf[15] = {0};
+    
+    if (ch > 3)
+    {
+        return false;
+    }
+    sprintf(buf, "addt %u,%u,%u", getObjCid(), ch, qty);
+    sendCommand(buf);
+    recvRetCommandFinished();
+    delay(10);
+    sendRaw((const char*)values, qty);
+    recvRetCommandFinished();
+    return true;
+}
+
 uint32_t NexWaveform::Get_background_color_bco(uint32_t *number)
 {
     String cmd;

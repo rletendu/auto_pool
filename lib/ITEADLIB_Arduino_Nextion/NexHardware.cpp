@@ -13,6 +13,7 @@
  * the License, or (at your option) any later version.
  */
 #include "NexHardware.h"
+#include "NexTouch.h"
 
 #define NEX_RET_CMD_FINISHED            (0x01)
 #define NEX_RET_EVENT_LAUNCHED          (0x88)
@@ -31,6 +32,10 @@
 #define NEX_RET_INVALID_BAUD            (0x11)
 #define NEX_RET_INVALID_VARIABLE        (0x1A)
 #define NEX_RET_INVALID_OPERATION       (0x1B)
+
+
+NexTouchEventCb global_push_touch_cb=NULL;
+NexTouchEventCb global_pop_touch_cb=NULL;
 
 /*
  * Receive uint32_t data. 
@@ -178,6 +183,18 @@ void sendCommand(const char* cmd)
     nexSerial.write(0xFF);
 }
 
+
+void sendRaw(const char* raw_data, uint8_t len)
+{
+    uint8_t i;
+    while (nexSerial.available())
+    {
+        nexSerial.read();
+    }
+    for (i=0;i<len;i++) {
+        nexSerial.write(raw_data[i]);
+    }
+}
 
 /*
  * Command is executed successfully. 
@@ -331,3 +348,10 @@ void nexLoop(NexTouch *nex_listen_list[])
     }
 }
 
+void nexSetGlobalPushCb(NexTouchEventCb cb_push) {
+    global_push_touch_cb = cb_push;
+}
+
+void nexSetGlobalPopCb(NexTouchEventCb cb_pop) {
+    global_pop_touch_cb = cb_pop;
+}

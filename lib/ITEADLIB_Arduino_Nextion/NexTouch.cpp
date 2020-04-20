@@ -14,9 +14,11 @@
  */
 #include "NexTouch.h"
 
+extern NexTouchEventCb global_push_touch_cb;
+extern NexTouchEventCb global_pop_touch_cb;
 
 NexTouch::NexTouch(uint8_t pid, uint8_t cid, const char *name)
-    :NexObject(pid, cid, name)
+    : NexObject(pid, cid, name)
 {
     this->__cb_push = NULL;
     this->__cb_pop = NULL;
@@ -44,7 +46,7 @@ void NexTouch::attachPop(NexTouchEventCb pop, void *ptr)
 
 void NexTouch::detachPop(void)
 {
-    this->__cb_pop = NULL;    
+    this->__cb_pop = NULL;
     this->__cbpop_ptr = NULL;
 }
 
@@ -73,8 +75,8 @@ void NexTouch::iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event)
     {
         return;
     }
-    
-    for(i = 0; (e = list[i]) != NULL; i++)
+
+    for (i = 0; (e = list[i]) != NULL; i++)
     {
         if (e->getObjPid() == pid && e->getObjCid() == cid)
         {
@@ -82,14 +84,21 @@ void NexTouch::iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event)
             if (NEX_EVENT_PUSH == event)
             {
                 e->push();
+                if (global_push_touch_cb)
+                {
+                    global_push_touch_cb(NULL);
+                }
             }
             else if (NEX_EVENT_POP == event)
             {
                 e->pop();
+                if (global_pop_touch_cb)
+                {
+                    global_pop_touch_cb(NULL);
+                }
             }
-            
+
             break;
         }
     }
 }
-

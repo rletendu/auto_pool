@@ -5,50 +5,69 @@
 #include <SerialDebug.h>
 #include "measures.h"
 
-char old_log_content[DISP_LOG_NB_CHAR];
-char new_log_content[DISP_LOG_NB_CHAR];
-
-static void log_read(void)
-{
-	disp_log_logger.getText(old_log_content, sizeof(old_log_content));
-}
+char log_history[DISP_LOG_NB_LINES][DISP_LOG_NB_CHAR_PER_LINE];
+char disp_log_content[DISP_LOG_NB_LINES * (DISP_LOG_NB_CHAR_PER_LINE + 2)];
 
 void display_log_clear(void)
 {
 	disp_log_logger.setText("");
+	for (int i = 0; i < DISP_LOG_NB_LINES; i++)
+	{
+		log_history[i][0] = 0;
+	}
 }
 
 void display_log_append(char *msg)
 {
+	static int write_index = 0;
+	static int read_index;
+	static int nb_entries = 0;
+
+	int visible_entries;
 	uint16_t cr_table[DISP_LOG_NB_LINES + 1];
 	char timestamp[20];
 	sprintf(timestamp, "%02u:%02u:%02u : ", rtc_get_hour(), rtc_get_minute(), rtc_get_second());
 	uint16_t i;
 	uint16_t cr_cnt = 0;
-	log_read();
 
-	for (i = 0; i < strlen(old_log_content); i++)
+	if (nb_entries)
 	{
-		if (old_log_content[i] == '\r')
+		if (++write_index >= DISP_LOG_NB_LINES)
 		{
-			cr_table[cr_cnt] = i;
-			cr_cnt++;
+			write_index = 0;
 		}
-	}	
-	if (cr_cnt >= DISP_LOG_NB_LINES)
+	}
+	strcpy(log_history[write_index], timestamp);
+	strcat(log_history[write_index], msg);
+	if (nb_entries < DISP_LOG_NB_LINES)
 	{
-		strcpy(new_log_content, old_log_content + cr_table[0] + 2);
+		nb_entries++;
+	}
+
+	if (nb_entries >= DISP_LOG_NB_VISIBLE_LINES)
+	{
+		visible_entries = DISP_LOG_NB_VISIBLE_LINES;
 	}
 	else
 	{
-		strcpy(new_log_content, old_log_content);
+		visible_entries = nb_entries;
 	}
 
-	if (strlen(old_log_content))
+	read_index = write_index - visible_entries + 1;
+	if (read_index < 0)
 	{
-		strcat(new_log_content, "\r\n");
+		read_index = DISP_LOG_NB_LINES + read_index;
 	}
-	strcat(new_log_content, timestamp);
-	strcat(new_log_content, msg);
-	disp_log_logger.setText(new_log_content);
+
+	disp_log_content[0] = 0;
+	for (int i = 0; i < visible_entries; i++)
+	{
+		strcat(disp_log_content, log_history[read_index]);
+		strcat(disp_log_content, "\r\n");
+		if (++read_index >= DISP_LOG_NB_LINES)
+		{
+			read_index = 0;
+		}
+	}
+	disp_log_logger.setText(disp_log_content);
 }

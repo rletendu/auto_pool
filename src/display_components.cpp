@@ -11,6 +11,7 @@ NexPage page_graph = NexPage(PID_GRAPH, 0, "graph");
 NexPage page_log = NexPage(PID_LOG, 0, "log");
 NexPage page_options = NexPage(PID_OPTIONS, 0, "option");
 NexPage page_ota = NexPage(PID_OTA, 0, "OTA");
+NexPage page_saver = NexPage(PID_SAVER, 0, "saver");
 
 NexProgressBar ota_progress = NexProgressBar(PID_OTA, 1, "j0");
 
