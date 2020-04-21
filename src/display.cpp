@@ -445,6 +445,11 @@ void disp_compute_graph_buffers(void)
 	graph_ph_buf[graph_nb_pts-1] =  map(measures.ph, 0, 9, 0, 150);
 	graph_pressure_buf[graph_nb_pts-1] =  map(measures.pump_pressure, 0, 9, 0, 150);
 	graph_orp_buf[graph_nb_pts-1] =  map(measures.orp, 0, 9, 0, 150);
-	disp_graph_ph.addValues()
+
+	disp_graph_ph.addValues(0,graph_nb_pts, graph_ph_buf);
+	disp_graph_orp.addValues(0,graph_nb_pts, graph_orp_buf);
+	disp_graph_temp.addValues(0,graph_nb_pts, graph_temperature_buf);
+	disp_graph_press.addValues(0,graph_nb_pts, graph_pressure_buf);
+
 
 }

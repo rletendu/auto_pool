@@ -59,7 +59,7 @@ bool NexWaveform::clear_channel(uint8_t ch)
     {
         return false;
     }
-    sprintf(buf, "cle %u,%u", getObjCid(), ch;
+    sprintf(buf, "cle %u,%u", getObjCid(), ch);
     sendCommand(buf);
     recvRetCommandFinished();
     return true;
