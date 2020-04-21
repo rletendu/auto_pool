@@ -9,12 +9,19 @@
 #include "parameters.h"
 #include "orp_control.h"
 #include "state.h"
+#include "config.h"
 
 display_page_t display_page = PAGE_STATUS;
 void disp_timer_prog_to_display(uint32_t timer_prog);
 uint32_t disp_disp_to_timer_prog_value(void);
 void disp_options_to_parameters(void);
 uint32_t touch_timeout = TOUCH_TIMEOUT_S;
+
+uint8_t graph_temperature_buf[GRAPH_MAX_PTS];
+uint8_t graph_ph_buf[GRAPH_MAX_PTS];
+uint8_t graph_orp_buf[GRAPH_MAX_PTS];
+uint8_t graph_pressure_buf[GRAPH_MAX_PTS];
+uint8_t graph_nb_pts = 0;
 
 void disp_options_ok_Callback(void *ptr)
 {
@@ -403,4 +410,25 @@ void disp_measures_to_graph(void)
 	disp_graph_temp.addValue(0, val);
 	val = map(measures.pump_pressure, 0, 9, 0, 150);
 	disp_graph_press.addValue(0, val);
+}
+
+void disp_compute_graph_buffers(void)
+{
+	uint8_t i;
+	if (graph_nb_pts < GRAPH_MAX_PTS) {
+		graph_nb_pts++;
+	} else {
+		for(i=0;i<GRAPH_MAX_PTS-1;i++) {
+			graph_temperature_buf[i] = graph_temperature_buf[i+1];
+			graph_ph_buf[i] = graph_ph_buf[i+1];
+			graph_pressure_buf[i] = graph_pressure_buf[i+1];
+			graph_orp_buf[i] = graph_orp_buf[i+1];
+		}
+	}
+	graph_temperature_buf[graph_nb_pts-1] =  map(measures.water_temperature, 0, 9, 0, 150);
+	graph_ph_buf[graph_nb_pts-1] =  map(measures.ph, 0, 9, 0, 150);
+	graph_pressure_buf[graph_nb_pts-1] =  map(measures.pump_pressure, 0, 9, 0, 150);
+	graph_orp_buf[graph_nb_pts-1] =  map(measures.orp, 0, 9, 0, 150);
+	disp_graph_ph.addValues()
+
 }
