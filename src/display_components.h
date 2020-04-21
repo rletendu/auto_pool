@@ -115,6 +115,7 @@ extern NexPage page_log;
 extern NexPage page_options;
 extern NexPage page_ota;
 extern NexPage page_saver;
+extern NexButton disp_saver_exit;
 
 extern NexProgressBar ota_progress;
 

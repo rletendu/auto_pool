@@ -16,6 +16,7 @@ void disp_timer_prog_to_display(uint32_t timer_prog);
 uint32_t disp_disp_to_timer_prog_value(void);
 void disp_options_to_parameters(void);
 uint32_t touch_timeout = TOUCH_TIMEOUT_S;
+bool saver_done;
 
 uint8_t graph_temperature_buf[GRAPH_MAX_PTS];
 uint8_t graph_ph_buf[GRAPH_MAX_PTS];
@@ -85,40 +86,43 @@ void disp_next_prev_Callback(void *ptr)
   Register object textNumber, buttonPlus, buttonMinus, to the touch event list.
 */
 NexTouch *nex_listen_list[] =
-    {
-	&disp_next_status,
-	&disp_prev_status,
-	&disp_next_control,
-	&disp_prev_control,
-	&disp_next_graph,
-	&disp_prev_graph,
-	&disp_next_log,
-	&disp_prev_log,
-	&disp_options_ok,
-	&disp_options,
-	&disp_control_cl_auto,
-	&disp_control_cl_off,
-	&disp_control_cl_on,
-	&disp_control_ph_minus_auto,
-	&disp_control_ph_minus_off,
-	&disp_control_ph_minus_on,
-	&disp_control_ph_plus_auto,
-	&disp_control_ph_plus_off,
-	&disp_control_ph_plus_on,
-	&disp_control_filter_auto,
-	&disp_control_filter_off,
-	&disp_control_filter_on,
-	NULL};
+	{
+		&disp_next_status,
+		&disp_prev_status,
+		&disp_next_control,
+		&disp_prev_control,
+		&disp_next_graph,
+		&disp_prev_graph,
+		&disp_next_log,
+		&disp_prev_log,
+		&disp_options_ok,
+		&disp_options,
+		&disp_control_cl_auto,
+		&disp_control_cl_off,
+		&disp_control_cl_on,
+		&disp_control_ph_minus_auto,
+		&disp_control_ph_minus_off,
+		&disp_control_ph_minus_on,
+		&disp_control_ph_plus_auto,
+		&disp_control_ph_plus_off,
+		&disp_control_ph_plus_on,
+		&disp_control_filter_auto,
+		&disp_control_filter_off,
+		&disp_control_filter_on,
+		&disp_saver_exit,
+		NULL};
 
 void disp_global_push_Callback(void *ptr)
 {
 	touch_timeout = millis() + TOUCH_TIMEOUT_S * 1000;
+	buzzer_on();
+	delay(5);
+	buzzer_off();
 }
 
 void disp_page_saver_Callback(void *ptr)
 {
-	page_status.show();
-	NexDim(100);
+	saver_done =true;
 }
 
 void display_init()
@@ -126,7 +130,9 @@ void display_init()
 	printlnA(F("Display Init"));
 	nexInit();
 	printlnA(F("Display CallBack Init"));
-	page_saver.attachPush(disp_page_saver_Callback, &page_saver);
+	//page_saver.attachPush(disp_page_saver_Callback, &page_saver);
+	disp_saver_exit.attachPush(disp_page_saver_Callback, &disp_saver_exit);
+
 	disp_next_status.attachPush(disp_next_prev_Callback, &disp_next_status);
 	disp_prev_status.attachPush(disp_next_prev_Callback, &disp_prev_status);
 	disp_next_control.attachPush(disp_next_prev_Callback, &disp_next_control);
@@ -157,23 +163,33 @@ void display_init()
 	page_boot.show();
 	nexSetGlobalPushCb(disp_global_push_Callback);
 	delay(2000);
-	touch_timeout = TOUCH_TIMEOUT_S;
+	touch_timeout = TOUCH_TIMEOUT_S * 1000;
 	printlnA(F("Display Init Done"));
 }
 
 void display_loop(void)
 {
-	nexLoop(nex_listen_list);
-	if (millis() > touch_timeout)
+	static bool saver_entered = false;
+
+	if ((millis() > touch_timeout) && (saver_entered==false))
 	{
 		page_saver.show();
 		NexDim(0);
+		saver_entered = true;
 	}
+	if (saver_done) {
+		page_status.show();
+		NexDim(100);
+		saver_done = false;
+		saver_entered = false;
+	}
+	nexLoop(nex_listen_list);
 }
 
 void disp_page_ota()
 {
 	page_ota.show();
+	NexDim(100);
 }
 
 void disp_ota_progress(uint8_t progress)

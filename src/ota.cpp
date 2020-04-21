@@ -2,6 +2,7 @@
 #include <ArduinoOTA.h>
 #include <SerialDebug.h>
 #include "display.h"
+#include <SPIFFS.h>
 
 void ota_init(void)
 {
@@ -13,16 +14,17 @@ void ota_init(void)
 		    else // U_SPIFFS
 			    type = "filesystem";
 
-		    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+		    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using 
+			SPIFFS.end();
 		    printlnA(F("Start updating "));
 		    disp_page_ota();
 		    pump_all_off();
 		    buzzer_on();
-		    delay(50);
+		    delay(10);
 		    buzzer_off();
-		    delay(50);
+		    delay(10);
 		    buzzer_on();
-		    delay(50);
+		    delay(10);
 		    buzzer_off();
 	    })
 	    .onEnd([]() {
