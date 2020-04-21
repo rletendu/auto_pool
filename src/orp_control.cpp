@@ -88,6 +88,11 @@ void orp_control_init(void)
 	mqtt_publish_orp_state();
 }
 
+void orp_control_stop(void)
+{
+	timer_pool.cancel(orp_control_update_task);
+}
+
 enum correction_need_t orp_correction_needed(void)
 {
 	float delta_orp = (parameters.target_orp - measures.orp);

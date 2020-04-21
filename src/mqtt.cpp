@@ -137,6 +137,18 @@ void mqtt_publish_log(char *message)
 	}
 }
 
+
+void mqtt_publish_debug(char *message)
+{
+	char topic[40];
+	strcpy(topic, parameters.mqtt_base_topic);
+	strcat(topic, "/DEBUG");
+	if (mqtt_client.connected())
+	{
+		mqtt_client.publish(topic, message);
+	}
+}
+
 void mqtt_publish_parameters()
 {
 	char topic[40];

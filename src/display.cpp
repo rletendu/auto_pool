@@ -24,6 +24,13 @@ uint8_t graph_orp_buf[GRAPH_MAX_PTS];
 uint8_t graph_pressure_buf[GRAPH_MAX_PTS];
 uint8_t graph_nb_pts = 0;
 
+static bool saver_entered = false;
+
+void display_saver_stop(void)
+{
+	saver_entered = true;
+}
+
 void disp_options_ok_Callback(void *ptr)
 {
 	printlnA(F("Options OK pressed, reading back updated parameters and save Json"));
@@ -122,7 +129,7 @@ void disp_global_push_Callback(void *ptr)
 
 void disp_page_saver_Callback(void *ptr)
 {
-	saver_done =true;
+	saver_done = true;
 }
 
 void display_init()
@@ -169,15 +176,15 @@ void display_init()
 
 void display_loop(void)
 {
-	static bool saver_entered = false;
 
-	if ((millis() > touch_timeout) && (saver_entered==false))
+	if ((millis() > touch_timeout) && (saver_entered == false))
 	{
 		page_saver.show();
 		NexDim(0);
 		saver_entered = true;
 	}
-	if (saver_done) {
+	if (saver_done)
+	{
 		page_status.show();
 		NexDim(100);
 		saver_done = false;
@@ -431,25 +438,27 @@ void disp_measures_to_graph(void)
 void disp_compute_graph_buffers(void)
 {
 	uint8_t i;
-	if (graph_nb_pts < GRAPH_MAX_PTS) {
+	if (graph_nb_pts < GRAPH_MAX_PTS)
+	{
 		graph_nb_pts++;
-	} else {
-		for(i=0;i<GRAPH_MAX_PTS-1;i++) {
-			graph_temperature_buf[i] = graph_temperature_buf[i+1];
-			graph_ph_buf[i] = graph_ph_buf[i+1];
-			graph_pressure_buf[i] = graph_pressure_buf[i+1];
-			graph_orp_buf[i] = graph_orp_buf[i+1];
+	}
+	else
+	{
+		for (i = 0; i < GRAPH_MAX_PTS - 1; i++)
+		{
+			graph_temperature_buf[i] = graph_temperature_buf[i + 1];
+			graph_ph_buf[i] = graph_ph_buf[i + 1];
+			graph_pressure_buf[i] = graph_pressure_buf[i + 1];
+			graph_orp_buf[i] = graph_orp_buf[i + 1];
 		}
 	}
-	graph_temperature_buf[graph_nb_pts-1] =  map(measures.water_temperature, 0, 9, 0, 150);
-	graph_ph_buf[graph_nb_pts-1] =  map(measures.ph, 0, 9, 0, 150);
-	graph_pressure_buf[graph_nb_pts-1] =  map(measures.pump_pressure, 0, 9, 0, 150);
-	graph_orp_buf[graph_nb_pts-1] =  map(measures.orp, 0, 9, 0, 150);
+	graph_temperature_buf[graph_nb_pts - 1] = map(measures.water_temperature, 0, 9, 0, 150);
+	graph_ph_buf[graph_nb_pts - 1] = map(measures.ph, 0, 9, 0, 150);
+	graph_pressure_buf[graph_nb_pts - 1] = map(measures.pump_pressure, 0, 9, 0, 150);
+	graph_orp_buf[graph_nb_pts - 1] = map(measures.orp, 0, 9, 0, 150);
 
-	disp_graph_ph.addValues(0,graph_nb_pts, graph_ph_buf);
-	disp_graph_orp.addValues(0,graph_nb_pts, graph_orp_buf);
-	disp_graph_temp.addValues(0,graph_nb_pts, graph_temperature_buf);
-	disp_graph_press.addValues(0,graph_nb_pts, graph_pressure_buf);
-
-
+	disp_graph_ph.addValues(0, graph_nb_pts, graph_ph_buf);
+	disp_graph_orp.addValues(0, graph_nb_pts, graph_orp_buf);
+	disp_graph_temp.addValues(0, graph_nb_pts, graph_temperature_buf);
+	disp_graph_press.addValues(0, graph_nb_pts, graph_pressure_buf);
 }

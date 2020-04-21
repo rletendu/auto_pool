@@ -35,6 +35,10 @@ void ph_control_init(void)
 	ph_control_update_task = timer_pool.every(PH_CONTROL_UPDATE_S*1000, ph_control_update);
 	mqtt_publish_ph_state();
 }
+void ph_control_stop(void)
+{
+	timer_pool.cancel(ph_control_update_task);
+}
 
 static void ph_minus_on(void)
 {

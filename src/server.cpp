@@ -6,6 +6,8 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <ESPNexUpload.h>
+#include "mqtt.h"
+#include "board.h"
 
 const char *host = "autopool";
 
@@ -54,16 +56,16 @@ bool handleFileRead(String path)
 { // send the right file to the client (if it exists)
 	Serial.print("handleFileRead: " + path);
 	if (path.endsWith("/"))
-		path += "index.html";		   // If a folder is requested, send the index file
+		path += "index.html";				   // If a folder is requested, send the index file
 	String contentType = getContentType(path); // Get the MIME type
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
-	{							    // If the file exists, either as a compressed archive, or normal
-		if (SPIFFS.exists(pathWithGz))			    // If there's a compressed version available
-			path += ".gz";				    // Use the compressed verion
-		File file = SPIFFS.open(path, "r");		    // Open the file
+	{														// If the file exists, either as a compressed archive, or normal
+		if (SPIFFS.exists(pathWithGz))						// If there's a compressed version available
+			path += ".gz";									// Use the compressed verion
+		File file = SPIFFS.open(path, "r");					// Open the file
 		size_t sent = server.streamFile(file, contentType); // Send it to the client
-		file.close();					    // Close the file again
+		file.close();										// Close the file again
 		Serial.println(String("\tSent file: ") + path);
 		return true;
 	}
@@ -74,6 +76,7 @@ bool handleFileRead(String path)
 // handle the file uploads
 bool handleFileUpload()
 {
+
 	HTTPUpload &upload = server.upload();
 
 	// Check if file seems valid nextion tft file
@@ -93,33 +96,30 @@ bool handleFileUpload()
 
 	if (upload.status == UPLOAD_FILE_START)
 	{
-
-		Serial.println(F("\nFile received. Update Nextion..."));
+		
 
 		// Prepare the Nextion display by seting up serial and telling it the file size to expect
 		result = nextion.prepareUpload(fileSize);
-
+		mqtt_publish_debug("Upload Prepared request pass...");
 		if (result)
 		{
-			Serial.print(F("Start upload. File size is: "));
-			Serial.print(fileSize);
-			Serial.println(F(" bytes"));
+			//Serial.print(F("Start upload. File size is: "));
+			//Serial.print(fileSize);
+			//Serial.println(F(" bytes"));
 		}
 		else
 		{
-			Serial.println(nextion.statusMessage + "\n");
+			//Serial.println(nextion.statusMessage + "\n");
 			return false;
 		}
 	}
 	else if (upload.status == UPLOAD_FILE_WRITE)
 	{
-
 		// Write the received bytes to the nextion
 		result = nextion.upload(upload.buf, upload.currentSize);
-
 		if (result)
 		{
-			Serial.print(F("."));
+			//Serial.print(F("."));
 		}
 		else
 		{
@@ -129,11 +129,9 @@ bool handleFileUpload()
 	}
 	else if (upload.status == UPLOAD_FILE_END)
 	{
-
 		// End the serial connection to the Nextion and softrest it
 		nextion.end();
-
-		Serial.println("");
+		//Serial.println("");
 		//Serial.println(nextion.statusMessage);
 		return true;
 	}
@@ -141,26 +139,30 @@ bool handleFileUpload()
 
 void webserver_init(void)
 {
+	if (!SPIFFS.begin())
+	{
+		return;
+	}
+
 	MDNS.begin(host);
+
+	//SERVER INIT
+	server.on(
+		"/", HTTP_POST, []() {
+			Serial.println(F("Succesfully updated Nextion!\n"));
+			// Redirect the client to the success page after handeling the file upload
+			server.sendHeader(F("Location"), F("/success.html"));
+			server.send(303);
+			return true;
+		},
+		// Receive and save the file
+		handleFileUpload);
+
+	// receive fileSize once a file is selected (Workaround as the file content-length is of by +/- 200 bytes. Known issue: https://github.com/esp8266/Arduino/issues/3787)
 	server.on("/fs", HTTP_POST, []() {
 		fileSize = server.arg(F("fileSize")).toInt();
 		server.send(200, F("text/plain"), "");
 	});
-
-	server.on("/tft", HTTP_GET, []() {
-		server.send(200, F("text/html"), index_html);
-	});
-
-	server.on("/failure", HTTP_GET, []() {
-		server.send(200, F("text/html"), failure_html);
-	});
-	server.on(
-	    "/", HTTP_GET, []() {
-		    server.send(200, F("text/html"), success_html);
-		    return true;
-	    },
-	    // Receive and save the file
-	    handleFileUpload);
 
 	// called when the url is not defined here
 	// use it to load content from SPIFFS
@@ -168,6 +170,7 @@ void webserver_init(void)
 		if (!handleFileRead(server.uri()))
 			server.send(404, F("text/plain"), F("FileNotFound"));
 	});
+
 	server.begin();
 }
 

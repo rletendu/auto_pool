@@ -16,6 +16,7 @@ enum display_page_t
 };
 
 void display_init(void);
+void display_saver_stop(void);
 void display_loop(void);
 
 void disp_page_ota();

@@ -45,6 +45,12 @@ void measures_init(void)
 	update_measures(NULL);
 }
 
+void measures_stop(void)
+{
+	timer_pool.cancel(update_graph_task);
+	timer_pool.cancel(update_measures_task);
+}
+
 void measures_set_virtual(bool state)
 {
 	measures_are_vitual = state;
