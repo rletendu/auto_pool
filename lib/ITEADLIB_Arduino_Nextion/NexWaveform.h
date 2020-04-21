@@ -45,6 +45,8 @@ public: /* methods */
      */
     bool addValue(uint8_t ch, uint8_t number);
 
+    bool clear_channel(uint8_t ch);
+
     bool addValues(uint8_t ch, uint8_t qty, uint8_t *values);
 	
     /**

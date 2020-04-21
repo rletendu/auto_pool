@@ -9,12 +9,20 @@
 #include "parameters.h"
 #include "orp_control.h"
 #include "state.h"
+#include "config.h"
 
 display_page_t display_page = PAGE_STATUS;
 void disp_timer_prog_to_display(uint32_t timer_prog);
 uint32_t disp_disp_to_timer_prog_value(void);
 void disp_options_to_parameters(void);
 uint32_t touch_timeout = TOUCH_TIMEOUT_S;
+bool saver_done;
+
+uint8_t graph_temperature_buf[GRAPH_MAX_PTS];
+uint8_t graph_ph_buf[GRAPH_MAX_PTS];
+uint8_t graph_orp_buf[GRAPH_MAX_PTS];
+uint8_t graph_pressure_buf[GRAPH_MAX_PTS];
+uint8_t graph_nb_pts = 0;
 
 void disp_options_ok_Callback(void *ptr)
 {
@@ -78,41 +86,43 @@ void disp_next_prev_Callback(void *ptr)
   Register object textNumber, buttonPlus, buttonMinus, to the touch event list.
 */
 NexTouch *nex_listen_list[] =
-    {
-	&disp_next_status,
-	&disp_prev_status,
-	&disp_next_control,
-	&disp_prev_control,
-	&disp_next_graph,
-	&disp_prev_graph,
-	&disp_next_log,
-	&disp_prev_log,
-	&disp_options_ok,
-	&disp_options,
-	&disp_control_cl_auto,
-	&disp_control_cl_off,
-	&disp_control_cl_on,
-	&disp_control_ph_minus_auto,
-	&disp_control_ph_minus_off,
-	&disp_control_ph_minus_on,
-	&disp_control_ph_plus_auto,
-	&disp_control_ph_plus_off,
-	&disp_control_ph_plus_on,
-	&disp_control_filter_auto,
-	&disp_control_filter_off,
-	&disp_control_filter_on,
-	NULL};
+	{
+		&disp_next_status,
+		&disp_prev_status,
+		&disp_next_control,
+		&disp_prev_control,
+		&disp_next_graph,
+		&disp_prev_graph,
+		&disp_next_log,
+		&disp_prev_log,
+		&disp_options_ok,
+		&disp_options,
+		&disp_control_cl_auto,
+		&disp_control_cl_off,
+		&disp_control_cl_on,
+		&disp_control_ph_minus_auto,
+		&disp_control_ph_minus_off,
+		&disp_control_ph_minus_on,
+		&disp_control_ph_plus_auto,
+		&disp_control_ph_plus_off,
+		&disp_control_ph_plus_on,
+		&disp_control_filter_auto,
+		&disp_control_filter_off,
+		&disp_control_filter_on,
+		&disp_saver_exit,
+		NULL};
 
 void disp_global_push_Callback(void *ptr)
 {
 	touch_timeout = millis() + TOUCH_TIMEOUT_S * 1000;
+	buzzer_on();
+	delay(5);
+	buzzer_off();
 }
 
 void disp_page_saver_Callback(void *ptr)
 {
-	page_status.show();
-	NexDim(100);
-	touch_timeout = millis() + TOUCH_TIMEOUT_S * 1000;
+	saver_done =true;
 }
 
 void display_init()
@@ -120,7 +130,9 @@ void display_init()
 	printlnA(F("Display Init"));
 	nexInit();
 	printlnA(F("Display CallBack Init"));
-	page_saver.attachPush(disp_page_saver_Callback, &page_saver);
+	//page_saver.attachPush(disp_page_saver_Callback, &page_saver);
+	disp_saver_exit.attachPush(disp_page_saver_Callback, &disp_saver_exit);
+
 	disp_next_status.attachPush(disp_next_prev_Callback, &disp_next_status);
 	disp_prev_status.attachPush(disp_next_prev_Callback, &disp_prev_status);
 	disp_next_control.attachPush(disp_next_prev_Callback, &disp_next_control);
@@ -151,18 +163,27 @@ void display_init()
 	page_boot.show();
 	nexSetGlobalPushCb(disp_global_push_Callback);
 	delay(2000);
-	touch_timeout = TOUCH_TIMEOUT_S*1000;
+	touch_timeout = TOUCH_TIMEOUT_S * 1000;
 	printlnA(F("Display Init Done"));
 }
 
 void display_loop(void)
 {
-	nexLoop(nex_listen_list);
-	if (millis() > touch_timeout)
+	static bool saver_entered = false;
+
+	if ((millis() > touch_timeout) && (saver_entered==false))
 	{
 		page_saver.show();
 		NexDim(0);
+		saver_entered = true;
 	}
+	if (saver_done) {
+		page_status.show();
+		NexDim(100);
+		saver_done = false;
+		saver_entered = false;
+	}
+	nexLoop(nex_listen_list);
 }
 
 void disp_page_ota()
@@ -405,4 +426,30 @@ void disp_measures_to_graph(void)
 	disp_graph_temp.addValue(0, val);
 	val = map(measures.pump_pressure, 0, 9, 0, 150);
 	disp_graph_press.addValue(0, val);
+}
+
+void disp_compute_graph_buffers(void)
+{
+	uint8_t i;
+	if (graph_nb_pts < GRAPH_MAX_PTS) {
+		graph_nb_pts++;
+	} else {
+		for(i=0;i<GRAPH_MAX_PTS-1;i++) {
+			graph_temperature_buf[i] = graph_temperature_buf[i+1];
+			graph_ph_buf[i] = graph_ph_buf[i+1];
+			graph_pressure_buf[i] = graph_pressure_buf[i+1];
+			graph_orp_buf[i] = graph_orp_buf[i+1];
+		}
+	}
+	graph_temperature_buf[graph_nb_pts-1] =  map(measures.water_temperature, 0, 9, 0, 150);
+	graph_ph_buf[graph_nb_pts-1] =  map(measures.ph, 0, 9, 0, 150);
+	graph_pressure_buf[graph_nb_pts-1] =  map(measures.pump_pressure, 0, 9, 0, 150);
+	graph_orp_buf[graph_nb_pts-1] =  map(measures.orp, 0, 9, 0, 150);
+
+	disp_graph_ph.addValues(0,graph_nb_pts, graph_ph_buf);
+	disp_graph_orp.addValues(0,graph_nb_pts, graph_orp_buf);
+	disp_graph_temp.addValues(0,graph_nb_pts, graph_temperature_buf);
+	disp_graph_press.addValues(0,graph_nb_pts, graph_pressure_buf);
+
+
 }

@@ -20,6 +20,7 @@
 #include <Nextion.h>
 #include "display_logger.h"
 #include "logger.h"
+#include "server.h"
 
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
@@ -94,6 +95,7 @@ void setup()
 	orp_control_init();
 	ph_control_init();
 	measures_init();
+	webserver_init();
 
 	//save the custom parameters to FS
 	if (is_should_save_config())
@@ -122,4 +124,5 @@ void loop()
 	mqtt_loop();
 	cli_loop();
 	timer_pool.tick(); // tick the timer
+	webserver_loop();
 }

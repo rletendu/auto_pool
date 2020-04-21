@@ -51,6 +51,21 @@ bool NexWaveform::addValues(uint8_t ch, uint8_t qty, uint8_t *values)
     return true;
 }
 
+
+bool NexWaveform::clear_channel(uint8_t ch)
+{
+    char buf[15] = {0};
+    if (ch > 3)
+    {
+        return false;
+    }
+    sprintf(buf, "cle %u,%u", getObjCid(), ch);
+    sendCommand(buf);
+    recvRetCommandFinished();
+    return true;
+}
+
+
 uint32_t NexWaveform::Get_background_color_bco(uint32_t *number)
 {
     String cmd;

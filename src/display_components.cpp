@@ -13,6 +13,8 @@ NexPage page_options = NexPage(PID_OPTIONS, 0, "option");
 NexPage page_ota = NexPage(PID_OTA, 0, "OTA");
 NexPage page_saver = NexPage(PID_SAVER, 0, "saver");
 
+NexButton disp_saver_exit = NexButton(PID_SAVER, 1, "saver.saver_exit");
+
 NexProgressBar ota_progress = NexProgressBar(PID_OTA, 1, "j0");
 
 NexXfloat disp_water_temperature = NexXfloat(PID_STATUS, CID_STATUS_WATER_TEMP, "status.temp_value");
