@@ -8,6 +8,7 @@
 #include "state.h"
 #include "board.h"
 #include "display_logger.h"
+#include "SPIFFS.h"
 
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
@@ -83,6 +84,19 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	else if (in_topic == "LOG")
 	{
 		display_log_append(payload);
+	}
+	else if (in_topic == "FS")
+	{
+		String buf="SPIFF Content:\r\n";
+		File root = SPIFFS.open("/");
+		File file = root.openNextFile();
+		while (file)
+		{
+			buf += file.name();
+			buf += "\r\n";
+			file = root.openNextFile();
+		}
+		mqtt_publish_log((char*)buf.c_str());
 	}
 }
 
