@@ -18,6 +18,7 @@ enum display_page_t
 void display_init(void);
 void display_saver_stop(void);
 void display_loop(void);
+void stop_display_tasks(void);
 
 void disp_page_ota();
 void disp_ota_progress(uint8_t progress);

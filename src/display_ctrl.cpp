@@ -1,14 +1,5 @@
-#include "board.h"
-#include "display.h"
-#include "display_components.h"
-#include <Nextion.h>
-#include <SerialDebug.h>
-#include "measures.h"
-#include "mqtt.h"
-#include "parameters.h"
-#include "filter_control.h"
-#include "ph_control.h"
-#include "orp_control.h"
+#include "autopool.h"
+
 
 void disp_control_ph_plus_auto_Callback(void *ptr)
 {

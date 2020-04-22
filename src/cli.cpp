@@ -1,12 +1,6 @@
-#include "parameters.h"
-#include "orp_control.h"
-#include <SerialDebug.h>
-#include "measures.h"
+#include "autopool.h"
 #include <SimpleCLI.h>
-#include "config.h"
-#include "cli.h"
-#include "wifi_manager.h"
-#include <SPIFFS.h>
+
 
 SimpleCLI cli;
 

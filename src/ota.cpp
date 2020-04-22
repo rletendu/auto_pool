@@ -1,23 +1,27 @@
-#include "board.h"
-#include <ArduinoOTA.h>
-#include <SerialDebug.h>
-#include "display.h"
-#include <SPIFFS.h>
+#include "autopool.h"
 
 void ota_init(void)
 {
 	ArduinoOTA
 	    .onStart([]() {
 		    String type;
-		    if (ArduinoOTA.getCommand() == U_FLASH)
-			    type = "sketch";
-		    else // U_SPIFFS
-			    type = "filesystem";
-
-		    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using 
-			SPIFFS.end();
 		    printlnA(F("Start updating "));
+		    stop_display_tasks();
 		    disp_page_ota();
+		    if (ArduinoOTA.getCommand() == U_FLASH)
+		    {
+			    type = "sketch";
+			    ota_title.setText("Firmware Update");
+			    printlnA(F("Updating Firmware"));
+		    }
+		    else // U_SPIFFS
+		    {
+			    type = "filesystem";
+			    ota_title.setText("FileSys. Update");
+			    printlnA(F("Updating FileSystem"));
+		    }
+		    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using
+		    SPIFFS.end();
 		    pump_all_off();
 		    buzzer_on();
 		    delay(10);

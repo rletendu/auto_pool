@@ -1,13 +1,4 @@
-#include "parameters.h"
-#include "orp_control.h"
-#include "measures.h"
-#include "parameters.h"
-#include "config.h"
-#include <SerialDebug.h>
-#include "display_ctrl.h"
-#include <soft_timer.h>
-#include "state.h"
-#include "logger.h"
+#include "autopool.h"
 
 extern SoftTimer timer_pool;
 uintptr_t orp_control_update_task;

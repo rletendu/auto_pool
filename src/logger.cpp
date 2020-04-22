@@ -1,5 +1,4 @@
-#include "display_logger.h"
-#include "mqtt.h"
+#include "autopool.h"
 
 
 void log_append(char *msg){

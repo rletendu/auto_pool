@@ -1,9 +1,4 @@
-#include "state.h"
-#include "config.h"
-#include <SerialDebug.h>
-#include "board.h"
-#include <ArduinoJson.h>
-#include "display.h"
+#include "autopool.h"
 
 struct StateStructure state;
 

@@ -118,6 +118,7 @@ extern NexPage page_saver;
 extern NexButton disp_saver_exit;
 
 extern NexProgressBar ota_progress;
+extern NexText ota_title;
 
 extern NexXfloat disp_water_temperature;
 extern NexXfloat disp_ph;

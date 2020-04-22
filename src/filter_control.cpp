@@ -1,16 +1,4 @@
-#include "parameters.h"
-#include "filter_control.h"
-#include <SerialDebug.h>
-#include "config.h"
-#include "measures.h"
-#include "timer.h"
-#include "display_ctrl.h"
-#include "state.h"
-#include "board.h"
-#include "soft_timer.h"
-#include "filter_control.h"
-#include "logger.h"
-#include "display_components.h"
+#include "autopool.h"
 
 extern SoftTimer timer_pool;
 uintptr_t filter_control_update_task;
@@ -88,7 +76,7 @@ void filter_control_init(void)
 
 bool filter_control_update(void *)
 {
-	uint8_t h;
+
 	uint32_t timer_prog_ok;
 
 	timer_prog_ok = parameters.timer_prog & uint32_t(1 << rtc_get_hour());

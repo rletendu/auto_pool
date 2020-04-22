@@ -1,13 +1,8 @@
-#include "board.h"
-#include <SerialDebug.h>
-#include "display.h"
-#include <SPIFFS.h>
+#include "autopool.h"
 
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <ESPNexUpload.h>
-#include "mqtt.h"
-#include "board.h"
 
 const char *host = "autopool";
 
@@ -56,16 +51,16 @@ bool handleFileRead(String path)
 { // send the right file to the client (if it exists)
 	Serial.print("handleFileRead: " + path);
 	if (path.endsWith("/"))
-		path += "index.html";				   // If a folder is requested, send the index file
+		path += "index.html";		   // If a folder is requested, send the index file
 	String contentType = getContentType(path); // Get the MIME type
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
-	{														// If the file exists, either as a compressed archive, or normal
-		if (SPIFFS.exists(pathWithGz))						// If there's a compressed version available
-			path += ".gz";									// Use the compressed verion
-		File file = SPIFFS.open(path, "r");					// Open the file
+	{							    // If the file exists, either as a compressed archive, or normal
+		if (SPIFFS.exists(pathWithGz))			    // If there's a compressed version available
+			path += ".gz";				    // Use the compressed verion
+		File file = SPIFFS.open(path, "r");		    // Open the file
 		size_t sent = server.streamFile(file, contentType); // Send it to the client
-		file.close();										// Close the file again
+		file.close();					    // Close the file again
 		Serial.println(String("\tSent file: ") + path);
 		return true;
 	}
@@ -76,6 +71,7 @@ bool handleFileRead(String path)
 // handle the file uploads
 bool handleFileUpload()
 {
+	stop_display_tasks();
 
 	HTTPUpload &upload = server.upload();
 
@@ -96,11 +92,8 @@ bool handleFileUpload()
 
 	if (upload.status == UPLOAD_FILE_START)
 	{
-		
-
 		// Prepare the Nextion display by seting up serial and telling it the file size to expect
 		result = nextion.prepareUpload(fileSize);
-		mqtt_publish_debug("Upload Prepared request pass...");
 		if (result)
 		{
 			//Serial.print(F("Start upload. File size is: "));
@@ -148,15 +141,15 @@ void webserver_init(void)
 
 	//SERVER INIT
 	server.on(
-		"/", HTTP_POST, []() {
-			Serial.println(F("Succesfully updated Nextion!\n"));
-			// Redirect the client to the success page after handeling the file upload
-			server.sendHeader(F("Location"), F("/success.html"));
-			server.send(303);
-			return true;
-		},
-		// Receive and save the file
-		handleFileUpload);
+	    "/", HTTP_POST, []() {
+		    Serial.println(F("Succesfully updated Nextion!\n"));
+		    // Redirect the client to the success page after handeling the file upload
+		    server.sendHeader(F("Location"), F("/success.html"));
+		    server.send(303);
+		    return true;
+	    },
+	    // Receive and save the file
+	    handleFileUpload);
 
 	// receive fileSize once a file is selected (Workaround as the file content-length is of by +/- 200 bytes. Known issue: https://github.com/esp8266/Arduino/issues/3787)
 	server.on("/fs", HTTP_POST, []() {

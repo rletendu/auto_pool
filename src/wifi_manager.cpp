@@ -1,7 +1,6 @@
+#include "autopool.h"
 #include <WiFiManager.h> //https://github.com/Brunez3BD/WIFIMANAGER-ESP32
-#include "parameters.h"
-#include <SerialDebug.h>
-#include <config.h>
+
 
 WiFiManager wifiManager;
 

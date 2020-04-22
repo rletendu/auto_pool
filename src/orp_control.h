@@ -8,6 +8,7 @@
 
 
 void orp_control_init(void);
+void orp_control_stop(void);
 void orp_enter_mode(enum orp_mode_t orp_mode);
 enum correction_need_t orp_correction_needed(void);
 

@@ -1,34 +1,36 @@
-#include "board.h"
-#include "display.h"
-#include "display_components.h"
-#include "display_ctrl.h"
-#include <Nextion.h>
-#include <SerialDebug.h>
-#include "measures.h"
-#include "mqtt.h"
-#include "parameters.h"
-#include "orp_control.h"
-#include "state.h"
-#include "config.h"
+#include "autopool.h"
 
+
+extern SoftTimer timer_pool;
 display_page_t display_page = PAGE_STATUS;
 void disp_timer_prog_to_display(uint32_t timer_prog);
 uint32_t disp_disp_to_timer_prog_value(void);
 void disp_options_to_parameters(void);
-uint32_t touch_timeout = TOUCH_TIMEOUT_S;
-bool saver_done;
-
+bool disp_touch_events_enable = true;
+uintptr_t disp_enter_screen_saver_task;
 uint8_t graph_temperature_buf[GRAPH_MAX_PTS];
 uint8_t graph_ph_buf[GRAPH_MAX_PTS];
 uint8_t graph_orp_buf[GRAPH_MAX_PTS];
 uint8_t graph_pressure_buf[GRAPH_MAX_PTS];
 uint8_t graph_nb_pts = 0;
 
-static bool saver_entered = false;
+static bool screen_saver_entered = false;
+bool disp_screen_saver_timeout(void *);
+void time_update_stop(void);
+
+void stop_display_tasks()
+{
+	time_update_stop();
+	orp_control_stop();
+	measures_loop_stop();
+	ph_control_stop();
+	disp_touch_events_enable = false;
+	display_saver_stop();
+}
 
 void display_saver_stop(void)
 {
-	saver_entered = true;
+	timer_pool.cancel(disp_enter_screen_saver_task);
 }
 
 void disp_options_ok_Callback(void *ptr)
@@ -93,43 +95,63 @@ void disp_next_prev_Callback(void *ptr)
   Register object textNumber, buttonPlus, buttonMinus, to the touch event list.
 */
 NexTouch *nex_listen_list[] =
-	{
-		&disp_next_status,
-		&disp_prev_status,
-		&disp_next_control,
-		&disp_prev_control,
-		&disp_next_graph,
-		&disp_prev_graph,
-		&disp_next_log,
-		&disp_prev_log,
-		&disp_options_ok,
-		&disp_options,
-		&disp_control_cl_auto,
-		&disp_control_cl_off,
-		&disp_control_cl_on,
-		&disp_control_ph_minus_auto,
-		&disp_control_ph_minus_off,
-		&disp_control_ph_minus_on,
-		&disp_control_ph_plus_auto,
-		&disp_control_ph_plus_off,
-		&disp_control_ph_plus_on,
-		&disp_control_filter_auto,
-		&disp_control_filter_off,
-		&disp_control_filter_on,
-		&disp_saver_exit,
-		NULL};
-
-void disp_global_push_Callback(void *ptr)
-{
-	touch_timeout = millis() + TOUCH_TIMEOUT_S * 1000;
-	buzzer_on();
-	delay(5);
-	buzzer_off();
-}
+    {
+	&disp_next_status,
+	&disp_prev_status,
+	&disp_next_control,
+	&disp_prev_control,
+	&disp_next_graph,
+	&disp_prev_graph,
+	&disp_next_log,
+	&disp_prev_log,
+	&disp_options_ok,
+	&disp_options,
+	&disp_control_cl_auto,
+	&disp_control_cl_off,
+	&disp_control_cl_on,
+	&disp_control_ph_minus_auto,
+	&disp_control_ph_minus_off,
+	&disp_control_ph_minus_on,
+	&disp_control_ph_plus_auto,
+	&disp_control_ph_plus_off,
+	&disp_control_ph_plus_on,
+	&disp_control_filter_auto,
+	&disp_control_filter_off,
+	&disp_control_filter_on,
+	&disp_saver_exit,
+	NULL};
 
 void disp_page_saver_Callback(void *ptr)
 {
-	saver_done = true;
+	if (screen_saver_entered)
+	{
+		page_status.show();
+		NexDim(100);
+		screen_saver_entered = false;
+	}
+}
+
+bool disp_screen_saver_timeout(void *)
+{
+	page_saver.show();
+	NexDim(0);
+	screen_saver_entered = true;
+	return false;
+}
+
+void disp_global_push_Callback(void *ptr)
+{
+	timer_pool.cancel(disp_enter_screen_saver_task);
+	disp_enter_screen_saver_task = timer_pool.in(TOUCH_TIMEOUT_S * 1000, disp_screen_saver_timeout);
+	buzzer_on();
+	delay(5);
+	buzzer_off();
+	if (screen_saver_entered)
+	{
+		page_status.show();
+		NexDim(100);
+		screen_saver_entered = false;
+	}
 }
 
 void display_init()
@@ -137,7 +159,6 @@ void display_init()
 	printlnA(F("Display Init"));
 	nexInit();
 	printlnA(F("Display CallBack Init"));
-	//page_saver.attachPush(disp_page_saver_Callback, &page_saver);
 	disp_saver_exit.attachPush(disp_page_saver_Callback, &disp_saver_exit);
 
 	disp_next_status.attachPush(disp_next_prev_Callback, &disp_next_status);
@@ -170,27 +191,18 @@ void display_init()
 	page_boot.show();
 	nexSetGlobalPushCb(disp_global_push_Callback);
 	delay(2000);
-	touch_timeout = TOUCH_TIMEOUT_S * 1000;
+
+	disp_enter_screen_saver_task = timer_pool.in(TOUCH_TIMEOUT_S * 1000, disp_screen_saver_timeout);
+
 	printlnA(F("Display Init Done"));
 }
 
 void display_loop(void)
 {
-
-	if ((millis() > touch_timeout) && (saver_entered == false))
+	if (disp_touch_events_enable)
 	{
-		page_saver.show();
-		NexDim(0);
-		saver_entered = true;
+		nexLoop(nex_listen_list);
 	}
-	if (saver_done)
-	{
-		page_status.show();
-		NexDim(100);
-		saver_done = false;
-		saver_entered = false;
-	}
-	nexLoop(nex_listen_list);
 }
 
 void disp_page_ota()

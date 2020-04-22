@@ -1,13 +1,4 @@
-#include "parameters.h"
-#include "ph_control.h"
-#include "config.h"
-#include "measures.h"
-#include "parameters.h"
-#include <SerialDebug.h>
-#include "display_ctrl.h"
-#include "state.h"
-#include "soft_timer.h"
-#include "logger.h"
+#include "autopool.h"
 
 extern SoftTimer timer_pool;
 bool ph_control_update(void *);

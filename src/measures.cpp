@@ -1,11 +1,4 @@
-#include "measures.h"
-#include "config.h"
-#include <SerialDebug.h>
-#include "board.h"
-#include <ArduinoJson.h>
-#include "soft_timer.h"
-#include "display.h"
-#include "display_logger.h"
+#include "autopool.h"
 
 struct MeasuresStructure measures;
 char measures_json_string[MEASURES_JSON_MESSAGE_LEN];
@@ -45,7 +38,7 @@ void measures_init(void)
 	update_measures(NULL);
 }
 
-void measures_stop(void)
+void measures_loop_stop(void)
 {
 	timer_pool.cancel(update_graph_task);
 	timer_pool.cancel(update_measures_task);

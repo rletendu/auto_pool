@@ -1,14 +1,5 @@
-#include "mqtt.h"
-#include "parameters.h"
-#include "measures.h"
-#include <PubSubClient.h>
-#include <WiFi.h>
-#include <SerialDebug.h>
-#include "config.h"
-#include "state.h"
-#include "board.h"
-#include "display_logger.h"
-#include "SPIFFS.h"
+#include "autopool.h"
+
 
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);

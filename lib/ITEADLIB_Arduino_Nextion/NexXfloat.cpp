@@ -42,7 +42,6 @@ bool NexXfloat::setValue(float number)
 {
     uint32_t nb_ptleft;
     float val;
-    bool ret;
     String cmd_alt = String("get ");
     cmd_alt += getObjName();
     cmd_alt += ".vvs1";

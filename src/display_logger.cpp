@@ -1,9 +1,4 @@
-#include "board.h"
-#include "display.h"
-#include "display_components.h"
-#include <Nextion.h>
-#include <SerialDebug.h>
-#include "measures.h"
+#include "autopool.h"
 
 char log_history[DISP_LOG_NB_LINES][DISP_LOG_NB_CHAR_PER_LINE];
 char disp_log_content[DISP_LOG_NB_LINES * (DISP_LOG_NB_CHAR_PER_LINE + 2)];
@@ -22,13 +17,10 @@ void display_log_append(char *msg)
 	static int write_index = 0;
 	static int read_index;
 	static int nb_entries = 0;
-
 	int visible_entries;
-	uint16_t cr_table[DISP_LOG_NB_LINES + 1];
 	char timestamp[20];
+
 	sprintf(timestamp, "%02u:%02u:%02u : ", rtc_get_hour(), rtc_get_minute(), rtc_get_second());
-	uint16_t i;
-	uint16_t cr_cnt = 0;
 
 	if (nb_entries)
 	{

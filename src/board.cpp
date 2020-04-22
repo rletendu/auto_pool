@@ -1,16 +1,11 @@
-#include "config.h"
-#include "board.h"
-//#include <arduino.h>
-#include "display.h"
+#include "autopool.h"
 
 #include <DHT.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Nextion.h>
 #include <Adafruit_ADS1015.h> // https://github.com/adafruit/Adafruit_ADS1X15.git
-
 #include <DS3231.h>
-#include <SerialDebug.h>
 
 DS3231 rtc;
 OneWire oneWire(PIN_DS18B20);
@@ -20,7 +15,6 @@ Adafruit_ADS1115 ads;
 
 void board_init()
 {
-	uint8_t current_page = 0;
 	Wire.begin();
 #ifdef DEBUG_PIN1
 	pinMode(DEBUG_PIN1, OUTPUT);

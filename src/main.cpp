@@ -1,26 +1,5 @@
-#include <config.h>
-#include <board.h>
-#include <ota.h>
-#include "display.h"
-#include <WiFi.h>
-#include <WebServer.h>
-#include "wifi_manager.h"
-#include "soft_timer.h"
-#include <SerialDebug.h>
-#include "orp_control.h"
-#include "ph_control.h"
-#include "filter_control.h"
-#include "cli.h"
-#include "measures.h"
-#include "display_components.h"
-#include "parameters.h"
-#include "mqtt.h"
-#include <ArduinoOTA.h>
-#include "time.h"
-#include <Nextion.h>
-#include "display_logger.h"
-#include "logger.h"
-#include "server.h"
+#include "autopool.h"
+
 
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
@@ -30,6 +9,13 @@ RTC_NOINIT_ATTR float daily_ml_ph_minus_backup;
 RTC_NOINIT_ATTR float daily_ml_ph_plus_backup;
 RTC_NOINIT_ATTR float daily_ml_orp_backup;
 uint32_t boot_key RTC_NOINIT_ATTR;
+
+void time_update_stop(void)
+{
+	timer_pool.cancel(time_update_task);
+}
+
+
 
 bool time_update(void *)
 {
@@ -119,10 +105,11 @@ unsigned long duration;
 
 void loop()
 {
-	ota_loop();
-	display_loop();
-	mqtt_loop();
-	cli_loop();
 	timer_pool.tick(); // tick the timer
+
+	ota_loop();
+	display_loop(); // Proceed display touch events
+	mqtt_loop();
+	cli_loop(); // Serial command line input
 	webserver_loop();
 }

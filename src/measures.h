@@ -30,5 +30,6 @@ void measures_to_json_string(void);
 bool measures_json_to_measures(char *json_str);
 void measures_init(void);
 void measures_set_virtual(bool state);
+void measures_loop_stop(void);
 
 #endif
