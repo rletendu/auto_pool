@@ -1,8 +1,7 @@
 #include "autopool.h"
-
 #include <WebServer.h>
 #include <ESPmDNS.h>
-#include <ESPNexUpload.h>
+#include "ota_tft.h"
 
 const char *host = "autopool";
 
@@ -11,7 +10,7 @@ const char *failure_html = "<!DOCTYPE html>\n\t<html lang=\"en\">\n\t<head>\n\t\
 const char *success_html = "<!DOCTYPE html>\n\t<html lang=\"en\">\n\t<head>\n\t\t<title>Nextion Updater</title>\n\t</head>\n\t<body>\n\t\tUpdate successful\n\t</body>\n</html>\n";
 
 WebServer server(80);
-ESPNexUpload nextion(115200);
+ota_tft nextion(115200);
 
 int fileSize = 0;
 bool result = true;
@@ -48,19 +47,20 @@ String getContentType(String filename)
 }
 
 bool handleFileRead(String path)
-{ // send the right file to the client (if it exists)
+{
+	// send the right file to the client (if it exists)
 	Serial.print("handleFileRead: " + path);
 	if (path.endsWith("/"))
-		path += "index.html";		   // If a folder is requested, send the index file
+		path += "index.html";				   // If a folder is requested, send the index file
 	String contentType = getContentType(path); // Get the MIME type
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
-	{							    // If the file exists, either as a compressed archive, or normal
-		if (SPIFFS.exists(pathWithGz))			    // If there's a compressed version available
-			path += ".gz";				    // Use the compressed verion
-		File file = SPIFFS.open(path, "r");		    // Open the file
+	{														// If the file exists, either as a compressed archive, or normal
+		if (SPIFFS.exists(pathWithGz))						// If there's a compressed version available
+			path += ".gz";									// Use the compressed verion
+		File file = SPIFFS.open(path, "r");					// Open the file
 		size_t sent = server.streamFile(file, contentType); // Send it to the client
-		file.close();					    // Close the file again
+		file.close();										// Close the file again
 		Serial.println(String("\tSent file: ") + path);
 		return true;
 	}
@@ -71,8 +71,13 @@ bool handleFileRead(String path)
 // handle the file uploads
 bool handleFileUpload()
 {
-	stop_display_tasks();
+	static bool init_done=false;
 
+	printlnA(F("handleFileUpload"));
+	if (init_done == false) {
+		
+		init_done = true;
+	}
 	HTTPUpload &upload = server.upload();
 
 	// Check if file seems valid nextion tft file
@@ -92,31 +97,39 @@ bool handleFileUpload()
 
 	if (upload.status == UPLOAD_FILE_START)
 	{
+		stop_display_tasks();
+		printlnA(F("UPLOAD_FILE_START Preparing nextion"));
+
 		// Prepare the Nextion display by seting up serial and telling it the file size to expect
 		result = nextion.prepareUpload(fileSize);
+		printlnA(F("Nextion prepare Done"));
+
 		if (result)
 		{
-			//Serial.print(F("Start upload. File size is: "));
-			//Serial.print(fileSize);
-			//Serial.println(F(" bytes"));
+			printA(F("Nextion Prepare pass Start upload. File size is: "));
+			printA(fileSize);
+			printlnA(F(" bytes"));
+			delay(500);
 		}
 		else
 		{
-			//Serial.println(nextion.statusMessage + "\n");
+			printA(F("Nextion prepage fail: "));
+			printlnA(nextion.statusMessage + "\n");
 			return false;
 		}
 	}
 	else if (upload.status == UPLOAD_FILE_WRITE)
 	{
+		printA("UPLOAD_FILE_WRITE: ");
 		// Write the received bytes to the nextion
 		result = nextion.upload(upload.buf, upload.currentSize);
 		if (result)
 		{
-			//Serial.print(F("."));
+			printlnA(F("ok"));
 		}
 		else
 		{
-			Serial.println(nextion.statusMessage + "\n");
+			printlnA(nextion.statusMessage);
 			return false;
 		}
 	}
@@ -124,8 +137,8 @@ bool handleFileUpload()
 	{
 		// End the serial connection to the Nextion and softrest it
 		nextion.end();
-		//Serial.println("");
-		//Serial.println(nextion.statusMessage);
+		printA("UPLOAD_FILE_END");
+		printlnA(nextion.statusMessage);
 		return true;
 	}
 }
@@ -141,15 +154,19 @@ void webserver_init(void)
 
 	//SERVER INIT
 	server.on(
-	    "/", HTTP_POST, []() {
-		    Serial.println(F("Succesfully updated Nextion!\n"));
-		    // Redirect the client to the success page after handeling the file upload
-		    server.sendHeader(F("Location"), F("/success.html"));
-		    server.send(303);
-		    return true;
-	    },
-	    // Receive and save the file
-	    handleFileUpload);
+		"/", HTTP_POST, []() {
+			Serial.println(F("Succesfully updated Nextion!\n"));
+			// Redirect the client to the success page after handeling the file upload
+			server.sendHeader(F("Location"), F("/success.html"));
+			server.send(303);
+
+			sleep(7000);
+			ESP.restart();
+			
+			return true;
+		},
+		// Receive and save the file
+		handleFileUpload);
 
 	// receive fileSize once a file is selected (Workaround as the file content-length is of by +/- 200 bytes. Known issue: https://github.com/esp8266/Arduino/issues/3787)
 	server.on("/fs", HTTP_POST, []() {

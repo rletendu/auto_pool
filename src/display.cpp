@@ -20,12 +20,13 @@ void time_update_stop(void);
 
 void stop_display_tasks()
 {
+	NexDim(100);
+	display_saver_stop();
 	time_update_stop();
 	orp_control_stop();
 	measures_loop_stop();
 	ph_control_stop();
 	disp_touch_events_enable = false;
-	display_saver_stop();
 }
 
 void display_saver_stop(void)
