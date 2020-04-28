@@ -159,10 +159,6 @@ void webserver_init(void)
 			// Redirect the client to the success page after handeling the file upload
 			server.sendHeader(F("Location"), F("/success.html"));
 			server.send(303);
-
-			sleep(7000);
-			ESP.restart();
-			
 			return true;
 		},
 		// Receive and save the file
