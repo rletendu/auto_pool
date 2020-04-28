@@ -68,7 +68,7 @@ typedef std::function<void(void)> THandlerFunction;
  *
  * Provides the API for nextion to upload the ftf file.
  */
-class ESPNexUpload
+class ota_tft
 {
 public: /* methods */
 	
@@ -80,13 +80,13 @@ public: /* methods */
      * 
      * @param uint32_t upload_baudrate - set upload baudrate.
      */
-    ESPNexUpload(uint32_t upload_baudrate);
+    ota_tft(uint32_t upload_baudrate);
     
     /**
      * destructor. 
      * 
      */
-    ~ESPNexUpload(){}
+    ~ota_tft(){}
 	
     /**
      * Connect to Nextion over serial
