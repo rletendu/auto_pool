@@ -57,6 +57,7 @@ bool update_measures(void *)
 	led0_on();
 	measures.index = millis()/1000;
 	printlnA(measures.index);
+	rdebugA("Measures ..");
 	if (measures_are_vitual)
 	{
 		// Nothing to do here...

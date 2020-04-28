@@ -82,6 +82,7 @@ void setup()
 	ph_control_init();
 	measures_init();
 	webserver_init();
+	telnet_init();
 
 	//save the custom parameters to FS
 	if (is_should_save_config())
@@ -112,4 +113,5 @@ void loop()
 	mqtt_loop();
 	cli_loop(); // Serial command line input
 	webserver_loop();
+	telnet_loop();
 }

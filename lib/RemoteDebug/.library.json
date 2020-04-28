@@ -1,0 +1,50 @@
+{
+    "name": "RemoteDebug", 
+    "version": "3.0.5", 
+    "keywords": [
+        "communication"
+    ], 
+    "description": "A library for Arduino to debug projects over WiFi, with web app or telnet client, with Print commands like Serial Monitor.", 
+    "frameworks": [
+        "arduino"
+    ], 
+    "platforms": [
+        "atmelavr", 
+        "atmelsam", 
+        "espressif32", 
+        "espressif8266", 
+        "intel_arc32", 
+        "microchippic32", 
+        "nordicnrf51", 
+        "nordicnrf52", 
+        "ststm32", 
+        "ststm8", 
+        "teensy", 
+        "timsp430"
+    ], 
+    "authors": [
+        {
+            "email": null, 
+            "url": null, 
+            "maintainer": true, 
+            "name": "Joao Lopes"
+        }
+    ], 
+    "repository": {
+        "type": "git", 
+        "url": "https://github.com/JoaoLopesF/RemoteDebug"
+    }, 
+    "homepage": null, 
+    "export": {
+        "include": null, 
+        "exclude": [
+            "extras", 
+            "docs", 
+            "tests", 
+            "test", 
+            "*.doxyfile", 
+            "*.pdf"
+        ]
+    }, 
+    "id": 1266
+}

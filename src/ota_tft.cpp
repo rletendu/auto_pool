@@ -40,30 +40,7 @@
 #define nexSerialBegin(a) nexSerial.begin(a, SERIAL_8N1, NEXT_RX, NEXT_TX)
 #endif
 
-//*#ifdef DEBUG_SERIAL_ENABLE
-#if 0
-#define dbSerialPrint(a) Serial.print(a)
-#define dbSerialPrintHex(a) Serial.print(a, HEX)
-#define dbSerialPrintln(a) Serial.println(a)
-#define dbSerialBegin(a) Serial.begin(a)
-#else
-#define dbSerialPrint(a) \
-	do                   \
-	{                    \
-	} while (0)
-#define dbSerialPrintHex(a) \
-	do                      \
-	{                       \
-	} while (0)
-#define dbSerialPrintln(a) \
-	do                     \
-	{                      \
-	} while (0)
-#define dbSerialBegin(a) \
-	do                   \
-	{                    \
-	} while (0)
-#endif
+
 
 ota_tft::ota_tft(uint32_t upload_baudrate)
 {

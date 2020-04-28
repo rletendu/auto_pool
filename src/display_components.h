@@ -101,11 +101,10 @@
 #define CID_GRAPH_PREV 5
 #define CID_LOG_PREV 2
 
-#define COLOR_RED 63488
-
-#define COLOR_ORANGE 64512
-#define COLOR_GREEN 1024
-#define COLOR_GRAY 50712
+#define DISP_COLOR_RED 63488
+#define DISP_COLOR_ORANGE 64512
+#define DISP_COLOR_GREEN 1024
+#define DISP_COLOR_GRAY 50712
 
 extern NexPage page_boot;
 extern NexPage page_status;

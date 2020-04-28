@@ -7,6 +7,7 @@
 #include "display.h"
 #include "display_components.h"
 #include <WiFi.h>
+#include <SPI.h>
 #include <WebServer.h>
 #include <SPIFFS.h>
 #include "wifi_manager.h"
@@ -27,5 +28,8 @@
 #include <ArduinoJson.h>
 #include <PubSubClient.h>
 #include <ArduinoOTA.h>
+#include <RemoteDebug.h>
+#include "debug.h"
+#include "telnet.h"
 
 #endif // __AUTOPOOL_H__
