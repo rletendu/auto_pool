@@ -35,6 +35,7 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 		if (state.filter_mode != FILTER_AUTO)
 		{
 			state.filter_mode = FILTER_AUTO;
+			state.filter_control_state = FILTER_IDLE;
 			mqtt_publish_filter_state();
 		}
 		break;
@@ -135,6 +136,8 @@ bool filter_control_update(void *)
 		default:
 			break;
 		}
+	} else {
+		
 	}
 	return true;
 }

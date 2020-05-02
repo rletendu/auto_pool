@@ -80,7 +80,7 @@ bool update_measures(void *)
 			measures.system_humidity = dht;
 		}
 		measures.water_temperature = water_get_temperature();
-		measures.pump_pressure = pump_filtration_get_pressure();
+		measures.pump_pressure = pump_filtration_get_pressure(false);
 		measures.ph = water_get_ph();
 		measures.orp = water_get_orp();
 		measures.level_cl = level_cl_is_ok();

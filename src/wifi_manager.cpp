@@ -1,7 +1,6 @@
 #include "autopool.h"
 #include <WiFiManager.h> //https://github.com/Brunez3BD/WIFIMANAGER-ESP32
 
-
 WiFiManager wifiManager;
 
 static bool shouldSaveConfig = false;
@@ -26,7 +25,7 @@ bool is_should_save_config(void)
 void wifimanager_init(void)
 {
 	printlnA(F("Setup Wifi manager..."));
-	wifiManager.setDebugOutput(false);
+	wifiManager.setDebugOutput(true);
 	wifiManager.setSaveConfigCallback(saveConfigCallback);
 	wifiManager.addParameter(&custom_text);
 	wifiManager.addParameter(&custom_mqtt_server);
@@ -36,12 +35,18 @@ void wifimanager_init(void)
 	wifiManager.addParameter(&custom_mqtt_base_topic);
 	if (parameters_read_file())
 	{
+		printlnA(F("Wifi manager got default parameters from config file"));
 		custom_mqtt_server.setValue(parameters.mqtt_server);
 		custom_mqtt_port.setValue(parameters.mqtt_port);
 		custom_mqtt_user.setValue(parameters.mqtt_user);
 		custom_mqtt_pass.setValue(parameters.mqtt_pass);
 		custom_mqtt_base_topic.setValue(parameters.mqtt_base_topic);
 	}
+	else
+	{
+		printlnA(F("Wifi manager failed to get default parameters from config file"))
+	}
+	printlnA(F("Wifi manager Init done"))
 }
 
 void reset_wifimanager(void)
@@ -81,4 +86,12 @@ void wifimanager_start_portal(void)
 		printlnA(F("Need to write Json config file..."));
 		parameters_write_file();
 	}
+}
+
+
+void wifimanager_reset_portal(void)
+{
+	printlnA(F("Portal reset"));
+	wifiManager.resetSettings();
+
 }

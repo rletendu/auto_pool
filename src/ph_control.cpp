@@ -82,6 +82,7 @@ void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
 		if (state.ph_plus_mode != PH_PLUS_AUTO)
 		{
 			state.ph_plus_mode = PH_PLUS_AUTO;
+			state.ph_control_state = PH_IDLE;
 			mqtt_publish_ph_state();
 		}
 		break;

@@ -123,7 +123,7 @@ float ds18_get_temperature(uint8_t index);
 float water_get_temperature(void);
 float water_get_ph(void);
 float water_get_orp(void);
-float pump_filtration_get_pressure(void);
+float pump_filtration_get_pressure(bool store_offset);
 
 bool rtc_set_time(struct tm time);
 

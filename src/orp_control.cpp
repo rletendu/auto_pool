@@ -39,6 +39,7 @@ void orp_enter_mode(enum orp_mode_t orp_mode)
 		if (state.orp_mode != ORP_AUTO)
 		{
 			state.orp_mode = ORP_AUTO;
+			state.orp_control_state = ORP_IDLE;
 			mqtt_publish_orp_state();
 		}
 		break;

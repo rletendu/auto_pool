@@ -69,7 +69,11 @@ void setup()
 	printlnA(F("AutoPool Starting..."));
 	wifimanager_init();
 	wifimanager_autoconnect();
-	parameters_read_file();
+	if (parameters_read_file()) {
+		printlnA("Reading config file OK");
+	} else {
+		printlnA("Reading config file failed");
+	}
 	printlnA(F("Ip Address : "));
 	printlnA(WiFi.localIP());
 	ota_init();

@@ -47,6 +47,7 @@ void board_init()
 	ds18b20.begin();
 	ads.begin();
 	ads.setGain(GAIN_ONE); // 1x gain   +/- 4.096V  1 bit =  0.125mV
+	pump_filtration_get_pressure(true);
 	display_init();
 
 	printA(F("DHT Temperature : "));
@@ -58,7 +59,7 @@ void board_init()
 	printA(F("Water Temperature : "));
 	printlnA(ds18_get_temperature(0));
 	printA(F("Pump Pressure : "));
-	printlnA(pump_filtration_get_pressure());
+	printlnA(pump_filtration_get_pressure(false));
 	/*
   while(current_page!=2) {
     GetPageId(&current_page);
@@ -219,16 +220,24 @@ float water_get_orp(void)
 	return (float)orp;
 }
 
-float pump_filtration_get_pressure(void)
+float pump_filtration_get_pressure(bool store_offset)
 {
 	int16_t adc;
+	static double vcc = 5.0;
+
 	adc = ads.readADC_SingleEnded(ADS_CH_PRESSURE);
+
 	// Gain x1 1 bit =  0.125mV
 	double vout = (adc * 0.125) / 1000;
-	if (vout < .500)
-	{
-		vout = .500;
+	if (store_offset) {
+		vcc = 10*vout;
+		printA("Pressure Computed Vcc : ")
+		printlnA(vcc);
 	}
-	double p = 10 * ((vout - .500) / (0.6667 * 5));
+	if (vout < (vcc/10))
+	{
+		vout = vcc/10;
+	}
+	double p = 10 * ((vout - vcc/10) / (0.6667 * vcc));
 	return (float)p;
 }
