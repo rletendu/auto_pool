@@ -15,6 +15,8 @@ Adafruit_ADS1115 ads;
 
 void board_init()
 {
+	display_init();
+	
 	Wire.begin();
 #ifdef DEBUG_PIN1
 	pinMode(DEBUG_PIN1, OUTPUT);
@@ -48,7 +50,6 @@ void board_init()
 	ads.begin();
 	ads.setGain(GAIN_ONE); // 1x gain   +/- 4.096V  1 bit =  0.125mV
 	pump_filtration_get_pressure(true);
-	display_init();
 
 	printA(F("DHT Temperature : "));
 	printlnA(dht_get_temperature());
@@ -229,15 +230,16 @@ float pump_filtration_get_pressure(bool store_offset)
 
 	// Gain x1 1 bit =  0.125mV
 	double vout = (adc * 0.125) / 1000;
-	if (store_offset) {
-		vcc = 10*vout;
-		printA("Pressure Computed Vcc : ")
-		printlnA(vcc);
-	}
-	if (vout < (vcc/10))
+	if (store_offset)
 	{
-		vout = vcc/10;
+		vcc = 10 * vout;
+		printA("Pressure Computed Vcc : ")
+			printlnA(vcc);
 	}
-	double p = 10 * ((vout - vcc/10) / (0.6667 * vcc));
+	if (vout < (vcc / 10))
+	{
+		vout = vcc / 10;
+	}
+	double p = 10 * ((vout - vcc / 10) / (0.6667 * vcc));
 	return (float)p;
 }

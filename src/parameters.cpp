@@ -66,6 +66,10 @@ void parameters_write_file(void)
 	json["filter_auto_mode"] = (int)parameters.filter_auto_mode;
 	json["timer_prog"] = parameters.timer_prog;
 	json["pressure_warning"] = parameters.pressure_warning;
+	json["cl_max_day"] = parameters.cl_max_day;
+	json["phm_max_day"] = parameters.phm_max_day;
+	json["orp_offset"] = parameters.orp_offset;
+	json["ph_offset"] = parameters.ph_offset;
 	File configFile = SPIFFS.open(PARAMETER_FILENAME, "w");
 	if (!configFile)
 	{
@@ -95,6 +99,11 @@ void parameters_set_default(void)
 	parameters.filter_auto_mode = AUTO_TIMER_PROG;
 	parameters.timer_prog = 0;
 	parameters.pressure_warning = 1.9;
+
+	parameters.cl_max_day = 2000.0;
+	parameters.phm_max_day = 2000.0;
+	parameters.orp_offset = 0.0;
+	parameters.ph_offset = 0.0;
 }
 
 bool parameters_json_to_param(char *json_str)
@@ -118,12 +127,15 @@ bool parameters_json_to_param(char *json_str)
 		parameters.flow_ph_plus = json["flow_ph_plus"];
 		parameters.filter_auto_mode = (filter_auto_mode_t)(int)json["filter_auto_mode"];
 		parameters.timer_prog = json["timer_prog"];
+		parameters.cl_max_day = json["cl_max_day"];
+		parameters.phm_max_day = json["phm_max_day"];
+		parameters.orp_offset = json["orp_offset"];
+		parameters.ph_offset = json["ph_offset"];
 		json.printTo(parameters_json_string);
 		return true;
 	}
 	else
 	{
-		printlnA("Json str to parameters fail")
-		return false;
+		printlnA("Json str to parameters fail") return false;
 	}
 }

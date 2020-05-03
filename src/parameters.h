@@ -29,6 +29,10 @@ struct ParametersStruture
 	uint32_t timer_prog;
 	enum filter_auto_mode_t filter_auto_mode;
 	float pressure_warning;
+	float cl_max_day;
+	float phm_max_day;
+	float orp_offset;
+	float ph_offset;
 };
 
 extern struct ParametersStruture parameters;
@@ -38,5 +42,5 @@ bool parameters_read_file(void);
 void parameters_write_file(void);
 void parameters_format(void);
 bool parameters_json_to_param(char *json_str);
-
+void parameters_set_default(void);
 #endif

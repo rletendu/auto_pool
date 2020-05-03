@@ -2,21 +2,26 @@
 #include <Nextion.h>
 #include "display_components.h"
 
-
-
 NexPage page_boot = NexPage(PID_BOOT, 0, "boot");
 NexPage page_status = NexPage(PID_STATUS, 0, "status");
 NexPage page_control = NexPage(PID_CONTROL, 0, "control");
 NexPage page_graph = NexPage(PID_GRAPH, 0, "graph");
 NexPage page_log = NexPage(PID_LOG, 0, "log");
-NexPage page_options = NexPage(PID_OPTIONS, 0, "option");
+NexPage page_options = NexPage(PID_OPTIONS, 0, "options");
 NexPage page_ota = NexPage(PID_OTA, 0, "OTA");
 NexPage page_saver = NexPage(PID_SAVER, 0, "saver");
+NexPage page_options_2 = NexPage(PID_OPTIONS2, 0, "saver");
+
+NexText boot_title = NexText(PID_BOOT, 1, "boot.boot_title");
+NexProgressBar boot_progress = NexProgressBar(PID_BOOT, 3, "boot.boot_progress");
+NexText boot_message = NexText(PID_BOOT, 4, "boot.boot_text");
+NexText boot_version = NexText(PID_BOOT, 5, "boot.ver");
+NexText boot_ip = NexText(PID_BOOT, 6, "boot.ip");
 
 NexButton disp_saver_exit = NexButton(PID_SAVER, 1, "saver.saver_exit");
 
 NexProgressBar ota_progress = NexProgressBar(PID_OTA, 1, "j0");
-NexText ota_title = NexText(PID_OTA,2, "ota_text");
+NexText ota_title = NexText(PID_OTA, 2, "ota_text");
 
 NexXfloat disp_water_temperature = NexXfloat(PID_STATUS, CID_STATUS_WATER_TEMP, "status.temp_value");
 NexXfloat disp_ph = NexXfloat(PID_STATUS, CID_STATUS_PH, "status.ph_value");
@@ -25,9 +30,8 @@ NexXfloat disp_pressure = NexXfloat(PID_STATUS, CID_STATUS_PRESSURE, "status.pre
 NexXfloat disp_sys_temperature = NexXfloat(PID_STATUS, CID_STATUS_SYSTEM_TEMP, "status.sys_temp_value");
 NexXfloat disp_sys_humidity = NexXfloat(PID_STATUS, CID_STATUS_SYSTEM_HUMIDITY, "status.sys_hum_value");
 NexPicture disp_wifi = NexPicture(PID_STATUS, CID_STATUS_WIFI, "status.wifi_value");
-NexText dis_sys_hour = NexText(PID_STATUS,CID_STATUS_SYSTEM_HOUR, "status.sys_hour");
-NexText dis_sys_user0 = NexText(PID_STATUS,51, "status.sys_user0");
-
+NexText dis_sys_hour = NexText(PID_STATUS, CID_STATUS_SYSTEM_HOUR, "status.sys_hour");
+NexText dis_sys_user0 = NexText(PID_STATUS, 51, "status.sys_user0");
 
 NexXfloat disp_phm_day = NexXfloat(PID_STATUS, 39, "status.phm_day");
 NexXfloat disp_cl_day = NexXfloat(PID_STATUS, 40, "status.cl_day");
@@ -98,8 +102,26 @@ NexCheckbox disp_otions_21h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_21H, "options
 NexCheckbox disp_otions_22h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_22H, "options.c22");
 NexCheckbox disp_otions_23h = NexCheckbox(PID_OPTIONS, CID_OPTIONS_23H, "options.c23");
 
+NexXfloat disp_options_max_cl = NexXfloat(PID_OPTIONS2, 5, "options_2.max_cl");
+NexXfloat disp_options_max_phm = NexXfloat(PID_OPTIONS2, 4, "options_2.max_phm");
+NexXfloat disp_options_orp_offset = NexXfloat(PID_OPTIONS2, 25, "options_2.orp_offset");
+NexXfloat disp_options_ph_offset = NexXfloat(PID_OPTIONS2, 26, "options_2.ph_offset");
+
+NexXfloat disp_options_orp_value = NexXfloat(PID_OPTIONS2, 27, "options_2.orp_value");
+NexXfloat disp_options_orp_raw_value = NexXfloat(PID_OPTIONS2, 17, "options_2.orp_raw_value");
+NexXfloat disp_options_ph_value = NexXfloat(PID_OPTIONS2, 29, "options_2.ph_value");
+NexXfloat disp_options_ph_raw_value = NexXfloat(PID_OPTIONS2, 16, "options_2.ph_raw_value");
+NexButton disp_options_rst_cl_day = NexButton(PID_OPTIONS2, 12, "options_2.rst_cl_day");
+NexButton disp_options_rst_phm_day = NexButton(PID_OPTIONS2, 13, "options_2.rst_phm_day");
+NexButton disp_options_reboot = NexButton(PID_OPTIONS2, 36, "options_2.reboot");
+NexButton disp_options_default_param = NexButton(PID_OPTIONS2, 37, "options_2.default");
+NexButton disp_options_portal = NexButton(PID_OPTIONS2, 38, "options_2.portal");
+
+
+
+
 NexWaveform disp_graph_temp = NexWaveform(PID_GRAPH, 1, "graph.ph_temp");
-NexWaveform disp_graph_orp= NexWaveform(PID_GRAPH, 2, "graph.ph_orp");
+NexWaveform disp_graph_orp = NexWaveform(PID_GRAPH, 2, "graph.ph_orp");
 NexWaveform disp_graph_ph = NexWaveform(PID_GRAPH, 3, "graph.ph_graph");
 NexWaveform disp_graph_press = NexWaveform(PID_GRAPH, 4, "graph.ph_press");
 
@@ -119,5 +141,4 @@ NexButton disp_control_ph_plus_auto = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS
 NexButton disp_control_ph_plus_off = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_OFF, "control.php_off");
 NexButton disp_control_ph_plus_on = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_ON, "control.php_on");
 
-NexText disp_log_logger = NexText(PID_LOG,1, "log.logger");
-
+NexText disp_log_logger = NexText(PID_LOG, 1, "log.logger");

@@ -12,6 +12,8 @@ struct MeasuresStructure
 	float system_temperature;
 	float system_humidity;
 	float pump_pressure;
+	float ph_raw;
+	float orp_raw;
 	float ph;
 	float orp;
 	bool level_water;

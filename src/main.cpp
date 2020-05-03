@@ -1,6 +1,5 @@
 #include "autopool.h"
 
-
 SoftTimer timer_pool = SoftTimer();
 uintptr_t time_update_task;
 
@@ -14,8 +13,6 @@ void time_update_stop(void)
 {
 	timer_pool.cancel(time_update_task);
 }
-
-
 
 bool time_update(void *)
 {
@@ -52,6 +49,7 @@ void rtc_init()
 
 void setup()
 {
+	char msg[80];
 	if (boot_key == BOOT_KEY_MAGIC)
 	{
 		bootCount++;
@@ -63,29 +61,68 @@ void setup()
 
 	Serial.begin(115200);
 	//parameters_format();
+
 	board_init();
 	display_log_clear();
-	delay(500);
+
 	printlnA(F("AutoPool Starting..."));
+	sprintf(msg, "AutoPool %.2f %s %s starting", AUTOPOOL_VER ,__DATE__, __TIME__);
+	disp_boot_progress_message(msg);
+	sprintf(msg, "Rev: %.2f : %s %s", AUTOPOOL_VER, __DATE__, __TIME__);
+	boot_version.setText(msg);
+	delay(500);
+
 	wifimanager_init();
 	wifimanager_autoconnect();
-	if (parameters_read_file()) {
+
+	IPAddress ip = WiFi.localIP();
+	printA(F("Ip Address : "));
+	printlnA(ip);
+	sprintf(msg, "Wifi Connected : %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+	disp_boot_progress_message(msg);
+	sprintf(msg, "Wifi IP : %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+	boot_ip.setText(msg);
+
+	if (parameters_read_file())
+	{
+		disp_boot_progress_message("Loading config file : Ok");
 		printlnA("Reading config file OK");
-	} else {
+	}
+	else
+	{
+		disp_boot_progress_message("Loading config File Fail");
 		printlnA("Reading config file failed");
 	}
-	printlnA(F("Ip Address : "));
-	printlnA(WiFi.localIP());
+
+	disp_boot_progress_message("OTA Init");
 	ota_init();
+
+	disp_boot_progress_message("MQTT Init");
 	mqtt_init();
+
+	disp_boot_progress_message("CLI Init");
 	cli_init();
+
+	disp_boot_progress_message("RTC Init");
 	configTime(GMTOFFSET, DAYLIGHTOFFSET, NTPSERVER);
 	rtc_init();
+
+	disp_boot_progress_message("Filter Control Init");
 	filter_control_init();
+
+	disp_boot_progress_message("ORP Control Init");
 	orp_control_init();
+
+	disp_boot_progress_message("pH Control Init");
 	ph_control_init();
+
+	disp_boot_progress_message("Measure Init");
 	measures_init();
+
+	disp_boot_progress_message("Web Server Init");
 	webserver_init();
+
+	disp_boot_progress_message("Telnet Server Init");
 	telnet_init();
 
 	//save the custom parameters to FS
@@ -102,6 +139,7 @@ void setup()
 	char boot_msg[25];
 	sprintf(boot_msg, "Autopool rebooted (%u)", measures.boot_count);
 	log_append(boot_msg);
+	page_status.show();
 }
 
 volatile unsigned long tmp = 0;

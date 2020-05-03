@@ -15,27 +15,26 @@
 #include "NexHardware.h"
 #include "NexTouch.h"
 
-#define NEX_RET_CMD_FINISHED            (0x01)
-#define NEX_RET_EVENT_LAUNCHED          (0x88)
-#define NEX_RET_EVENT_UPGRADED          (0x89)
-#define NEX_RET_EVENT_TOUCH_HEAD            (0x65)     
-#define NEX_RET_EVENT_POSITION_HEAD         (0x67)
-#define NEX_RET_EVENT_SLEEP_POSITION_HEAD   (0x68)
-#define NEX_RET_CURRENT_PAGE_ID_HEAD        (0x66)
-#define NEX_RET_STRING_HEAD                 (0x70)
-#define NEX_RET_NUMBER_HEAD                 (0x71)
-#define NEX_RET_INVALID_CMD             (0x00)
-#define NEX_RET_INVALID_COMPONENT_ID    (0x02)
-#define NEX_RET_INVALID_PAGE_ID         (0x03)
-#define NEX_RET_INVALID_PICTURE_ID      (0x04)
-#define NEX_RET_INVALID_FONT_ID         (0x05)
-#define NEX_RET_INVALID_BAUD            (0x11)
-#define NEX_RET_INVALID_VARIABLE        (0x1A)
-#define NEX_RET_INVALID_OPERATION       (0x1B)
+#define NEX_RET_CMD_FINISHED (0x01)
+#define NEX_RET_EVENT_LAUNCHED (0x88)
+#define NEX_RET_EVENT_UPGRADED (0x89)
+#define NEX_RET_EVENT_TOUCH_HEAD (0x65)
+#define NEX_RET_EVENT_POSITION_HEAD (0x67)
+#define NEX_RET_EVENT_SLEEP_POSITION_HEAD (0x68)
+#define NEX_RET_CURRENT_PAGE_ID_HEAD (0x66)
+#define NEX_RET_STRING_HEAD (0x70)
+#define NEX_RET_NUMBER_HEAD (0x71)
+#define NEX_RET_INVALID_CMD (0x00)
+#define NEX_RET_INVALID_COMPONENT_ID (0x02)
+#define NEX_RET_INVALID_PAGE_ID (0x03)
+#define NEX_RET_INVALID_PICTURE_ID (0x04)
+#define NEX_RET_INVALID_FONT_ID (0x05)
+#define NEX_RET_INVALID_BAUD (0x11)
+#define NEX_RET_INVALID_VARIABLE (0x1A)
+#define NEX_RET_INVALID_OPERATION (0x1B)
 
-
-NexTouchEventCb global_push_touch_cb=NULL;
-NexTouchEventCb global_pop_touch_cb=NULL;
+NexTouchEventCb global_push_touch_cb = NULL;
+NexTouchEventCb global_pop_touch_cb = NULL;
 
 /*
  * Receive uint32_t data. 
@@ -57,19 +56,15 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
     {
         goto __return;
     }
-    
+
     nexSerial.setTimeout(timeout);
     nb_read = nexSerial.readBytes((char *)temp, sizeof(temp));
-    if (sizeof(temp) != nb_read )
+    if (sizeof(temp) != nb_read)
     {
         goto __return;
     }
 
-    if (temp[0] == NEX_RET_NUMBER_HEAD
-        && temp[5] == 0xFF
-        && temp[6] == 0xFF
-        && temp[7] == 0xFF
-        )
+    if (temp[0] == NEX_RET_NUMBER_HEAD && temp[5] == 0xFF && temp[6] == 0xFF && temp[7] == 0xFF)
     {
         *number = ((uint32_t)temp[4] << 24) | ((uint32_t)temp[3] << 16) | (temp[2] << 8) | (temp[1]);
         ret = true;
@@ -77,7 +72,7 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
 
 __return:
 
-    if (ret) 
+    if (ret)
     {
         dbSerialPrint("recvRetNumber :");
         dbSerialPrintln(*number);
@@ -85,13 +80,16 @@ __return:
     else
     {
         dbSerialPrint("recvRetNumber err : ");
-        for (int j=0;j<8;j++) { dbSerial.println(temp[j], HEX);dbSerialPrintln(" ");}
+        for (int j = 0; j < 8; j++)
+        {
+            dbSerial.println(temp[j], HEX);
+            dbSerialPrintln(" ");
+        }
         dbSerialPrintln();
     }
     delay(NEXT_DELAY_RETURN);
     return ret;
 }
-
 
 /*
  * Receive string data. 
@@ -116,7 +114,7 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
     {
         goto __return;
     }
-    
+
     start = millis();
     while (millis() - start <= timeout)
     {
@@ -127,7 +125,7 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
             {
                 if (0xFF == c)
                 {
-                    cnt_0xff++;                    
+                    cnt_0xff++;
                     if (cnt_0xff >= 3)
                     {
                         break;
@@ -143,7 +141,7 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
                 str_start_flag = true;
             }
         }
-        
+
         if (cnt_0xff >= 3)
         {
             break;
@@ -153,7 +151,7 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
     ret = temp.length();
     ret = ret > len ? len : ret;
     strncpy(buffer, temp.c_str(), ret);
-    
+
 __return:
 
     dbSerialPrint("recvRetString[");
@@ -170,28 +168,28 @@ __return:
  *
  * @param cmd - the string of command.
  */
-void sendCommand(const char* cmd)
+void sendCommand(const char *cmd)
 {
     while (nexSerial.available())
     {
         nexSerial.read();
     }
-    
+
     nexSerial.print(cmd);
     nexSerial.write(0xFF);
     nexSerial.write(0xFF);
     nexSerial.write(0xFF);
 }
 
-
-void sendRaw(const char* raw_data, uint8_t len)
+void sendRaw(const char *raw_data, uint8_t len)
 {
     uint8_t i;
     while (nexSerial.available())
     {
         nexSerial.read();
     }
-    for (i=0;i<len;i++) {
+    for (i = 0; i < len; i++)
+    {
         nexSerial.write(raw_data[i]);
     }
 }
@@ -206,35 +204,32 @@ void sendRaw(const char* raw_data, uint8_t len)
  *
  */
 bool recvRetCommandFinished(uint32_t timeout)
-{    
+{
     bool ret = false;
     uint8_t temp[4] = {0};
     uint8_t nb_read;
-    
+
     nexSerial.setTimeout(timeout);
-	nb_read = nexSerial.readBytes((char *)temp, sizeof(temp));		
-    if (sizeof(temp) != nb_read )
+    nb_read = nexSerial.readBytes((char *)temp, sizeof(temp));
+    if (sizeof(temp) != nb_read)
     {
         ret = false;
         dbSerialPrint("recvRetCommand ErrorRead : ");
     }
-    if (temp[0] == NEX_RET_CMD_FINISHED
-        && temp[1] == 0xFF
-        && temp[2] == 0xFF
-        && temp[3] == 0xFF
-        )
+    if (temp[0] == NEX_RET_CMD_FINISHED && temp[1] == 0xFF && temp[2] == 0xFF && temp[3] == 0xFF)
     {
         ret = true;
     }
 
-    if (ret) 
+    if (ret)
     {
         dbSerialPrintln("recvRetCommandFinished ok");
     }
     else
     {
         dbSerialPrint("recvRetCommandFinished err : ");
-        for (int j=0;j<4;j++) dbSerialPrint(temp[j]);
+        for (int j = 0; j < 4; j++)
+            dbSerialPrint(temp[j]);
         dbSerialPrintln();
     }
     delay(NEXT_DELAY_RETURN);
@@ -261,16 +256,15 @@ bool recvRetPageId(uint8_t *page_id, uint32_t timeout)
     {
         goto __return;
     }
-    
+
     nexSerial.setTimeout(timeout);
     nb_read = nexSerial.readBytes((char *)temp, sizeof(temp));
-    if (sizeof(temp) != nb_read )
+    if (sizeof(temp) != nb_read)
     {
         goto __return;
     }
 
-    if (temp[0] == NEX_RET_CURRENT_PAGE_ID_HEAD
-        )
+    if (temp[0] == NEX_RET_CURRENT_PAGE_ID_HEAD)
     {
         *page_id = (temp[1]);
         ret = true;
@@ -278,7 +272,7 @@ bool recvRetPageId(uint8_t *page_id, uint32_t timeout)
 
 __return:
 
-    if (ret) 
+    if (ret)
     {
         dbSerialPrint("recvRetPageId :");
         dbSerialPrintln(*page_id);
@@ -286,72 +280,73 @@ __return:
     else
     {
         dbSerialPrint("recvRetPageId err : ");
-
     }
     delay(NEXT_DELAY_RETURN);
 }
- 
 
 bool nexInit()
 {
-	nexInit(115000);
+    nexInit(115000);
 }
-
 
 bool nexInit(int baud)
 {
     bool ret1 = false;
     bool ret2 = false;
     bool reset_ok = false;
-    
+
 retry_reset:
-    nexSerial.begin(115200);
-    delay(100);
-    //sendCommand("rest");
-    //recvRetCommandFinished(100);
-    delay(1);
+    nexSerial.flush();
+    nexSerial.begin(baud);
+
+    delay(500);
+    sendCommand("rest");
+    //ret1 = recvRetCommandFinished(100);
+    delay(500);
     sendCommand("bkcmd=1");
-    ret1 = recvRetCommandFinished();
+    ret2 = recvRetCommandFinished();
     delay(1);
+    return ret1;
 }
 
 void nexLoop(NexTouch *nex_listen_list[])
 {
     static uint8_t __buffer[10];
-    
+
     uint16_t i;
-    uint8_t c;  
-    
+    uint8_t c;
+
     while (nexSerial.available() > 0)
-    {   
+    {
         delay(10);
         c = nexSerial.read();
-        
+
         if (NEX_RET_EVENT_TOUCH_HEAD == c)
         {
             if (nexSerial.available() >= 6)
             {
-                __buffer[0] = c;  
+                __buffer[0] = c;
                 for (i = 1; i < 7; i++)
                 {
                     __buffer[i] = nexSerial.read();
                 }
                 __buffer[i] = 0x00;
-                
+
                 if (0xFF == __buffer[4] && 0xFF == __buffer[5] && 0xFF == __buffer[6])
                 {
                     NexTouch::iterate(nex_listen_list, __buffer[1], __buffer[2], (int32_t)__buffer[3]);
                 }
-                
             }
         }
     }
 }
 
-void nexSetGlobalPushCb(NexTouchEventCb cb_push) {
+void nexSetGlobalPushCb(NexTouchEventCb cb_push)
+{
     global_push_touch_cb = cb_push;
 }
 
-void nexSetGlobalPopCb(NexTouchEventCb cb_pop) {
+void nexSetGlobalPopCb(NexTouchEventCb cb_pop)
+{
     global_pop_touch_cb = cb_pop;
 }

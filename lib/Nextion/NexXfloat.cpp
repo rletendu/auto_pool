@@ -34,7 +34,7 @@ bool NexXfloat::getValue(float *number)
     cmd += ".val";
     sendCommand(cmd.c_str());
     ret = recvRetNumber(&val);
-    *number = val/(pow(10,nb_ptleft));
+    *number = (int32_t)val/(pow(10,nb_ptleft));
     return ret;
 }
 

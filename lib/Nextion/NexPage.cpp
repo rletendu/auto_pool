@@ -33,7 +33,7 @@ bool NexPage::show(void)
     String cmd = String("page ");
     cmd += name;
     sendCommand(cmd.c_str());
-    return recvRetCommandFinished();
+    return recvRetCommandFinished(200);
 }
 
 bool GetPageId(uint8_t *page_id)

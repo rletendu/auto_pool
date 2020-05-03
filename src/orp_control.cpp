@@ -76,7 +76,7 @@ void orp_control_init(void)
 	state.orp_control_state = ORP_IDLE;
 	orp_enter_mode(ORP_OFF);
 	orp_enter_mode(ORP_AUTO);
-	orp_control_update_task = timer_pool.every(ORP_CONTROL_UPDATE_S*1000, orp_control_update);
+	orp_control_update_task = timer_pool.every(ORP_CONTROL_UPDATE_S * 1000, orp_control_update);
 	mqtt_publish_orp_state();
 }
 
@@ -135,6 +135,10 @@ bool orp_auto_correction_possible(void)
 	{
 		is_possible = false;
 	}
+	if (measures.daily_ml_orp > parameters.cl_max_day)
+	{
+		is_possible = false;
+	}
 	return is_possible;
 }
 
@@ -158,7 +162,7 @@ bool orp_control_update(void *)
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 20 % injection time
 				counter_injection_on = ((ORP_REGULATION_CYCLE_S * 20) / 100) / ORP_CONTROL_UPDATE_S;
-				counter_injection_off =((ORP_REGULATION_CYCLE_S * 80) / 100) / ORP_CONTROL_UPDATE_S;
+				counter_injection_off = ((ORP_REGULATION_CYCLE_S * 80) / 100) / ORP_CONTROL_UPDATE_S;
 				mqtt_publish_orp_state();
 				orp_on();
 				break;

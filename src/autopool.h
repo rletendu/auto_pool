@@ -6,6 +6,7 @@
 #include "ota.h"
 #include "display.h"
 #include "display_components.h"
+#include "display options.h"
 #include <WiFi.h>
 #include <SPI.h>
 #include <WebServer.h>

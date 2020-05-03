@@ -81,8 +81,10 @@ bool update_measures(void *)
 		}
 		measures.water_temperature = water_get_temperature();
 		measures.pump_pressure = pump_filtration_get_pressure(false);
-		measures.ph = water_get_ph();
-		measures.orp = water_get_orp();
+		measures.ph_raw = water_get_ph();
+		measures.orp_raw = water_get_orp();
+		measures.ph = measures.ph_raw + parameters.ph_offset;
+		measures.orp = measures.orp_raw + parameters.orp_offset;
 		measures.level_cl = level_cl_is_ok();
 		measures.level_ph_minus = level_ph_minus_is_ok();
 		measures.level_ph_plus = level_ph_plus_is_ok();

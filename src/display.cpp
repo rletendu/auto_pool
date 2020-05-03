@@ -1,8 +1,6 @@
 #include "autopool.h"
 
-
 extern SoftTimer timer_pool;
-display_page_t display_page = PAGE_STATUS;
 void disp_timer_prog_to_display(uint32_t timer_prog);
 uint32_t disp_disp_to_timer_prog_value(void);
 void disp_options_to_parameters(void);
@@ -17,6 +15,29 @@ uint8_t graph_nb_pts = 0;
 static bool screen_saver_entered = false;
 bool disp_screen_saver_timeout(void *);
 void time_update_stop(void);
+
+void disp_boot_progress_message(char *msg)
+{
+	static uint8_t progress = 0;
+	progress += 100 / NB_BOOT_STEP_MSG;
+	if (progress > 100)
+	{
+		progress = 100;
+	}
+	disp_boot_progress(progress);
+	disp_boot_mesg(msg);
+	delay(500);
+}
+
+void disp_boot_mesg(char *msg)
+{
+	boot_message.setText(msg);
+}
+
+void disp_boot_progress(uint8_t progress)
+{
+	boot_progress.setValue(progress);
+}
 
 void stop_display_tasks()
 {
@@ -34,24 +55,6 @@ void display_saver_stop(void)
 	timer_pool.cancel(disp_enter_screen_saver_task);
 }
 
-void disp_options_ok_Callback(void *ptr)
-{
-	printlnA(F("Options OK pressed, reading back updated parameters and save Json"));
-	delay(10);
-	//page_options.show();
-	disp_options_to_parameters();
-	page_status.show();
-	display_page = PAGE_STATUS;
-	parameters_write_file();
-	mqtt_publish_parameters();
-}
-
-void disp_enter_options_Callback(void *ptr)
-{
-	display_page = PAGE_OPTIONS;
-	disp_parameters_to_display();
-}
-
 void disp_next_prev_Callback(void *ptr)
 {
 	NexPicture *btn = (NexPicture *)ptr;
@@ -61,28 +64,24 @@ void disp_next_prev_Callback(void *ptr)
 	{
 	case ((PID_STATUS << 8) + CID_STATUS_NEXT):
 	case ((PID_GRAPH << 8) + CID_GRAPH_PREV):
-		display_page = PAGE_CONTROL;
 		page_control.show();
 		printlnA(F("Entering control page"));
 		break;
 
 	case ((PID_GRAPH << 8) + CID_GRAPH_NEXT):
 	case ((PID_STATUS << 8) + CID_STATUS_PREV):
-		display_page = PAGE_LOG;
 		page_log.show();
 		printlnA(F("Entering log page"));
 		break;
 
 	case ((PID_LOG << 8) + CID_LOG_PREV):
 	case ((PID_CONTROL << 8) + CID_CONTROL_NEXT):
-		display_page = PAGE_GRAPH;
 		page_graph.show();
 		printlnA(F("Entering Graph page"));
 		break;
 
 	case ((PID_LOG << 8) + CID_LOG_NEXT):
 	case ((PID_CONTROL << 8) + CID_CONTROL_PREV):
-		display_page = PAGE_STATUS;
 		page_status.show();
 		printlnA(F("Entering Status page"));
 		break;
@@ -96,33 +95,39 @@ void disp_next_prev_Callback(void *ptr)
   Register object textNumber, buttonPlus, buttonMinus, to the touch event list.
 */
 NexTouch *nex_listen_list[] =
-    {
-	&disp_next_status,
-	&disp_prev_status,
-	&disp_next_control,
-	&disp_prev_control,
-	&disp_next_graph,
-	&disp_prev_graph,
-	&disp_next_log,
-	&disp_prev_log,
-	&disp_options_ok,
-	&disp_options,
-	&disp_control_cl_auto,
-	&disp_control_cl_off,
-	&disp_control_cl_on,
-	&disp_control_ph_minus_auto,
-	&disp_control_ph_minus_off,
-	&disp_control_ph_minus_on,
-	&disp_control_ph_plus_auto,
-	&disp_control_ph_plus_off,
-	&disp_control_ph_plus_on,
-	&disp_control_filter_auto,
-	&disp_control_filter_off,
-	&disp_control_filter_on,
-	&disp_saver_exit,
-	NULL};
+	{
+		&disp_next_status,
+		&disp_prev_status,
+		&disp_next_control,
+		&disp_prev_control,
+		&disp_next_graph,
+		&disp_prev_graph,
+		&disp_next_log,
+		&disp_prev_log,
+		&disp_options_ok,
+		&disp_options_cancel,
+		&disp_options,
+		&disp_control_cl_auto,
+		&disp_control_cl_off,
+		&disp_control_cl_on,
+		&disp_control_ph_minus_auto,
+		&disp_control_ph_minus_off,
+		&disp_control_ph_minus_on,
+		&disp_control_ph_plus_auto,
+		&disp_control_ph_plus_off,
+		&disp_control_ph_plus_on,
+		&disp_control_filter_auto,
+		&disp_control_filter_off,
+		&disp_control_filter_on,
+		&disp_saver_exit,
+		&disp_options_rst_cl_day,
+		&disp_options_rst_phm_day,
+		&disp_options_reboot,
+		&disp_options_default_param,
+		&disp_options_portal,
+		NULL};
 
-void disp_page_saver_Callback(void *ptr)
+void disp_page_saver_exit_Callback(void *ptr)
 {
 	if (screen_saver_entered)
 	{
@@ -134,6 +139,18 @@ void disp_page_saver_Callback(void *ptr)
 
 bool disp_screen_saver_timeout(void *)
 {
+	uint8_t page;
+
+	GetPageId(&page);
+	if (disp_page_options_is_active())
+	{
+		disp_enter_screen_saver_task = timer_pool.in(TOUCH_TIMEOUT_S * 1000, disp_screen_saver_timeout);
+		printlnA(F("Screen saver timeout in option pages : NOP"));
+		return true;
+	}
+	printA(F("Page when entering Screen Saver :"));
+	printlnA(page);
+	printlnA(F("Dim Screen and Enter Screen Saver"));
 	page_saver.show();
 	NexDim(0);
 	screen_saver_entered = true;
@@ -149,6 +166,7 @@ void disp_global_push_Callback(void *ptr)
 	buzzer_off();
 	if (screen_saver_entered)
 	{
+		printlnA(F("Exit Screen Saver"));
 		page_status.show();
 		NexDim(100);
 		screen_saver_entered = false;
@@ -158,9 +176,9 @@ void disp_global_push_Callback(void *ptr)
 void display_init()
 {
 	printlnA(F("Display Init"));
-	nexInit();
+	nexInit(DISPLAY_BAUD);
 	printlnA(F("Display CallBack Init"));
-	disp_saver_exit.attachPush(disp_page_saver_Callback, &disp_saver_exit);
+	disp_saver_exit.attachPush(disp_page_saver_exit_Callback, &disp_saver_exit);
 
 	disp_next_status.attachPush(disp_next_prev_Callback, &disp_next_status);
 	disp_prev_status.attachPush(disp_next_prev_Callback, &disp_prev_status);
@@ -172,6 +190,7 @@ void display_init()
 	disp_prev_log.attachPush(disp_next_prev_Callback, &disp_prev_log);
 	disp_options.attachPush(disp_enter_options_Callback, &disp_options);
 	disp_options_ok.attachPush(disp_options_ok_Callback, &disp_options_ok);
+	disp_options_cancel.attachPush(disp_options_cancel_Callback, &disp_options_cancel);
 
 	disp_control_cl_auto.attachPush(disp_control_cl_auto_Callback, &disp_control_cl_auto);
 	disp_control_cl_on.attachPush(disp_control_cl_on_Callback, &disp_control_cl_on);
@@ -188,10 +207,15 @@ void display_init()
 	disp_control_filter_auto.attachPush(disp_control_filter_auto_Callback, &disp_control_filter_auto);
 	disp_control_filter_on.attachPush(disp_control_filter_on_Callback, &disp_control_filter_on);
 	disp_control_filter_off.attachPush(disp_control_filter_off_Callback, &disp_control_filter_off);
-	printlnA(F("Display Display boot page"));
-	page_boot.show();
+
+	disp_options_rst_cl_day.attachPush(disp_options_rst_cl_day_Callback, &disp_options_rst_cl_day);
+	disp_options_rst_phm_day.attachPush(disp_options_rst_phm_day_Callback, &disp_options_rst_phm_day);
+	disp_options_reboot.attachPush(disp_options_reboot_Callback, &disp_options_reboot);
+	disp_options_default_param.attachPush(disp_options_default_param_Callback, &disp_options_default_param);
+	disp_options_portal.attachPush(disp_options_portal_Callback, &disp_options_portal);
+
 	nexSetGlobalPushCb(disp_global_push_Callback);
-	delay(2000);
+	//delay(2000);
 
 	disp_enter_screen_saver_task = timer_pool.in(TOUCH_TIMEOUT_S * 1000, disp_screen_saver_timeout);
 
@@ -217,165 +241,55 @@ void disp_ota_progress(uint8_t progress)
 	ota_progress.setValue(progress);
 }
 
-void disp_parameters_to_display(void)
-{
-	disp_options_ph.setValue(parameters.target_ph);
-	disp_options_delta_ph.setValue(parameters.delta_ph);
-	disp_options_orp.setValue(parameters.target_orp);
-	disp_options_delta_orp.setValue(parameters.delta_orp);
-	disp_options_cl_flow.setValue(parameters.flow_cl);
-	disp_options_ph_minus_flow.setValue(parameters.flow_ph_minus);
-	disp_options_ph_plus_flow.setValue(parameters.flow_ph_plus);
-	disp_options_pressure_warning.setValue(parameters.pressure_warning);
-	if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
-	{
-		disp_options_mode_timer_prog.setValue(1);
-		disp_options_mode_fct_t.setValue(0);
-	}
-	else
-	{
-		disp_options_mode_timer_prog.setValue(0);
-		disp_options_mode_fct_t.setValue(1);
-	}
-
-	disp_timer_prog_to_display(parameters.timer_prog);
-}
-
-void disp_options_to_parameters(void)
-{
-	float val_f;
-	uint32_t val_u;
-
-	printA(F("Reading back pH Target : "));
-	disp_options_ph.getValue(&val_f);
-	parameters.target_ph = val_f;
-	printlnA(parameters.target_ph);
-	printA(F("Reading back delta pH Target"));
-	disp_options_delta_ph.getValue(&val_f);
-	parameters.delta_ph = val_f;
-	printlnA(parameters.delta_ph);
-	printlnA(F("Reading back ORP Target"));
-	disp_options_orp.getValue(&val_f);
-	parameters.target_orp = val_f;
-	printlnA(F("Reading back ORP delta Target"));
-	disp_options_delta_orp.getValue(&val_f);
-	parameters.delta_orp = val_f;
-	printlnA(F("Reading back cl flow"));
-	disp_options_cl_flow.getValue(&val_f);
-	parameters.flow_cl = val_f;
-	printlnA(F("Reading back pHminus flow"));
-	disp_options_ph_minus_flow.getValue(&val_f);
-	parameters.flow_ph_minus = val_f;
-	printlnA(F("Reading back pHplus flow"));
-	disp_options_ph_plus_flow.getValue(&val_f);
-	parameters.flow_ph_plus = val_f;
-	disp_options_pressure_warning.getValue(&val_f);
-	parameters.pressure_warning = val_f;
-	disp_options_mode_timer_prog.getValue(&val_u);
-	if (val_u)
-	{
-		parameters.filter_auto_mode = AUTO_TIMER_PROG;
-	}
-	else
-	{
-		parameters.filter_auto_mode = AUTO_TIMER_FCT_T;
-	}
-	parameters.timer_prog = disp_disp_to_timer_prog_value();
-}
-
-void disp_timer_prog_to_display(uint32_t timer_prog)
-{
-	disp_otions_0h.setValue((timer_prog >> 0) & 0x01);
-	disp_otions_1h.setValue((timer_prog >> 1) & 0x01);
-	disp_otions_2h.setValue((timer_prog >> 2) & 0x01);
-	disp_otions_3h.setValue((timer_prog >> 3) & 0x01);
-	disp_otions_4h.setValue((timer_prog >> 4) & 0x01);
-	disp_otions_5h.setValue((timer_prog >> 5) & 0x01);
-	disp_otions_6h.setValue((timer_prog >> 6) & 0x01);
-	disp_otions_7h.setValue((timer_prog >> 7) & 0x01);
-	disp_otions_8h.setValue((timer_prog >> 8) & 0x01);
-	disp_otions_9h.setValue((timer_prog >> 9) & 0x01);
-	disp_otions_10h.setValue((timer_prog >> 10) & 0x01);
-	disp_otions_11h.setValue((timer_prog >> 11) & 0x01);
-	disp_otions_12h.setValue((timer_prog >> 12) & 0x01);
-	disp_otions_13h.setValue((timer_prog >> 13) & 0x01);
-	disp_otions_14h.setValue((timer_prog >> 14) & 0x01);
-	disp_otions_15h.setValue((timer_prog >> 15) & 0x01);
-	disp_otions_16h.setValue((timer_prog >> 16) & 0x01);
-	disp_otions_17h.setValue((timer_prog >> 17) & 0x01);
-	disp_otions_18h.setValue((timer_prog >> 18) & 0x01);
-	disp_otions_19h.setValue((timer_prog >> 19) & 0x01);
-	disp_otions_20h.setValue((timer_prog >> 20) & 0x01);
-	disp_otions_21h.setValue((timer_prog >> 21) & 0x01);
-	disp_otions_22h.setValue((timer_prog >> 22) & 0x01);
-	disp_otions_23h.setValue((timer_prog >> 23) & 0x01);
-}
-
-uint32_t disp_disp_to_timer_prog_value(void)
-{
-	uint32_t timer_prog = 0;
-	uint32_t cb_val;
-	disp_otions_0h.getValue(&cb_val);
-	timer_prog += cb_val << 0;
-	disp_otions_1h.getValue(&cb_val);
-	timer_prog += cb_val << 1;
-	disp_otions_2h.getValue(&cb_val);
-	timer_prog += cb_val << 2;
-	disp_otions_3h.getValue(&cb_val);
-	timer_prog += cb_val << 3;
-	disp_otions_4h.getValue(&cb_val);
-	timer_prog += cb_val << 4;
-	disp_otions_5h.getValue(&cb_val);
-	timer_prog += cb_val << 5;
-	disp_otions_6h.getValue(&cb_val);
-	timer_prog += cb_val << 6;
-	disp_otions_7h.getValue(&cb_val);
-	timer_prog += cb_val << 7;
-	disp_otions_8h.getValue(&cb_val);
-	timer_prog += cb_val << 8;
-	disp_otions_9h.getValue(&cb_val);
-	timer_prog += cb_val << 9;
-	disp_otions_10h.getValue(&cb_val);
-	timer_prog += cb_val << 10;
-	disp_otions_11h.getValue(&cb_val);
-	timer_prog += cb_val << 11;
-	disp_otions_12h.getValue(&cb_val);
-	timer_prog += cb_val << 12;
-	disp_otions_13h.getValue(&cb_val);
-	timer_prog += cb_val << 13;
-	disp_otions_14h.getValue(&cb_val);
-	timer_prog += cb_val << 14;
-	disp_otions_15h.getValue(&cb_val);
-	timer_prog += cb_val << 15;
-	disp_otions_16h.getValue(&cb_val);
-	timer_prog += cb_val << 16;
-	disp_otions_17h.getValue(&cb_val);
-	timer_prog += cb_val << 17;
-	disp_otions_18h.getValue(&cb_val);
-	timer_prog += cb_val << 18;
-	disp_otions_19h.getValue(&cb_val);
-	timer_prog += cb_val << 19;
-	disp_otions_20h.getValue(&cb_val);
-	timer_prog += cb_val << 20;
-	disp_otions_21h.getValue(&cb_val);
-	timer_prog += cb_val << 21;
-	disp_otions_22h.getValue(&cb_val);
-	timer_prog += cb_val << 22;
-	disp_otions_23h.getValue(&cb_val);
-	timer_prog += cb_val << 23;
-	return timer_prog;
-}
-
 void disp_measures_to_display(void)
 {
+	float val_f;
 	disp_water_temperature.setValue(measures.water_temperature);
 	disp_ph.setValue(measures.ph);
-	disp_pressure.setValue(measures.pump_pressure);
+	disp_options_ph_raw_value.setValue(measures.ph_raw);
+	if (disp_page_options_is_active())
+	{
+		disp_options_ph_offset.getValue(&val_f);
+		disp_options_ph_value.setValue(measures.ph_raw + val_f);
+	}
+	else
+	{
+		disp_options_ph_value.setValue(measures.ph);
+	}
+
 	disp_orp.setValue(measures.orp);
+	disp_options_orp_raw_value.setValue(measures.orp_raw);
+	if (disp_page_options_is_active())
+	{
+		disp_options_orp_offset.getValue(&val_f);
+		disp_options_orp_value.setValue(measures.orp_raw + val_f);
+	}
+	else
+	{
+		disp_options_orp_value.setValue(measures.orp);
+	}
+
+	disp_pressure.setValue(measures.pump_pressure);
 	disp_sys_humidity.setValue(measures.system_humidity);
 	disp_sys_temperature.setValue(measures.system_temperature);
 	disp_phm_day.setValue(measures.daily_ml_ph_minus);
+	if (measures.daily_ml_ph_minus <= parameters.phm_max_day)
+	{
+		disp_phm_day.Set_font_color_pco(DISP_COLOR_LIGHT_GREEN);
+	}
+	else
+	{
+		disp_phm_day.Set_font_color_pco(DISP_COLOR_RED);
+	}
 	disp_cl_day.setValue(measures.daily_ml_orp);
+	if (measures.daily_ml_orp <= parameters.cl_max_day)
+	{
+		disp_cl_day.Set_font_color_pco(DISP_COLOR_LIGHT_GREEN);
+	}
+	else
+	{
+		disp_cl_day.Set_font_color_pco(DISP_COLOR_RED);
+	}
 	if (measures.level_cl)
 	{
 		disp_led_level_cl.setPic(ID_IMAGE_GREEN);

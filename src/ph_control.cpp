@@ -23,7 +23,7 @@ void ph_control_init(void)
 	ph_plus_enter_mode(PH_PLUS_OFF);
 	ph_plus_enter_mode(PH_PLUS_AUTO);
 #endif
-	ph_control_update_task = timer_pool.every(PH_CONTROL_UPDATE_S*1000, ph_control_update);
+	ph_control_update_task = timer_pool.every(PH_CONTROL_UPDATE_S * 1000, ph_control_update);
 	mqtt_publish_ph_state();
 }
 void ph_control_stop(void)
@@ -174,6 +174,10 @@ bool ph_minus_auto_correction_possible(void)
 	{
 		is_possible = false;
 	}
+	if (measures.daily_ml_ph_minus > parameters.phm_max_day)
+	{
+		is_possible = false;
+	}
 	return is_possible;
 }
 
@@ -198,6 +202,10 @@ bool ph_plus_auto_correction_possible(void)
 		is_possible = false;
 	}
 	if (state.filter_pump == PUMP_OFF)
+	{
+		is_possible = false;
+	}
+	if (measures.daily_ml_ph_plus > parameters.php_max_day)
 	{
 		is_possible = false;
 	}
@@ -291,7 +299,7 @@ bool ph_control_update(void *)
 				state.ph_control_state = PH_MINUS_INJECTION_ON;
 				// 50 % injection time
 				counter_injection_on = ((PH_REGULATION_CYCLE_S * 50) / 100) / PH_CONTROL_UPDATE_S;
-				counter_injection_off =((PH_REGULATION_CYCLE_S * 50) / 100) / PH_CONTROL_UPDATE_S;
+				counter_injection_off = ((PH_REGULATION_CYCLE_S * 50) / 100) / PH_CONTROL_UPDATE_S;
 				mqtt_publish_ph_state();
 				ph_minus_on();
 				break;

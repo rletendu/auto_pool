@@ -18,6 +18,7 @@
 #define PID_OPTIONS 5
 #define PID_OTA 6
 #define PID_SAVER 7
+#define PID_OPTIONS2 8
 
 #define CID_STATUS_WIFI 6
 #define CID_OPTIONS 7
@@ -106,6 +107,9 @@
 #define DISP_COLOR_GREEN 1024
 #define DISP_COLOR_GRAY 50712
 
+#define DISP_COLOR_LIGHT_GREEN 2016
+
+
 extern NexPage page_boot;
 extern NexPage page_status;
 extern NexPage page_control;
@@ -115,6 +119,13 @@ extern NexPage page_options;
 extern NexPage page_ota;
 extern NexPage page_saver;
 extern NexButton disp_saver_exit;
+extern NexPage page_options_2;
+
+extern NexText boot_title;
+extern NexProgressBar boot_progress;
+extern NexText boot_message;
+extern NexText boot_version;
+extern NexText boot_ip;
 
 extern NexProgressBar ota_progress;
 extern NexText ota_title;
@@ -147,19 +158,19 @@ extern NexPicture disp_options;
 
 extern NexPicture disp_next_status;
 extern NexPicture disp_prev_status;
- 
+
 extern NexPicture disp_next_control;
 extern NexPicture disp_prev_control;
- 
+
 extern NexPicture disp_next_graph;
 extern NexPicture disp_prev_graph;
- 
+
 extern NexPicture disp_next_log;
 extern NexPicture disp_prev_log;
- 
+
 extern NexButton disp_options_ok;
 extern NexButton disp_options_cancel;
- 
+
 extern NexXfloat disp_options_delta_ph;
 extern NexXfloat disp_options_ph;
 extern NexXfloat disp_options_orp;
@@ -168,20 +179,20 @@ extern NexXfloat disp_options_cl_flow;
 extern NexXfloat disp_options_ph_minus_flow;
 extern NexXfloat disp_options_ph_plus_flow;
 extern NexXfloat disp_options_pressure_warning;
- 
+
 extern NexRadio disp_options_mode_timer_prog;
 extern NexRadio disp_options_mode_fct_t;
 
-extern NexCheckbox disp_otions_0h ;
-extern NexCheckbox disp_otions_1h ;
-extern NexCheckbox disp_otions_2h ;
-extern NexCheckbox disp_otions_3h ;
-extern NexCheckbox disp_otions_4h ;
-extern NexCheckbox disp_otions_5h ;
-extern NexCheckbox disp_otions_6h ;
-extern NexCheckbox disp_otions_7h ;
-extern NexCheckbox disp_otions_8h ;
-extern NexCheckbox disp_otions_9h ;
+extern NexCheckbox disp_otions_0h;
+extern NexCheckbox disp_otions_1h;
+extern NexCheckbox disp_otions_2h;
+extern NexCheckbox disp_otions_3h;
+extern NexCheckbox disp_otions_4h;
+extern NexCheckbox disp_otions_5h;
+extern NexCheckbox disp_otions_6h;
+extern NexCheckbox disp_otions_7h;
+extern NexCheckbox disp_otions_8h;
+extern NexCheckbox disp_otions_9h;
 extern NexCheckbox disp_otions_10h;
 extern NexCheckbox disp_otions_11h;
 extern NexCheckbox disp_otions_12h;
@@ -197,6 +208,20 @@ extern NexCheckbox disp_otions_21h;
 extern NexCheckbox disp_otions_22h;
 extern NexCheckbox disp_otions_23h;
 
+extern NexXfloat disp_options_max_cl;
+extern NexXfloat disp_options_max_phm;
+extern NexXfloat disp_options_orp_offset;
+extern NexXfloat disp_options_ph_offset;
+
+extern NexXfloat disp_options_orp_value;
+extern NexXfloat disp_options_orp_raw_value;
+extern NexXfloat disp_options_ph_value;
+extern NexXfloat disp_options_ph_raw_value;
+extern NexButton disp_options_rst_cl_day;
+extern NexButton disp_options_rst_phm_day;
+extern NexButton disp_options_reboot;
+extern NexButton disp_options_default_param;
+extern NexButton disp_options_portal;
 
 extern NexWaveform disp_graph_temp;
 extern NexWaveform disp_graph_orp;
@@ -206,7 +231,7 @@ extern NexWaveform disp_graph_press;
 extern NexButton disp_control_filter_auto;
 extern NexButton disp_control_filter_off;
 extern NexButton disp_control_filter_on;
- 
+
 extern NexButton disp_control_cl_auto;
 extern NexButton disp_control_cl_off;
 extern NexButton disp_control_cl_on;
@@ -214,11 +239,11 @@ extern NexButton disp_control_cl_on;
 extern NexButton disp_control_ph_minus_auto;
 extern NexButton disp_control_ph_minus_off;
 extern NexButton disp_control_ph_minus_on;
- 
+
 extern NexButton disp_control_ph_plus_auto;
 extern NexButton disp_control_ph_plus_off;
 extern NexButton disp_control_ph_plus_on;
 
 extern NexText disp_log_logger;
- 
+
 #endif

@@ -11,6 +11,11 @@ const char *success_html = "<!DOCTYPE html>\n\t<html lang=\"en\">\n\t<head>\n\t\
 
 WebServer server(80);
 ota_tft nextion(115200);
+extern SoftTimer timer_pool;
+bool tft_update_success_action(void *);
+uintptr_t tft_update_success_task;
+
+
 
 int fileSize = 0;
 bool result = true;
@@ -159,6 +164,7 @@ void webserver_init(void)
 			// Redirect the client to the success page after handeling the file upload
 			server.sendHeader(F("Location"), F("/success.html"));
 			server.send(303);
+				tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
 			return true;
 		},
 		// Receive and save the file
@@ -183,4 +189,9 @@ void webserver_init(void)
 void webserver_loop(void)
 {
 	server.handleClient();
+}
+
+bool tft_update_success_action(void *)
+{
+	esp_restart();
 }
