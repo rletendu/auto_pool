@@ -1,47 +1,44 @@
 <!DOCTYPE html>
 <html>
-
-<body style="background-color:#F6F8F9;">
-
-  <h2> Autopool<h2>
-    <a href="index.html">Update TFT</a>
-      <h3> Pumps control</h3>
-
-      <hr>
-      <img src="water_pump.png">
-      <form action="/action_page">
-        Filter
-        <input type="submit" name='p' value="ON">
-        <input type="submit" name='p' value="OFF">
-        <input type="submit" name='p' value="AUTO">
-        <br>
-        <img src="water_pump.png">
-        <INPUT type='radio' name='filter' value='1'>ON
-        <INPUT type='radio' name='filter' value='2'>OFF
-        <INPUT type='radio' name='filter' value='3'>AUTO
-        <br>
-        <img src="water_pump.png">
-        <INPUT type='radio' name='filter2' value='1'>ON
-        <INPUT type='radio' name='filter2' value='2'>OFF
-        <INPUT type='radio' name='filter2' value='3'>AUTO
-      </form>
-      <hr>
-      <img src="peri_pump.png">
-      <form action="/action_page">
-        ORP
-        <input type="submit" value="ON">
-        <input type="submit" value="OFF">
-        <input type="submit" value="AUTO">
-      </form>
-      <hr>
-      <img src="peri_pump.png">
-      <form action="/action_page">
-        PH-
-        <input type="submit" value="ON">
-        <input type="submit" value="OFF">
-        <input type="submit" value="AUTO">
-      </form>
-      <hr>
+  <head>
+      
+    <script type = "text/JavaScript">
+       <!--
+          function AutoRefresh( t ) {
+             setTimeout("location.reload(true);", t);
+          }
+       //-->
+    </script>
+    
+ </head>
+<body onload = "JavaScript:AutoRefresh(10000);">
+<h2> Autopool<h2>
+<hr>
+<h3> Pumps control</h3>
+  <form action="/test.html">
+    <img src="water_pump.png">
+    Water Filter : 
+    <input type="submit" name='filter' value="ON">
+    <input type="submit" name='filter' value="OFF">
+    <input type="submit" name='filter' value="AUTO">
+    <br>
+    <img src="peri_pump.png">
+    ORP Pump : 
+    <INPUT type='radio' name='orp' value='1'>ON
+    <INPUT type='radio' name='orp' value='2'>OFF
+    <INPUT type='radio' name='orp' value='3'>AUTO
+    <br>
+    <img src="peri_pump.png">
+    pH Minus : 
+    <INPUT type='radio' name='phm' value='4'>ON
+    <INPUT type='radio' name='phm' value='5'>OFF
+    <INPUT type='radio' name='phm' value='6'>AUTO
+  </form>
+  <hr>
+  <a href="index.html">Update TFT</a>
+<br>
+Sys Temperature : <script type="text/javascript" src="val_hum.js"></script>
+<br>
+Sys Humidity : <script type="text/javascript" src="val_hum.js"></script>
 </body>
-
 </html>
