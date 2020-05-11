@@ -19,6 +19,10 @@
 #define PID_OTA 6
 #define PID_SAVER 7
 #define PID_OPTIONS2 8
+#define PID_OPTIONS3 9
+#define PID_CUSTOM 10
+#define PID_WIFI 11
+
 
 #define CID_STATUS_WIFI 6
 #define CID_OPTIONS 7
@@ -120,6 +124,8 @@ extern NexPage page_ota;
 extern NexPage page_saver;
 extern NexButton disp_saver_exit;
 extern NexPage page_options_2;
+extern NexPage page_options_3;
+extern NexPage page_portal; 
 
 extern NexText boot_title;
 extern NexProgressBar boot_progress;
@@ -243,6 +249,32 @@ extern NexButton disp_control_ph_minus_on;
 extern NexButton disp_control_ph_plus_auto;
 extern NexButton disp_control_ph_plus_off;
 extern NexButton disp_control_ph_plus_on;
+
+extern NexText wifi_ip;
+extern NexText wifi_mac;
+extern NexText wifi_ssid;
+extern NexText wifi_mqtt_server;
+extern NexText wifi_mqtt_topic;
+extern NexXfloat wifi_rssi;
+extern NexPicture wifi_status;
+extern NexButton wifi_portal;
+
+extern NexText disp_options_ip;
+extern NexText disp_options_mac; 
+extern NexText disp_options_ssid;
+extern NexText disp_options_mqtt_server;
+extern NexText disp_optionmqtt_topic; 
+extern NexXfloat disp_options_rssi; 
+extern NexPicture disp_options_wifi_status; 
+extern NexButton disp_options_portal; 
+extern NexText disp_options_version;
+
+extern NexText disp_portal_title;
+extern NexProgressBar disp_portal_progress;
+extern NexText disp_portal_message; 
+extern NexText disp_portal_message2;
+extern NexText disp_portal_message3;
+
 
 extern NexText disp_log_logger;
 

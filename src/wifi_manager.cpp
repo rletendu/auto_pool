@@ -17,9 +17,36 @@ void saveConfigCallback()
 	shouldSaveConfig = true;
 }
 
+void enterApCallback(WiFiManager *wm)
+{
+	printlnA("Entered AP configCallback");
+	char msg[80];
+	uint8_t page;
+	sprintf(msg, "Wifi Portal Started @192.168.4.1 on %s", PORTAL_NAME);
+	/*
+	GetPageId(&page);
+	if (page == PID_BOOT)
+	{
+		disp_boot_mesg(msg);
+	}
+	else*/
+	{
+		page_portal.show();
+		disp_portal_message.setText(msg);
+		disp_portal_progress.setValue(0);
+	}
+}
+
 bool is_should_save_config(void)
 {
 	return shouldSaveConfig;
+}
+void wifimanager_progress_callback(WiFiManager *wm, uint32_t call_count)
+{
+	char buf[40];
+	beep(10);
+	int progress_timeout = (100 * PORTAL_CONFIG_PROGRESS_S * call_count) / PORTAL_CONFIG_TIMEOUT_S;
+	disp_portal_progress.setValue((int)progress_timeout);
 }
 
 void wifimanager_init(void)
@@ -27,6 +54,9 @@ void wifimanager_init(void)
 	printlnA(F("Setup Wifi manager..."));
 	wifiManager.setDebugOutput(true);
 	wifiManager.setSaveConfigCallback(saveConfigCallback);
+	wifiManager.setAPCallback(enterApCallback);
+	wifiManager.setConfigPortalTimeout(PORTAL_CONFIG_TIMEOUT_S);
+	wifiManager.setProgressCallback(wifimanager_progress_callback, PORTAL_CONFIG_PROGRESS_S);
 	wifiManager.addParameter(&custom_text);
 	wifiManager.addParameter(&custom_mqtt_server);
 	wifiManager.addParameter(&custom_mqtt_port);
@@ -54,28 +84,38 @@ void reset_wifimanager(void)
 	wifiManager.resetSettings();
 }
 
-void wifimanager_autoconnect(void)
+bool wifimanager_autoconnect(void)
 {
-	wifiManager.autoConnect(PORTAL_NAME);
-	printlnA(F("Connected !"));
+	bool ret;
+	ret = wifiManager.autoConnect(PORTAL_NAME);
+	if (ret)
+	{
+		printlnA(F("Wifi Connected !"));
+	}
+	else
+	{
+		printlnA(F("Wifi Not Connected !"));
+	}
 
-	//read updated parameters
-	strcpy(parameters.mqtt_server, custom_mqtt_server.getValue());
-	strcpy(parameters.mqtt_port, custom_mqtt_port.getValue());
-	strcpy(parameters.mqtt_user, custom_mqtt_user.getValue());
-	strcpy(parameters.mqtt_pass, custom_mqtt_pass.getValue());
-	strcpy(parameters.mqtt_base_topic, custom_mqtt_base_topic.getValue());
 	if (is_should_save_config())
 	{
 		printlnA(F("Saveconfig Detected !"));
+		//read updated parameters
+		strcpy(parameters.mqtt_server, custom_mqtt_server.getValue());
+		strcpy(parameters.mqtt_port, custom_mqtt_port.getValue());
+		strcpy(parameters.mqtt_user, custom_mqtt_user.getValue());
+		strcpy(parameters.mqtt_pass, custom_mqtt_pass.getValue());
+		strcpy(parameters.mqtt_base_topic, custom_mqtt_base_topic.getValue());
 		parameters_write_file();
 	}
+	return ret;
 }
 
-void wifimanager_start_portal(void)
+bool wifimanager_start_portal(void)
 {
+	bool ret;
 	printlnA(F("Portal request"));
-	wifiManager.startConfigPortal(PORTAL_NAME);
+	ret = wifiManager.startConfigPortal(PORTAL_NAME);
 	strcpy(parameters.mqtt_server, custom_mqtt_server.getValue());
 	strcpy(parameters.mqtt_port, custom_mqtt_port.getValue());
 	strcpy(parameters.mqtt_user, custom_mqtt_user.getValue());
@@ -86,12 +126,53 @@ void wifimanager_start_portal(void)
 		printlnA(F("Need to write Json config file..."));
 		parameters_write_file();
 	}
+	return ret;
 }
-
 
 void wifimanager_reset_portal(void)
 {
 	printlnA(F("Portal reset"));
 	wifiManager.resetSettings();
+}
 
+bool wifi_is_available(void)
+{
+	if (WiFi.status() == WL_CONNECTED)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void wifi_monitor(void)
+{
+	int dbm;
+	int quality;
+	if (wifi_is_available())
+	{
+		dbm = WiFi.RSSI();
+		// dBm to Quality:
+		if (dbm <= -100)
+		{
+			quality = 0;
+		}
+		else if (dbm >= -50)
+		{
+			quality = 100;
+		}
+		else
+		{
+			quality = 2 * (dbm + 100);
+			quality = map(quality, 0, 100, 0, 12);
+		}
+	}
+	else
+	{
+		quality = 0;
+	}
+	disp_options_rssi.setValue(quality);
+	disp_wifi_status(wifi_is_available());
 }

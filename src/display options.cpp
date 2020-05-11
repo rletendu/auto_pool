@@ -58,7 +58,12 @@ void disp_options_default_param_Callback(void *ptr)
 
 void disp_options_portal_Callback(void *ptr)
 {
+#if HAS_WEB_SERVER
+	webserver_stop();
+#endif
+	wifimanager_reset_portal();
 	wifimanager_start_portal();
+	esp_restart();
 }
 
 void disp_parameters_to_display(void)

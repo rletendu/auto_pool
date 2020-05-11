@@ -4,5 +4,6 @@
 
 void webserver_init(void);
 void webserver_loop(void);
+void webserver_stop(void);
 
 #endif // __WEBSERVER_H__

@@ -7,8 +7,9 @@ extern WiFiManager wifiManager;
 
 void wifimanager_init(void);
 bool is_should_save_config(void);
-void wifimanager_autoconnect(void);
-void wifimanager_start_portal(void);
+bool wifimanager_autoconnect(void);
+bool wifimanager_start_portal(void);
 void wifimanager_reset_portal(void);
-
+bool wifi_is_available(void);
+void wifi_monitor(void);
 #endif

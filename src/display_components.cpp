@@ -10,7 +10,10 @@ NexPage page_log = NexPage(PID_LOG, 0, "log");
 NexPage page_options = NexPage(PID_OPTIONS, 0, "options");
 NexPage page_ota = NexPage(PID_OTA, 0, "OTA");
 NexPage page_saver = NexPage(PID_SAVER, 0, "saver");
-NexPage page_options_2 = NexPage(PID_OPTIONS2, 0, "saver");
+NexPage page_options_2 = NexPage(PID_OPTIONS2, 0, "options_2");
+NexPage page_options_3 = NexPage(PID_OPTIONS3, 0, "options_3");
+NexPage page_portal = NexPage(PID_CUSTOM, 0, "portal");
+
 
 NexText boot_title = NexText(PID_BOOT, 1, "boot.boot_title");
 NexProgressBar boot_progress = NexProgressBar(PID_BOOT, 3, "boot.boot_progress");
@@ -113,9 +116,8 @@ NexXfloat disp_options_ph_value = NexXfloat(PID_OPTIONS2, 29, "options_2.ph_valu
 NexXfloat disp_options_ph_raw_value = NexXfloat(PID_OPTIONS2, 16, "options_2.ph_raw_value");
 NexButton disp_options_rst_cl_day = NexButton(PID_OPTIONS2, 12, "options_2.rst_cl_day");
 NexButton disp_options_rst_phm_day = NexButton(PID_OPTIONS2, 13, "options_2.rst_phm_day");
-NexButton disp_options_reboot = NexButton(PID_OPTIONS2, 36, "options_2.reboot");
-NexButton disp_options_default_param = NexButton(PID_OPTIONS2, 37, "options_2.default");
-NexButton disp_options_portal = NexButton(PID_OPTIONS2, 38, "options_2.portal");
+
+//NexButton disp_options_portal = NexButton(PID_OPTIONS2, 38, "options_2.portal");
 
 
 
@@ -140,5 +142,25 @@ NexButton disp_control_ph_minus_on = NexButton(PID_CONTROL, CID_CONTROL_PH_MINUS
 NexButton disp_control_ph_plus_auto = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_AUTO, "control.php_auto");
 NexButton disp_control_ph_plus_off = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_OFF, "control.php_off");
 NexButton disp_control_ph_plus_on = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_ON, "control.php_on");
+
+
+NexText disp_options_ip = NexText(PID_OPTIONS3, 6, "options_3.ip");
+NexText disp_options_mac = NexText(PID_OPTIONS3, 7, "options_3.mac");
+NexText disp_options_ssid = NexText(PID_OPTIONS3, 8, "options_3.ssid");
+NexText disp_options_mqtt_server = NexText(PID_OPTIONS3, 15, "options_3.mqtt_server");
+NexText disp_optionmqtt_topic = NexText(PID_OPTIONS3, 16, "options_3.mqtt_topic");
+NexXfloat disp_options_rssi = NexXfloat(PID_OPTIONS3, 12, "options_3.rssi");
+NexPicture disp_options_wifi_status = NexPicture(PID_OPTIONS3, 9, "options_3.wifi_value");
+NexButton disp_options_portal = NexButton(PID_OPTIONS3, 5, "options_3.portal");
+NexText disp_options_version = NexText(PID_OPTIONS3, 19, "options_3.version");
+NexButton disp_options_reboot = NexButton(PID_OPTIONS3, 20, "options_3.reboot");
+NexButton disp_options_default_param = NexButton(PID_OPTIONS3, 21, "options_3.default");
+
+
+NexText disp_portal_title = NexText(PID_CUSTOM, 1, "portal.portal_titlle");
+NexProgressBar disp_portal_progress = NexProgressBar(PID_CUSTOM, 2, "portal.portal_prog");
+NexText disp_portal_message = NexText(PID_CUSTOM, 3, "portal.portal_text");
+NexText disp_portal_message2 = NexText(PID_CUSTOM, 4, "portal.portal_text2");
+NexText disp_portal_message3 = NexText(PID_CUSTOM, 5, "portal.portal_text3");
 
 NexText disp_log_logger = NexText(PID_LOG, 1, "log.logger");

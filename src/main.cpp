@@ -38,7 +38,7 @@ void rtc_init()
 	struct tm timeinfo;
 	if (!getLocalTime(&timeinfo))
 	{
-		printlnA(F("Failed to obtain time"));
+		printlnA(F("Failed to sync internet time"));
 		return;
 	}
 	timeinfo.tm_year -= 100;
@@ -66,22 +66,35 @@ void setup()
 	display_log_clear();
 
 	printlnA(F("AutoPool Starting..."));
-	sprintf(msg, "AutoPool %.2f %s %s starting", AUTOPOOL_VER ,__DATE__, __TIME__);
+	sprintf(msg, "AutoPool %.2f %s %s starting", AUTOPOOL_VER, __DATE__, __TIME__);
 	disp_boot_progress_message(msg);
 	sprintf(msg, "Rev: %.2f : %s %s", AUTOPOOL_VER, __DATE__, __TIME__);
 	boot_version.setText(msg);
+	disp_options_version.setText(msg);
 	delay(500);
 
+	disp_options_mac.setText(WiFi.macAddress().c_str());
 	wifimanager_init();
-	wifimanager_autoconnect();
-
-	IPAddress ip = WiFi.localIP();
-	printA(F("Ip Address : "));
-	printlnA(ip);
-	sprintf(msg, "Wifi Connected : %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-	disp_boot_progress_message(msg);
-	sprintf(msg, "Wifi IP : %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-	boot_ip.setText(msg);
+	if (wifimanager_autoconnect())
+	{
+		IPAddress ip = WiFi.localIP();
+		printA(F("Ip Address : "));
+		printlnA(ip);
+		sprintf(msg, "Wifi Connected : %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+		disp_boot_progress_message(msg);
+		sprintf(msg, "Wifi IP : %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+		boot_ip.setText(msg);
+		sprintf(msg, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+		disp_options_ip.setText(msg);
+	}
+	else
+	{
+		page_boot.show();
+		printlnA("Wifi Not Connected!:");
+		disp_boot_progress_message("Wifi Not Connected !");
+		boot_ip.setText("Wifi IP : ---:---:---:---");
+	}
+	wifi_monitor();
 
 	if (parameters_read_file())
 	{
@@ -97,8 +110,10 @@ void setup()
 	disp_boot_progress_message("OTA Init");
 	ota_init();
 
+#if HAS_MQTT
 	disp_boot_progress_message("MQTT Init");
 	mqtt_init();
+#endif
 
 	disp_boot_progress_message("CLI Init");
 	cli_init();
@@ -119,11 +134,15 @@ void setup()
 	disp_boot_progress_message("Measure Init");
 	measures_init();
 
+#if HAS_WEB_SERVER
 	disp_boot_progress_message("Web Server Init");
 	webserver_init();
+#endif
 
+#if HAS_TELNET_SERVER
 	disp_boot_progress_message("Telnet Server Init");
 	telnet_init();
+#endif
 
 	//save the custom parameters to FS
 	if (is_should_save_config())
@@ -134,11 +153,12 @@ void setup()
 
 	time_update_task = timer_pool.every(60 * 1000, time_update);
 	printlnA(F("Init Done..."));
-	//NexSleep();
+
 	boot_key = BOOT_KEY_MAGIC;
 	char boot_msg[25];
 	sprintf(boot_msg, "Autopool rebooted (%u)", measures.boot_count);
 	log_append(boot_msg);
+	time_update(NULL);
 	page_status.show();
 }
 
@@ -152,8 +172,14 @@ void loop()
 
 	ota_loop();
 	display_loop(); // Proceed display touch events
+#if HAS_MQTT
 	mqtt_loop();
+#endif
 	cli_loop(); // Serial command line input
+#if HAS_WEB_SERVER
 	webserver_loop();
+#endif
+#if HAS_TELNET_SERVER
 	telnet_loop();
+#endif
 }

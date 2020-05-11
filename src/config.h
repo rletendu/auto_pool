@@ -4,6 +4,9 @@
 
 #define AUTOPOOL_VER 0.5
 #define PORTAL_NAME "AUTOPOOL_CONFIG"
+#define PORTAL_CONFIG_TIMEOUT_S 60
+#define PORTAL_CONFIG_PROGRESS_S 5
+
 #define MQTT_CLIENT_NAME "AUTOPOOL"
 #define HOST_NAME "AUTOPOOL"
 #define NTPSERVER "pool.ntp.org"
@@ -30,6 +33,10 @@
 #define DEBUG_PIN1 PIN_EXT1
 
 #define HAS_PH_PLUS_PUMP 0
+
+#define HAS_WEB_SERVER    1
+#define HAS_MQTT          1
+#define HAS_TELNET_SERVER 1
 
 #define DISPLAY_BAUD      115200
 #define DISP_LOG_NB_LINES 12

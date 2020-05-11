@@ -1,6 +1,5 @@
 #include "autopool.h"
 
-
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
 
@@ -60,9 +59,7 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	}
 	else if (in_topic == "BEEP")
 	{
-		buzzer_on();
-		delay(10);
-		buzzer_off();
+		beep(10);
 	}
 	else if (in_topic == "GET_PARAMETERS")
 	{
@@ -78,7 +75,7 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	}
 	else if (in_topic == "FS")
 	{
-		String buf="SPIFF Content:\r\n";
+		String buf = "SPIFF Content:\r\n";
 		File root = SPIFFS.open("/");
 		File file = root.openNextFile();
 		while (file)
@@ -87,14 +84,17 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 			buf += "\r\n";
 			file = root.openNextFile();
 		}
-		mqtt_publish_log((char*)buf.c_str());
+		mqtt_publish_log((char *)buf.c_str());
 	}
 }
 
 void mqtt_init(void)
 {
 	mqtt_client.setServer(parameters.mqtt_server, atoi(parameters.mqtt_port));
-	mqtt_reconnect();
+	if (wifi_is_available())
+	{
+		mqtt_reconnect();
+	}
 	mqtt_client.setCallback(mqtt_callback);
 }
 
@@ -127,7 +127,6 @@ void mqtt_publish_log(char *message)
 		mqtt_client.publish(topic, message);
 	}
 }
-
 
 void mqtt_publish_debug(char *message)
 {
@@ -208,12 +207,15 @@ void mqtt_publish_orp_state()
 
 void mqtt_loop()
 {
-	if (!mqtt_client.connected())
+	if (wifi_is_available())
 	{
-		mqtt_reconnect();
-	}
-	else
-	{
-		mqtt_client.loop();
+		if (!mqtt_client.connected())
+		{
+			mqtt_reconnect();
+		}
+		else
+		{
+			mqtt_client.loop();
+		}
 	}
 }

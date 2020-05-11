@@ -16,6 +16,40 @@ static bool screen_saver_entered = false;
 bool disp_screen_saver_timeout(void *);
 void time_update_stop(void);
 
+
+
+void disp_wifi_status(bool enable)
+{
+	static bool first_time = true;
+	static bool prev = true;
+	char msg[30];
+	if (enable != prev || first_time)
+	{
+		prev = enable;
+		first_time = false;
+		disp_options_mac.setText(WiFi.macAddress().c_str());
+		if (enable)
+		{
+			IPAddress ip = WiFi.localIP();
+			sprintf(msg, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+			dis_sys_user0.setText(msg);
+			sprintf(msg, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+			disp_options_ip.setText(msg);
+			disp_wifi.setPic(ID_IMAGE_WIFI_ON);
+			disp_options_wifi_status.setPic(ID_IMAGE_WIFI_ON);
+			disp_options_ssid.setText(WiFi.SSID().c_str());
+		}
+		else
+		{
+			dis_sys_user0.setText("---.---.---.--- ");
+			disp_options_ip.setText("---.---.---.--- ");
+			disp_wifi.setPic(ID_IMAGE_WIFI_OFF);
+			disp_options_wifi_status.setPic(ID_IMAGE_WIFI_OFF);
+			disp_options_ssid.setText("- - - - -");
+		}
+	}
+}
+
 void disp_boot_progress_message(char *msg)
 {
 	static uint8_t progress = 0;

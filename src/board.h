@@ -134,4 +134,6 @@ uint16_t rtc_get_year(void);
 uint8_t rtc_get_month(void);
 uint8_t rtc_get_day(void);
 
+void beep(uint16_t ms);
+
 #endif

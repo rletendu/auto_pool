@@ -15,10 +15,18 @@ extern SoftTimer timer_pool;
 bool tft_update_success_action(void *);
 uintptr_t tft_update_success_task;
 
-
-
 int fileSize = 0;
 bool result = true;
+
+String getJsPage(float val)
+{
+	char buf[10];
+	String page = "document.write(\"";
+	sprintf(buf, "%.1f", val);
+	page += buf;
+	page += "\");";
+	return page;
+}
 
 String getContentType(String filename)
 {
@@ -69,6 +77,36 @@ bool handleFileRead(String path)
 		Serial.println(String("\tSent file: ") + path);
 		return true;
 	}
+	if (path == "/system_temperature.js")
+	{
+		server.send(200, "text/html", getJsPage(measures.system_temperature));
+		return true;
+	}
+	else if (path == "/system_humidity.js")
+	{
+		server.send(200, "text/html", getJsPage(measures.system_humidity));
+		return true;
+	}
+	else if (path == "/water_temperature.js")
+	{
+		server.send(200, "text/html", getJsPage(measures.water_temperature));
+		return true;
+	}
+	else if (path == "/orp.js")
+	{
+		server.send(200, "text/html", getJsPage((float)measures.orp));
+		return true;
+	}
+	else if (path == "/ph.js")
+	{
+		server.send(200, "text/html", getJsPage(measures.ph));
+		return true;
+	}
+	else if (path == "/pump_pressure.js")
+	{
+		server.send(200, "text/html", getJsPage(measures.pump_pressure));
+		return true;
+	}
 	Serial.println(String("\tFile Not Found: ") + path); // If the file doesn't exist, return false
 	return false;
 }
@@ -76,11 +114,12 @@ bool handleFileRead(String path)
 // handle the file uploads
 bool handleFileUpload()
 {
-	static bool init_done=false;
+	static bool init_done = false;
 
 	printlnA(F("handleFileUpload"));
-	if (init_done == false) {
-		
+	if (init_done == false)
+	{
+
 		init_done = true;
 	}
 	HTTPUpload &upload = server.upload();
@@ -102,6 +141,7 @@ bool handleFileUpload()
 
 	if (upload.status == UPLOAD_FILE_START)
 	{
+		beep(10);
 		stop_display_tasks();
 		printlnA(F("UPLOAD_FILE_START Preparing nextion"));
 
@@ -159,12 +199,12 @@ void webserver_init(void)
 
 	//SERVER INIT
 	server.on(
-		"/", HTTP_POST, []() {
+		"/settings.html", HTTP_POST, []() {
 			Serial.println(F("Succesfully updated Nextion!\n"));
 			// Redirect the client to the success page after handeling the file upload
 			server.sendHeader(F("Location"), F("/success.html"));
 			server.send(303);
-				tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
+			tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
 			return true;
 		},
 		// Receive and save the file
@@ -176,6 +216,66 @@ void webserver_init(void)
 		server.send(200, F("text/plain"), "");
 	});
 
+	server.on("/getmeasures", HTTP_GET, []() {
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/getfilterstate", HTTP_GET, []() {
+		server.send(200, F("text/plain"), state_filter_json_string);
+	});
+
+	server.on("/getorpstate", HTTP_GET, []() {
+		server.send(200, F("text/plain"), state_orp_json_string);
+	});
+
+	server.on("/getphstate", HTTP_GET, []() {
+		server.send(200, F("text/plain"), state_ph_json_string);
+	});
+
+	server.on("/filter_auto", HTTP_GET, []() {
+		filter_enter_mode(FILTER_AUTO);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/filter_off", HTTP_GET, []() {
+		filter_enter_mode(FILTER_OFF);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/filter_on", HTTP_GET, []() {
+		filter_enter_mode(FILTER_ON);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/orp_auto", HTTP_GET, []() {
+		orp_enter_mode(ORP_AUTO);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/orp_off", HTTP_GET, []() {
+		orp_enter_mode(ORP_OFF);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/orp_on", HTTP_GET, []() {
+		orp_enter_mode(ORP_ON);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/ph_auto", HTTP_GET, []() {
+		ph_minus_enter_mode(PH_MINUS_AUTO);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/ph_off", HTTP_GET, []() {
+		ph_minus_enter_mode(PH_MINUS_OFF);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/ph_on", HTTP_GET, []() {
+		ph_minus_enter_mode(PH_MINUS_ON);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
 	// called when the url is not defined here
 	// use it to load content from SPIFFS
 	server.onNotFound([]() {
@@ -188,10 +288,19 @@ void webserver_init(void)
 
 void webserver_loop(void)
 {
-	server.handleClient();
+	if (wifi_is_available())
+	{
+		server.handleClient();
+	}
 }
 
 bool tft_update_success_action(void *)
 {
 	esp_restart();
+}
+
+void webserver_stop(void)
+{
+	MDNS.end();
+	server.stop();
 }

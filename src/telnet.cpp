@@ -9,11 +9,14 @@ void telnet_init(void)
 {
 	MDNS.begin(HOST_NAME);
 	MDNS.addService("telnet", "tcp", 23);
-	Debug.begin(HOST_NAME); 
-	Debug.setResetCmdEnabled(true); 
+	Debug.begin(HOST_NAME);
+	Debug.setResetCmdEnabled(true);
 }
 
 void telnet_loop(void)
 {
-	Debug.handle();
+	if (wifi_is_available())
+	{
+		Debug.handle();
+	}
 }

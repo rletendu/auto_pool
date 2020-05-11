@@ -41,9 +41,7 @@ void board_init()
 	pinMode(PIN_ADC_INTERRUPT, INPUT);
 	pinMode(PIN_FLOW, INPUT);
 
-	buzzer_on();
-	delay(5);
-	buzzer_off();
+	beep(5);
 
 	dht.begin(60);
 	ds18b20.begin();
@@ -242,4 +240,11 @@ float pump_filtration_get_pressure(bool store_offset)
 	}
 	double p = 10 * ((vout - vcc / 10) / (0.6667 * vcc));
 	return (float)p;
+}
+
+void beep(uint16_t ms)
+{
+	buzzer_on();
+	delay(ms);
+	buzzer_off();
 }
