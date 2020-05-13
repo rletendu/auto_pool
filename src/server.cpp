@@ -220,6 +220,10 @@ void webserver_init(void)
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
+	server.on("/getparameters", HTTP_GET, []() {
+		server.send(200, F("text/plain"), parameters_json_string);
+	});
+
 	server.on("/getfilterstate", HTTP_GET, []() {
 		server.send(200, F("text/plain"), state_filter_json_string);
 	});

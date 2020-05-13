@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8" />
     <link rel="stylesheet" type="text/css" href="w3.css">
     <link rel="stylesheet" type="text/css" href="leds.css">
+    <script type="text/javascript" src="script_settings.js"></script>
     <!--    <script type="text/javascript" src="script.js"></script> -->
 </head>
 
@@ -55,72 +56,91 @@
     <div class="w3-margin w3-center w3-card w3-padding-24">
         <input id="toto" type="number" step="0.1" value=12.1 min=6 max=8>
         <br>
-        00 <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        6 <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
+        00
+        <input id="h0" class="w3-check" type="checkbox">
+        <input id="h1" class="w3-check" type="checkbox">
+        <input id="h2" class="w3-check" type="checkbox">
+        <input id="h3" class="w3-check" type="checkbox">
+        <input id="h4" class="w3-check" type="checkbox">
+        <input id="h5" class="w3-check" type="checkbox">
+        6
+        <input id="h6" class="w3-check" type="checkbox">
+        <input id="h7" class="w3-check" type="checkbox">
+        <input id="h8" class="w3-check" type="checkbox">
+        <input id="h9" class="w3-check" type="checkbox">
+        <input id="h10" class="w3-check" type="checkbox">
+        <input id="h11" class="w3-check" type="checkbox">
         <br>
-        12 <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        18 <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
-        <input class="w3-check" type="checkbox">
+        12
+        <input id="h12" class="w3-check" type="checkbox">
+        <input id="h13" class="w3-check" type="checkbox">
+        <input id="h14" class="w3-check" type="checkbox">
+        <input id="h15" class="w3-check" type="checkbox">
+        <input id="h16" class="w3-check" type="checkbox">
+        <input id="h17" class="w3-check" type="checkbox">
+        18
+        <input id="h18" class="w3-check" type="checkbox">
+        <input id="h19" class="w3-check" type="checkbox">
+        <input id="h20" class="w3-check" type="checkbox">
+        <input id="h21" class="w3-check" type="checkbox">
+        <input id="h22" class="w3-check" type="checkbox">
+        <input id="h23" class="w3-check" type="checkbox">
         <br><br>
     </div>
 
     <table class="w3-card w3-margin w3-center">
         <tr>
             <td>
-                <p class="w3-xxlarge w3-center w3-green">Temperature</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurTemperature">0</span> °C</p>
+                <p class="w3-xxlarge w3-center w3-green">Target pH</p>
+                <input id="target_ph" type="number" step="0.1" value=12.1 min=6 max=8>
             </td>
             <td>
-                <p class="w3-xxlarge w3-center w3-green">Orp</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurOrp">0</span> mV</p>
+                <p class="w3-xxlarge w3-center w3-green">Delta pH</p>
+                <input id="delta_ph" type="number" step="0.1" value=2 min=0 max=800>
             </td>
             <td>
-                <p class="w3-xxlarge w3-center w3-green">pH</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurPh">0</span></p>
-            </td>
-
-        </tr>
-        <tr>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Pression</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurPression">0</span> bar</p>
+                <p class="w3-xxlarge w3-center w3-green">Target Orp</p>
+                <input id="target_orp" type="number" step="10" value=650 min=500 max=800>mV
             </td>
             <td>
-                <p class="w3-xxlarge w3-center w3-green">Sys. Temp.</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurSysTemperature">0</span>°C</p>
-            </td>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Sys. Hum.</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurSysHumidity">0</span> %</p>
+                <p class="w3-xxlarge w3-center w3-green">Delta Orp</p>
+                <input id="delta_orp" type="number" step="10" value=300 min=0 max=800>mV
             </td>
         </tr>
         <tr>
             <td>
-                <p class="w3-xxlarge w3-center w3-green">Daily Cl</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurDailyCl">0</span> ml</p>
+                <p class="w3-xxlarge w3-center w3-green">Flow ORP</p>
+                <input id="flow_orp" type="number" step="0.1" value=20 min=10 max=30>ml/min
             </td>
             <td>
-                <p class="w3-xxlarge w3-center w3-green">Daily pH-</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurDailyPhm">0</span> ml</p>
+                <p class="w3-xxlarge w3-center w3-green">Flow pH-</p>
+                <input id="flow_ph_minus" type="number" step="0.1" value=20 min=10 max=30>ml/min
+            </td>
+            <td>
+                <p class="w3-xxlarge w3-center w3-green">Press. Warning</p>
+                <input id="pressure_warning" type="number" step="0.1" value=1 min=1 max=3>bar
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <p class="w3-xxlarge w3-center w3-green">Max Cl/day</p>
+                <input id="cl_max_day" type="number" step="100" value=2000 min=100 max=3000>ml
+            </td>
+            <td>
+                <p class="w3-xxlarge w3-center w3-green">Max pH-/day</p>
+                <input id="phm_max_day" type="number" step="100" value=2000 min=100 max=3000>ml
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <p class="w3-xxlarge w3-center w3-green">ORP Offset</p>
+                <input id="orp_offset" type="number" step="10" value=0 min=-200 max=200>mV
+            </td>
+            <td>
+                <p class="w3-xxlarge w3-center w3-green">pH Offset</p>
+                <input id="ph_offset" type="number" step="0.1" value=0 min=-2 max=2>
             </td>
             <td></td>
         </tr>
