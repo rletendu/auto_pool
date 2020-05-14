@@ -224,6 +224,18 @@ void webserver_init(void)
 		server.send(200, F("text/plain"), parameters_json_string);
 	});
 
+	server.on("/setparameters", HTTP_POST, []() {
+		char buf[300];
+		printA("Server arg : ");
+		printlnA(server.argName(1));
+		sprintf(buf,"%s",server.arg("parameters"));
+		printA("Setparameters args:");
+		printlnA(buf);
+		parameters_json_to_param(buf);
+		server.send(204, F("text/plain"),"");
+	});
+	
+
 	server.on("/getfilterstate", HTTP_GET, []() {
 		server.send(200, F("text/plain"), state_filter_json_string);
 	});
