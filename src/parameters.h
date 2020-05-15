@@ -39,7 +39,7 @@ extern struct ParametersStruture parameters;
 extern char parameters_json_string[PARAMETERS_JSON_MESSAGE_LEN];
 
 bool parameters_read_file(void);
-void parameters_write_file(void);
+bool parameters_write_file(void);
 void parameters_format(void);
 bool parameters_json_to_param(char *json_str);
 void parameters_set_default(void);

@@ -7,8 +7,8 @@ function validate_param() {
     console.log(payload);
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "setparameters", true);
-    xhttp.setRequestHeader('Content-Type', 'application/json');
-    xhttp.send("parameters="+payload);
+    xhttp.setRequestHeader('Content-Type','application/json');
+    xhttp.send(payload);
 }
 
 function getParameters() {
@@ -56,6 +56,7 @@ function page_2_json_param() {
     json_param.orp_offset = document.getElementById("orp_offset").value;
     json_param.ph_offset = document.getElementById("ph_offset").value;
     var i = 0;
+    json_param.timer_prog = 0;
     for (i = 0; i < 24; i++) {
         var s = new String('h') + String(i);
         json_param.timer_prog +=  document.getElementById(s).checked<<i;

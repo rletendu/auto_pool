@@ -225,16 +225,26 @@ void webserver_init(void)
 	});
 
 	server.on("/setparameters", HTTP_POST, []() {
-		char buf[300];
-		printA("Server arg : ");
-		printlnA(server.argName(1));
-		sprintf(buf,"%s",server.arg("parameters"));
-		printA("Setparameters args:");
-		printlnA(buf);
-		parameters_json_to_param(buf);
-		server.send(204, F("text/plain"),"");
+		char buf[500];
+		sprintf(buf, "%s", server.arg("plain").c_str());
+		if (parameters_json_to_param(buf))
+		{
+			if (parameters_write_file())
+			{
+				printlnA(F("Sucessfully update and saved parameters"));
+			}
+			else
+			{
+				printlnA(F("Saving parameters failure"));
+			}
+		}
+		else
+		{
+			printlnA(F("Parsing parameters failure"));
+		}
+
+		server.send(204, F("text/plain"), "");
 	});
-	
 
 	server.on("/getfilterstate", HTTP_GET, []() {
 		server.send(200, F("text/plain"), state_filter_json_string);

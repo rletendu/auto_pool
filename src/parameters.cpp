@@ -46,7 +46,7 @@ bool parameters_read_file(void)
 	return false;
 }
 
-void parameters_write_file(void)
+bool parameters_write_file(void)
 {
 	printlnA(F("Saving parameters to file"));
 	DynamicJsonBuffer jsonBuffer;
@@ -74,12 +74,14 @@ void parameters_write_file(void)
 	if (!configFile)
 	{
 		printlnA(F("failed to open config file for writing"));
+		return false;
 	}
 	json.printTo(configFile);
 	json.printTo(parameters_json_string);
 	configFile.close();
 	printlnA("Parameter Json:");
 	printlnA(parameters_json_string);
+	return true;
 }
 
 void parameters_format(void)
