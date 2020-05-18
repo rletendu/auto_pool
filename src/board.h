@@ -62,10 +62,10 @@ void pump_filtration_off(void);
 #define PUMP_ACTIVE_VALUE false
 #define PUMP_INACTIVE_VALUE ~PUMP_ACTIVE_VALUE
 
-#define LEVEL_WATER_OK_VALUE false
-#define LEVEL_CL_OK_VALUE false
-#define LEVEL_PH_MINUS_OK_VALUE false
-#define LEVEL_PH_PLUS_OK_VALUE false
+#define LEVEL_WATER_OK_VALUE true
+#define LEVEL_CL_OK_VALUE true
+#define LEVEL_PH_MINUS_OK_VALUE true
+#define LEVEL_PH_PLUS_OK_VALUE true
 
 inline void led0_off(void)
 {
