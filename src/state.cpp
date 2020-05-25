@@ -96,3 +96,64 @@ bool ph_state_json_to_state(char *json_str)
 		return false;
 	}
 }
+
+bool state_write_file(void)
+{
+	printlnA(F("Saving state to file"));
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.createObject();
+	json["ph_minus_mode"] = (int)state.ph_minus_mode;
+	json["ph_plus_mode"] = (int)state.ph_plus_mode;
+	json["filter_mode"] = (int)state.filter_mode;
+	json["orp_mode"] = (int)state.orp_mode;
+
+	File stateFile = SPIFFS.open(STATE_FILENAME, "w");
+	if (!stateFile)
+	{
+		printlnA(F("failed to open state file for writing"));
+		return false;
+	}
+	json.printTo(stateFile);
+	stateFile.close();
+	return true;
+}
+
+bool state_read_file(void)
+{
+	if (SPIFFS.begin())
+	{
+		printlnA(F("mounted file system"));
+		if (SPIFFS.exists(STATE_FILENAME))
+		{
+			printlnA(F("reading state file"));
+			File configFile = SPIFFS.open(PARAMETER_FILENAME, "r");
+			if (configFile)
+			{
+				printlnA(F("opened state file"));
+				size_t size = configFile.size();
+				std::unique_ptr<char[]> buf(new char[size]);
+				configFile.readBytes(buf.get(), size);
+				DynamicJsonBuffer jsonBuffer;
+				JsonObject &json = jsonBuffer.parseObject(buf.get());
+				if (json.success())
+				{
+					state.filter_mode = (filter_mode_t)(int)json["filter_mode"];
+					state.orp_mode = (orp_mode_t)(int)json["orp_mode"];
+					state.ph_minus_mode = (ph_minus_mode_t)(int)json["ph_minus_mode"];
+					state.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
+					return true;
+				}
+				else
+				{
+					printlnA("Json str to parameters fail") return false;
+				}
+			}
+		}
+	}
+	else
+	{
+		printlnA(F("failed to mount FS"));
+		SPIFFS.format();
+	}
+	return false;
+}
