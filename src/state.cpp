@@ -145,7 +145,8 @@ bool state_read_file(void)
 				}
 				else
 				{
-					printlnA("Json str to parameters fail") return false;
+					printlnA("Json str to parameters fail");
+					return false;
 				}
 			}
 		}

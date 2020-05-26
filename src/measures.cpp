@@ -53,11 +53,17 @@ bool update_measures(void *)
 {
 	printA("Updating measures : ");
 	float dht;
+	int quiet_measure_cnt = 0;
+	bool quiet_measure = false;
 	debug_pin1_on();
 	led0_on();
 	measures.index = millis()/1000;
 	printlnA(measures.index);
-	//rdebugA("Measures ..");
+	if (++quiet_measure_cnt> (MEASURE_QUIET_MODE_UPDATE_S/MEASURES_UPDATE_S)) {
+		quiet_measure_cnt = 0;
+		quiet_measure = true;
+		pump_filtration_off();
+	}
 	if (measures_are_vitual)
 	{
 		// Nothing to do here...
@@ -81,9 +87,11 @@ bool update_measures(void *)
 		}
 		measures.water_temperature = water_get_temperature();
 		measures.pump_pressure = pump_filtration_get_pressure(false);
-		measures.ph_raw = water_get_ph();
-		measures.orp_raw = water_get_orp();
-		measures.ph = measures.ph_raw + parameters.ph_offset;
+		if (quiet_measure) {
+			measures.ph_raw = water_get_ph();
+			measures.orp_raw = water_get_orp();
+		}
+|		measures.ph = measures.ph_raw + parameters.ph_offset;
 		measures.orp = measures.orp_raw + parameters.orp_offset;
 		measures.level_cl = level_cl_is_ok();
 		measures.level_ph_minus = level_ph_minus_is_ok();
@@ -96,6 +104,9 @@ bool update_measures(void *)
 	//display_log_append("Measure...");
 	debug_pin1_off();
 	led0_off();
+	if (quiet_measure) {
+		pump_filtration_on();
+	}
 	return true;
 }
 
