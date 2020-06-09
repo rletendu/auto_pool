@@ -109,4 +109,7 @@ if __name__ == '__main__':
             client.publish("autopool/CMD/BEEP")
         elif c == 'r':
             client.publish("autopool/CMD/RESET")
+        elif c == 'l':
+            client.publish("autopool/CMD/LOG", "log message")
+
         pass

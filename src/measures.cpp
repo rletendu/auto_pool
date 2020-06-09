@@ -91,7 +91,7 @@ bool update_measures(void *)
 			measures.ph_raw = water_get_ph();
 			measures.orp_raw = water_get_orp();
 		}
-|		measures.ph = measures.ph_raw + parameters.ph_offset;
+		measures.ph = measures.ph_raw + parameters.ph_offset;
 		measures.orp = measures.orp_raw + parameters.orp_offset;
 		measures.level_cl = level_cl_is_ok();
 		measures.level_ph_minus = level_ph_minus_is_ok();

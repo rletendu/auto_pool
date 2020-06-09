@@ -20,7 +20,7 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 		payload_buff = payload_buff + String((char)message[i]);
 		payload[i] = message[i];
 	}
-	payload[++i] = 0;
+	payload[i] = 0;
 
 	if (in_topic == "FILTER_PUMP")
 	{
