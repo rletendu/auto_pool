@@ -33,8 +33,8 @@ void measures_init(void)
 	measures.daily_ml_ph_plus = daily_ml_ph_plus_backup;
 	measures.boot_count = bootCount;
 	measures_are_vitual = false;
-	update_measures_task = timer_pool.every(MEASURES_UPDATE_S*1000, update_measures);
-	update_graph_task = timer_pool.every(GRAPH_UPDATE_S*1000, update_graph);
+	update_measures_task = timer_pool.every(MEASURES_UPDATE_S * 1000, update_measures);
+	update_graph_task = timer_pool.every(GRAPH_UPDATE_S * 1000, update_graph);
 	update_measures(NULL);
 }
 
@@ -53,17 +53,21 @@ bool update_measures(void *)
 {
 	printA("Updating measures : ");
 	float dht;
-	int quiet_measure_cnt = 0;
+	static int quiet_measure_cnt = 0;
 	bool quiet_measure = false;
 	debug_pin1_on();
 	led0_on();
-	measures.index = millis()/1000;
+	measures.index = millis() / 1000;
 	printlnA(measures.index);
-	if (++quiet_measure_cnt> (MEASURE_QUIET_MODE_UPDATE_S/MEASURES_UPDATE_S)) {
+	
+#if HAS_QUIET_MEASURES
+	if (++quiet_measure_cnt > (MEASURE_QUIET_MODE_UPDATE_S / MEASURES_UPDATE_S))
+	{
 		quiet_measure_cnt = 0;
 		quiet_measure = true;
 		pump_filtration_off();
 	}
+#endif
 	if (measures_are_vitual)
 	{
 		// Nothing to do here...
@@ -87,7 +91,8 @@ bool update_measures(void *)
 		}
 		measures.water_temperature = water_get_temperature();
 		measures.pump_pressure = pump_filtration_get_pressure(false);
-		if (quiet_measure) {
+		if (quiet_measure)
+		{
 			measures.ph_raw = water_get_ph();
 			measures.orp_raw = water_get_orp();
 		}
@@ -104,7 +109,8 @@ bool update_measures(void *)
 	//display_log_append("Measure...");
 	debug_pin1_off();
 	led0_off();
-	if (quiet_measure) {
+	if (quiet_measure)
+	{
 		pump_filtration_on();
 	}
 	return true;

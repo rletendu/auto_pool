@@ -36,6 +36,7 @@
 
 
 #define HAS_PH_PLUS_PUMP 0
+#define HAS_QUIET_MEASURES 0
 
 #define HAS_WEB_SERVER    1
 #define HAS_MQTT          1
