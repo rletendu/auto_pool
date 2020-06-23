@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name esp32_mini)(type KiCad)(uri ${KIPRJMOD}/esp32_mini.pretty)(options "")(descr ""))
+  (lib (name mega)(type KiCad)(uri /home/raphael/Desktop/auto_pool_hardware/megasaturnv_custom_components.pretty)(options "")(descr ""))
+)
