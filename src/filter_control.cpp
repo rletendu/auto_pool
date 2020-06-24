@@ -65,12 +65,43 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 	}
 }
 
+
+void filter_enter_power_mode(enum filter_power_t filter_power)
+{
+	switch (filter_power)
+	{
+	case FILTER_POWER_FULL:
+		control_filter_pwr_full();
+		if (state.filter_power != FILTER_POWER_FULL)
+		{
+			state.filter_power = FILTER_POWER_FULL;
+			mqtt_publish_filter_state();
+		}
+		pump_filtration_full();
+		break;
+
+	case FILTER_POWER_REG:
+		control_filter_pwr_reg();
+		if (state.filter_power != FILTER_POWER_REG)
+		{
+			state.filter_power = FILTER_POWER_REG;
+			mqtt_publish_filter_state();
+		}
+		pump_filtration_reg();
+		break;
+
+	default:
+		break;
+	}
+}
+
 void filter_control_init(void)
 {
 	printlnA(F("Filter Control Init"));
 	disp_led_pump_water.setPic(ID_IMAGE_RED);
 	filter_enter_mode(FILTER_OFF);
 	filter_enter_mode(FILTER_AUTO);
+	filter_enter_power_mode(FILTER_POWER_REG);
 	filter_control_update_task = timer_pool.every(FILTER_CONTROL_UPDATE_S*1000, filter_control_update);
 	mqtt_publish_filter_state();
 }

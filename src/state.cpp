@@ -13,6 +13,7 @@ void filter_state_to_json_string(void)
 	json["filter_mode"] = (int)state.filter_mode;
 	json["filter_pump"] = (int)state.filter_pump;
 	json["filter_control_state"] = (int)state.filter_control_state;
+	json["filter_power"]= (int)state.filter_power;
 	json.printTo(state_filter_json_string, sizeof(state_filter_json_string));
 	printA("Fiter Json:");
 	printlnA(state_filter_json_string);
@@ -27,6 +28,7 @@ bool filter_state_json_to_state(char *json_str)
 		state.filter_mode = (filter_mode_t)(int)json["filter_mode"];
 		state.filter_pump = (pump_state_t)(int)json["filter_pump"];
 		state.filter_control_state = (filter_control_state_t)(int)json["filter_control_state"];
+		state.filter_power = (filter_power_t)(int)json["filter_power"];
 		return true;
 	}
 	else

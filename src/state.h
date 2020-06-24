@@ -25,6 +25,12 @@ enum filter_mode_t
 	FILTER_AUTO = 2,
 };
 
+enum filter_power_t
+{
+	FILTER_POWER_FULL = 0,
+	FILTER_POWER_REG = 1,
+};
+
 enum filter_control_state_t
 {
 	FILTER_IDLE = 0,
@@ -65,6 +71,7 @@ enum ph_control_state_t
 struct StateStructure
 {
 	enum filter_mode_t filter_mode;
+	enum filter_power_t filter_power;
 	enum pump_state_t filter_pump;
 	enum filter_control_state_t filter_control_state;
 

@@ -15,6 +15,18 @@ function autoFilterButton() {
     xhttp.send();
 }
 
+function FilterPwrFullButton() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "filter_pwr_full", true);
+    xhttp.send();
+}
+
+function FilterPwrRegButton() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "filter_pwr_reg", true);
+    xhttp.send();
+}
+
 function onOrpButton() {
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", "orp_on", true);
@@ -75,6 +87,7 @@ function getFilterState() {
         if (this.readyState == 4 && this.status == 200) {
             const obj = JSON.parse(this.responseText);
             var mode = "---"
+            var pwr = "---"
             switch (obj.filter_mode) {
                 case 0:
                     mode = "OFF";
@@ -91,6 +104,16 @@ function getFilterState() {
                 default:
                     mode = "---";
             }
+            switch (obj.filter_power) {
+                case 0:
+                    pwr = "FULL";
+                    break;
+
+                case 1:
+                    pwr = "REG";
+                    break;
+
+            }
             document.getElementById("stateFilter").innerHTML = mode;
             if (obj.filter_pump) {
                 document.getElementById("PumpFilter").innerHTML = "ON";
@@ -100,6 +123,7 @@ function getFilterState() {
                 document.getElementById("PumpFilter").className = "w3-red"
 
             }
+            
         }
     };
     xhttp_measures.open("GET", "getfilterstate", true);

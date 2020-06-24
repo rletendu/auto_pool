@@ -25,6 +25,8 @@ void disp_control_cl_off_Callback(void *ptr);
 void disp_control_filter_auto_Callback(void *ptr);
 void disp_control_filter_on_Callback(void *ptr);
 void disp_control_filter_off_Callback(void *ptr);
+void disp_control_filter_power_full_Callback(void *ptr);
+void disp_control_filter_power_reg_Callback(void *ptr);
 void control_ph_plus_auto(void);
 void control_ph_plus_on(void);
 void control_ph_plus_off(void);
@@ -37,5 +39,7 @@ void control_cl_off(void);
 void control_filter_auto(void);
 void control_filter_on(void);
 void control_filter_off(void);
+void control_filter_pwr_full(void);
+void control_filter_pwr_reg(void);
 
 #endif

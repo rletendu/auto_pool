@@ -49,6 +49,15 @@ void disp_control_filter_off_Callback(void *ptr)
 {
 	filter_enter_mode(FILTER_OFF);
 }
+void disp_control_filter_power_full_Callback(void *ptr)
+{
+	filter_enter_power_mode(FILTER_POWER_FULL);
+}
+
+void disp_control_filter_power_reg_Callback(void *ptr)
+{
+	filter_enter_power_mode(FILTER_POWER_REG);
+}
 
 void control_ph_plus_auto(void)
 {
@@ -121,4 +130,14 @@ void control_filter_off(void)
 	disp_control_filter_auto.Set_background_color_bco(DISP_COLOR_GRAY);
 	disp_control_filter_off.Set_background_color_bco(DISP_COLOR_RED);
 	disp_control_filter_on.Set_background_color_bco(DISP_COLOR_GRAY);
+}
+void control_filter_pwr_full(void)
+{
+	disp_control_pump_pwr_full.Set_background_color_bco(DISP_COLOR_GREEN);
+	disp_control_pump_pwr_reg.Set_background_color_bco(DISP_COLOR_GRAY);
+}
+void control_filter_pwr_reg(void)
+{
+	disp_control_pump_pwr_full.Set_background_color_bco(DISP_COLOR_GRAY);
+	disp_control_pump_pwr_reg.Set_background_color_bco(DISP_COLOR_GREEN);
 }
