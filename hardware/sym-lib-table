@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name esp32_mini)(type Legacy)(uri ${KIPRJMOD}/esp32_mini.lib)(options "")(descr ""))
+  (lib (name test1-rescue)(type Legacy)(uri ${KIPRJMOD}/test1-rescue.lib)(options "")(descr ""))
+  (lib (name mega)(type Legacy)(uri /home/raphael/Desktop/auto_pool_hardware/megasaturnv_custom_components.lib)(options "")(descr ""))
+)
