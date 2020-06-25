@@ -114,6 +114,7 @@ function getFilterState() {
                     break;
 
             }
+            document.getElementById("powerFilter").innerHTML = pwr; 
             document.getElementById("stateFilter").innerHTML = mode;
             if (obj.filter_pump) {
                 document.getElementById("PumpFilter").innerHTML = "ON";

@@ -35,7 +35,7 @@ void orp_enter_mode(enum orp_mode_t orp_mode)
 	switch (orp_mode)
 	{
 	case ORP_AUTO:
-		control_cl_auto();
+		display_control_cl_auto();
 		if (state.orp_mode != ORP_AUTO)
 		{
 			state.orp_mode = ORP_AUTO;
@@ -45,7 +45,7 @@ void orp_enter_mode(enum orp_mode_t orp_mode)
 		break;
 
 	case ORP_OFF:
-		control_cl_off();
+		display_control_cl_off();
 		if (state.orp_mode != ORP_OFF)
 		{
 			state.orp_mode = ORP_OFF;
@@ -55,7 +55,7 @@ void orp_enter_mode(enum orp_mode_t orp_mode)
 		break;
 
 	case ORP_ON:
-		control_cl_on();
+		display_control_cl_on();
 		if (state.orp_mode != ORP_ON)
 		{
 			state.orp_mode = ORP_ON;
@@ -136,6 +136,10 @@ bool orp_auto_correction_possible(void)
 		is_possible = false;
 	}
 	if (measures.daily_ml_orp > parameters.cl_max_day)
+	{
+		is_possible = false;
+	}
+	if (state.filter_control_state != FILTER_AUTO_ACTIVE)
 	{
 		is_possible = false;
 	}

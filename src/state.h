@@ -34,6 +34,7 @@ enum filter_power_t
 enum filter_control_state_t
 {
 	FILTER_IDLE = 0,
+	FILTER_AUTO_ACTIVE_WARM_UP,
 	FILTER_AUTO_ACTIVE,
 	FILTER_AUTO_ACTIVE_EXTENDED,
 };

@@ -31,9 +31,10 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 	switch (filter_mode)
 	{
 	case FILTER_AUTO:
-		control_filter_auto();
+		display_control_filter_auto();
 		if (state.filter_mode != FILTER_AUTO)
 		{
+			filter_off();
 			state.filter_mode = FILTER_AUTO;
 			state.filter_control_state = FILTER_IDLE;
 			mqtt_publish_filter_state();
@@ -41,7 +42,7 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 		break;
 
 	case FILTER_OFF:
-		control_filter_off();
+		display_control_filter_off();
 		if (state.filter_mode != FILTER_OFF)
 		{
 			state.filter_mode = FILTER_OFF;
@@ -51,7 +52,7 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 		break;
 
 	case FILTER_ON:
-		control_filter_on();
+		display_control_filter_on();
 		if (state.filter_mode != FILTER_ON)
 		{
 			state.filter_mode = FILTER_ON;
@@ -68,20 +69,21 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 
 void filter_enter_power_mode(enum filter_power_t filter_power)
 {
+#if HAS_FILTER_PWR_CTRL
 	switch (filter_power)
 	{
 	case FILTER_POWER_FULL:
-		control_filter_pwr_full();
+		display_control_filter_pwr_full();
 		if (state.filter_power != FILTER_POWER_FULL)
 		{
 			state.filter_power = FILTER_POWER_FULL;
 			mqtt_publish_filter_state();
 		}
-		pump_filtration_full();
+		pump_filtration_pwr_full();
 		break;
 
 	case FILTER_POWER_REG:
-		control_filter_pwr_reg();
+		display_control_filter_pwr_reg();
 		if (state.filter_power != FILTER_POWER_REG)
 		{
 			state.filter_power = FILTER_POWER_REG;
@@ -93,6 +95,7 @@ void filter_enter_power_mode(enum filter_power_t filter_power)
 	default:
 		break;
 	}
+#endif
 }
 
 void filter_control_init(void)
@@ -101,14 +104,14 @@ void filter_control_init(void)
 	disp_led_pump_water.setPic(ID_IMAGE_RED);
 	filter_enter_mode(FILTER_OFF);
 	filter_enter_mode(FILTER_AUTO);
-	filter_enter_power_mode(FILTER_POWER_REG);
+	filter_enter_power_mode(FILTER_POWER_FULL);
 	filter_control_update_task = timer_pool.every(FILTER_CONTROL_UPDATE_S*1000, filter_control_update);
 	mqtt_publish_filter_state();
 }
 
 bool filter_control_update(void *)
 {
-
+	static int32_t counter_warm_up = 0;
 	uint32_t timer_prog_ok;
 
 	timer_prog_ok = parameters.timer_prog & uint32_t(1 << rtc_get_hour());
@@ -122,13 +125,19 @@ bool filter_control_update(void *)
 				if (timer_prog_ok)
 				{
 					filter_on();
-					state.filter_control_state = FILTER_AUTO_ACTIVE;
+					counter_warm_up = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FITLER_CONTROL_WARM_UP_S;
+					state.filter_control_state = FILTER_AUTO_ACTIVE_WARM_UP;
 					log_append("Filter started from timer prog");
 				}
 			}
 			else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
 			{
 #warning TODO not implemented yet
+			}
+			break;
+		case FILTER_AUTO_ACTIVE_WARM_UP:
+			if (--counter_warm_up<=0) {
+				state.filter_control_state = FILTER_AUTO_ACTIVE;
 			}
 			break;
 		case FILTER_AUTO_ACTIVE:

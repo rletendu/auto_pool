@@ -78,7 +78,7 @@ void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
 	switch (ph_plus_mode)
 	{
 	case PH_PLUS_AUTO:
-		control_ph_plus_auto();
+		display_control_ph_plus_auto();
 		if (state.ph_plus_mode != PH_PLUS_AUTO)
 		{
 			state.ph_plus_mode = PH_PLUS_AUTO;
@@ -88,7 +88,7 @@ void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
 		break;
 
 	case PH_PLUS_OFF:
-		control_ph_plus_off();
+		display_control_ph_plus_off();
 		if (state.ph_plus_mode != PH_PLUS_OFF)
 		{
 			state.ph_plus_mode = PH_PLUS_OFF;
@@ -117,7 +117,7 @@ void ph_minus_enter_mode(enum ph_minus_mode_t ph_minus_mode)
 	switch (ph_minus_mode)
 	{
 	case PH_PLUS_AUTO:
-		control_ph_minus_auto();
+		display_control_ph_minus_auto();
 		if (state.ph_minus_mode != PH_MINUS_AUTO)
 		{
 			state.ph_minus_mode = PH_MINUS_AUTO;
@@ -136,7 +136,7 @@ void ph_minus_enter_mode(enum ph_minus_mode_t ph_minus_mode)
 		break;
 
 	case PH_PLUS_ON:
-		control_ph_minus_on();
+		display_control_ph_minus_on();
 		if (state.ph_minus_mode != PH_MINUS_ON)
 		{
 			state.ph_minus_mode = PH_MINUS_ON;
