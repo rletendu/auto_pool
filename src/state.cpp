@@ -13,7 +13,7 @@ void filter_state_to_json_string(void)
 	json["filter_mode"] = (int)state.filter_mode;
 	json["filter_pump"] = (int)state.filter_pump;
 	json["filter_control_state"] = (int)state.filter_control_state;
-	json["filter_power"]= (int)state.filter_power;
+	json["filter_power"] = (int)state.filter_power;
 	json.printTo(state_filter_json_string, sizeof(state_filter_json_string));
 	printA("Fiter Json:");
 	printlnA(state_filter_json_string);
@@ -108,6 +108,7 @@ bool state_write_file(void)
 	json["ph_plus_mode"] = (int)state.ph_plus_mode;
 	json["filter_mode"] = (int)state.filter_mode;
 	json["orp_mode"] = (int)state.orp_mode;
+	json["filter_state"] = (int)state.filter_power;
 
 	File stateFile = SPIFFS.open(STATE_FILENAME, "w");
 	if (!stateFile)
@@ -143,6 +144,7 @@ bool state_read_file(void)
 					state.orp_mode = (orp_mode_t)(int)json["orp_mode"];
 					state.ph_minus_mode = (ph_minus_mode_t)(int)json["ph_minus_mode"];
 					state.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
+					state.filter_power = (filter_power_t)(int)json["filter_state"];
 					return true;
 				}
 				else
