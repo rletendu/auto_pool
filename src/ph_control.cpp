@@ -16,8 +16,8 @@ void ph_control_init(void)
 	ph_control_state = PH_IDLE;
 	printlnA(F("Ph Control Init"));
 	disp_led_pump_ph_minus.setPic(ID_IMAGE_RED);
-	ph_minus_enter_mode(PH_MINUS_OFF);
-	ph_minus_enter_mode(PH_MINUS_AUTO);
+	ph_minus_enter_mode(readstate.ph_minus_mode);
+	ph_plus_enter_mode(readstate.ph_plus_mode);
 
 #if HAS_PH_PLUS_PUMP
 	ph_plus_enter_mode(PH_PLUS_OFF);

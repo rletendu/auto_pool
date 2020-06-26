@@ -102,9 +102,13 @@ void filter_control_init(void)
 {
 	printlnA(F("Filter Control Init"));
 	disp_led_pump_water.setPic(ID_IMAGE_RED);
-	filter_enter_mode(FILTER_OFF);
+	
+	filter_enter_mode(readstate.filter_mode);
+	filter_enter_power_mode(readstate.filter_power);
+	/*
 	filter_enter_mode(FILTER_AUTO);
 	filter_enter_power_mode(FILTER_POWER_FULL);
+	*/
 	filter_control_update_task = timer_pool.every(FILTER_CONTROL_UPDATE_S*1000, filter_control_update);
 	mqtt_publish_filter_state();
 }
@@ -125,7 +129,7 @@ bool filter_control_update(void *)
 				if (timer_prog_ok)
 				{
 					filter_on();
-					counter_warm_up = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FITLER_CONTROL_WARM_UP_S;
+					counter_warm_up = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FILTER_CONTROL_WARM_UP_S;
 					state.filter_control_state = FILTER_AUTO_ACTIVE_WARM_UP;
 					log_append("Filter started from timer prog");
 				}

@@ -1,6 +1,7 @@
 #include "autopool.h"
 
-struct StateStructure state;
+struct StateStructure state = {.filter_mode = FILTER_NOT_SET, .filter_power=FILTER_POWER_NOT_SET};
+struct StateStructure readstate;
 
 char state_filter_json_string[STATE_FILTER_CTRL_JSON_MESSAGE_LEN];
 char state_ph_json_string[STATE_PH_CTRL_JSON_MESSAGE_LEN];
@@ -108,7 +109,7 @@ bool state_write_file(void)
 	json["ph_plus_mode"] = (int)state.ph_plus_mode;
 	json["filter_mode"] = (int)state.filter_mode;
 	json["orp_mode"] = (int)state.orp_mode;
-	json["filter_state"] = (int)state.filter_power;
+	json["filter_power"] = (int)state.filter_power;
 
 	File stateFile = SPIFFS.open(STATE_FILENAME, "w");
 	if (!stateFile)
@@ -129,7 +130,7 @@ bool state_read_file(void)
 		if (SPIFFS.exists(STATE_FILENAME))
 		{
 			printlnA(F("reading state file"));
-			File configFile = SPIFFS.open(PARAMETER_FILENAME, "r");
+			File configFile = SPIFFS.open(STATE_FILENAME, "r");
 			if (configFile)
 			{
 				printlnA(F("opened state file"));
@@ -140,11 +141,11 @@ bool state_read_file(void)
 				JsonObject &json = jsonBuffer.parseObject(buf.get());
 				if (json.success())
 				{
-					state.filter_mode = (filter_mode_t)(int)json["filter_mode"];
-					state.orp_mode = (orp_mode_t)(int)json["orp_mode"];
-					state.ph_minus_mode = (ph_minus_mode_t)(int)json["ph_minus_mode"];
-					state.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
-					state.filter_power = (filter_power_t)(int)json["filter_state"];
+					readstate.filter_mode = (filter_mode_t)(int)json["filter_mode"];
+					readstate.orp_mode = (orp_mode_t)(int)json["orp_mode"];
+					readstate.ph_minus_mode = (ph_minus_mode_t)(int)json["ph_minus_mode"];
+					readstate.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
+					readstate.filter_power = (filter_power_t)(int)json["filter_power"];
 					return true;
 				}
 				else
