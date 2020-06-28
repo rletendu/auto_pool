@@ -253,6 +253,8 @@ extern NexButton disp_control_ph_plus_on;
 extern NexButton disp_control_pump_pwr_full;
 extern NexButton disp_control_pump_pwr_reg;
 
+extern NexButton disp_control_save_default;
+
 extern NexText wifi_ip;
 extern NexText wifi_mac;
 extern NexText wifi_ssid;

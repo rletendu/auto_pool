@@ -146,6 +146,8 @@ NexButton disp_control_ph_plus_on = NexButton(PID_CONTROL, CID_CONTROL_PH_PLUS_O
 NexButton disp_control_pump_pwr_full = NexButton(PID_CONTROL, 27, "control.pump_full");
 NexButton disp_control_pump_pwr_reg = NexButton(PID_CONTROL, 29, "control.pump_reg");
 
+NexButton disp_control_save_default = NexButton(PID_CONTROL, 31, "control.save_default");
+
 NexText disp_options_ip = NexText(PID_OPTIONS3, 6, "options_3.ip");
 NexText disp_options_mac = NexText(PID_OPTIONS3, 7, "options_3.mac");
 NexText disp_options_ssid = NexText(PID_OPTIONS3, 8, "options_3.ssid");
