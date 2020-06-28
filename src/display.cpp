@@ -153,6 +153,8 @@ NexTouch *nex_listen_list[] =
 		&disp_control_filter_auto,
 		&disp_control_filter_off,
 		&disp_control_filter_on,
+		&disp_control_pump_pwr_reg,
+		&disp_control_pump_pwr_full,
 		&disp_saver_exit,
 		&disp_options_rst_cl_day,
 		&disp_options_rst_phm_day,
@@ -241,6 +243,9 @@ void display_init()
 	disp_control_filter_auto.attachPush(disp_control_filter_auto_Callback, &disp_control_filter_auto);
 	disp_control_filter_on.attachPush(disp_control_filter_on_Callback, &disp_control_filter_on);
 	disp_control_filter_off.attachPush(disp_control_filter_off_Callback, &disp_control_filter_off);
+
+	disp_control_pump_pwr_full.attachPush(disp_control_filter_power_full_Callback, &disp_control_pump_pwr_full);
+	disp_control_pump_pwr_reg.attachPush(disp_control_filter_power_reg_Callback, &disp_control_pump_pwr_reg);
 
 	disp_options_rst_cl_day.attachPush(disp_options_rst_cl_day_Callback, &disp_options_rst_cl_day);
 	disp_options_rst_phm_day.attachPush(disp_options_rst_phm_day_Callback, &disp_options_rst_phm_day);

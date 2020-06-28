@@ -273,6 +273,16 @@ void webserver_init(void)
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
+	server.on("/filter_pwr_full", HTTP_GET, []() {
+		filter_enter_power_mode(FILTER_POWER_FULL);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/filter_pwr_reg", HTTP_GET, []() {
+		filter_enter_power_mode(FILTER_POWER_REG);
+		server.send(200, F("text/plain"), measures_json_string);
+	});
+
 	server.on("/orp_auto", HTTP_GET, []() {
 		orp_enter_mode(ORP_AUTO);
 		server.send(200, F("text/plain"), measures_json_string);

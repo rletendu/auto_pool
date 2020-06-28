@@ -23,11 +23,20 @@ enum filter_mode_t
 	FILTER_OFF = 0,
 	FILTER_ON = 1,
 	FILTER_AUTO = 2,
+	FILTER_NOT_SET = 99,
+};
+
+enum filter_power_t
+{
+	FILTER_POWER_FULL = 0,
+	FILTER_POWER_REG = 1,
+	FILTER_POWER_NOT_SET = 99,
 };
 
 enum filter_control_state_t
 {
 	FILTER_IDLE = 0,
+	FILTER_AUTO_ACTIVE_WARM_UP,
 	FILTER_AUTO_ACTIVE,
 	FILTER_AUTO_ACTIVE_EXTENDED,
 };
@@ -44,6 +53,7 @@ enum ph_minus_mode_t
 	PH_MINUS_OFF = 0,
 	PH_MINUS_ON = 1,
 	PH_MINUS_AUTO = 2,
+	PH_MINUS_NOT_SET = 99,
 };
 
 enum ph_plus_mode_t
@@ -51,6 +61,7 @@ enum ph_plus_mode_t
 	PH_PLUS_OFF = 0,
 	PH_PLUS_ON = 1,
 	PH_PLUS_AUTO = 2,
+	PH_PLUS_NOT_SET = 99,
 };
 
 enum ph_control_state_t
@@ -65,6 +76,7 @@ enum ph_control_state_t
 struct StateStructure
 {
 	enum filter_mode_t filter_mode;
+	enum filter_power_t filter_power;
 	enum pump_state_t filter_pump;
 	enum filter_control_state_t filter_control_state;
 
@@ -89,6 +101,7 @@ enum correction_need_t
 };
 
 extern struct StateStructure state;
+extern struct StateStructure readstate;
 extern char state_filter_json_string[STATE_FILTER_CTRL_JSON_MESSAGE_LEN];
 extern char state_ph_json_string[STATE_PH_CTRL_JSON_MESSAGE_LEN];
 extern char state_orp_json_string[STATE_ORP_CTRL_JSON_MESSAGE_LEN];
@@ -100,5 +113,8 @@ void ph_state_to_json_string(void);
 bool filter_state_json_to_state(char *json_str);
 bool orp_state_json_to_state(char *json_str);
 bool ph_state_json_to_state(char *json_str);
+
+bool state_read_file(void);
+bool state_write_file(void);
 
 #endif

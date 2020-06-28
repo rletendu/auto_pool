@@ -22,6 +22,10 @@ void board_init()
 	pinMode(DEBUG_PIN1, OUTPUT);
 #endif
 
+#if HAS_FILTER_PWR_CTRL
+	pinMode(PIN_PUMP_PWR, OUTPUT);
+#endif
+
 	pinMode(PIN_LED0, OUTPUT);
 	pinMode(PIN_LED1, OUTPUT);
 	pinMode(PIN_BUZZER, OUTPUT);
