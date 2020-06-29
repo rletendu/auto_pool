@@ -5,28 +5,15 @@
 
 const char *host = "autopool";
 
-const char *index_html = "<!DOCTYPE html>\n<html>\n<head>\n  <meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\">\n  <title>Nextion updater</title>\n</head>\n<body>\n    <h3>Choose .tft file to upload</h3>\n    <form method=\"post\" enctype=\"multipart/form-data\">\n        <input type=\"file\" name=\"name\" onchange=\"valSize(this)\">\n        <input id=\"button\" type=\"submit\" value=\"Upload & Update\" disabled>\n    </form>\n    <script>\n      function valSize(file){\n        // get the selected file size and send it to the ESP\n        var fs = file.files[0].size;\n        var xhttp = new XMLHttpRequest();\n        xhttp.onreadystatechange = function(){\n          if(this.readyState == 4 && this.status == 200){\n            // ESP received fileSize enable the submit button\n            document.getElementById(\"button\").disabled = false;\n          }\n        };\n        xhttp.open(\"POST\", \"/fs\", true);\n        xhttp.setRequestHeader(\"Content-type\", \"application/x-www-form-urlencoded\");\n        xhttp.send(\"fileSize=\"+fs);\n      }\n    </script>\n    <p>Updating might take a while if you have complex .tft file. Check Nextion display for progress.</p>\n</body>\n</html>\n";
-const char *failure_html = "<!DOCTYPE html>\n\t<html lang=\"en\">\n\t<head>\n\t\t<title>Nextion Updater</title>\n\t\t<script>\n\t\t\tfunction getUrlVars() {\n\t\t\t\tvar vars = {};\n\t\t\t\tvar parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {\n\t\t\t\tvars[key] = value;\n\t\t\t\t});\n\t\t\t\treturn vars;\n\t\t\t}\n\n\t\t\tfunction setReason() {\n\t\t\t\tvar reason = getUrlVars()[\"reason\"];\n\t\t\t\tdocument.getElementById(\"reason\").innerHTML = decodeURIComponent(reason);\n\t\t\t}\n\t\t</script>\n\t</head>\n\t<body onLoad=\"setReason()\">\n\t\t<h2>Update failed</h2>\n\t\tReason: <strong><span id=\"reason\"></span></strong>\n\t</body>\n</html>\n";
-const char *success_html = "<!DOCTYPE html>\n\t<html lang=\"en\">\n\t<head>\n\t\t<title>Nextion Updater</title>\n\t</head>\n\t<body>\n\t\tUpdate successful\n\t</body>\n</html>\n";
 
 WebServer server(80);
 ota_tft nextion(115200);
 extern SoftTimer timer_pool;
 bool tft_update_success_action(void *);
 uintptr_t tft_update_success_task;
-
+File fsUploadFile;
 int fileSize = 0;
 bool result = true;
-
-String getJsPage(float val)
-{
-	char buf[10];
-	String page = "document.write(\"";
-	sprintf(buf, "%.1f", val);
-	page += buf;
-	page += "\");";
-	return page;
-}
 
 String getContentType(String filename)
 {
@@ -64,59 +51,164 @@ bool handleFileRead(String path)
 	// send the right file to the client (if it exists)
 	Serial.print("handleFileRead: " + path);
 	if (path.endsWith("/"))
-		path += "index.html";				   // If a folder is requested, send the index file
+		path += "index.html";		   // If a folder is requested, send the index file
 	String contentType = getContentType(path); // Get the MIME type
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
-	{														// If the file exists, either as a compressed archive, or normal
-		if (SPIFFS.exists(pathWithGz))						// If there's a compressed version available
-			path += ".gz";									// Use the compressed verion
-		File file = SPIFFS.open(path, "r");					// Open the file
+	{							    // If the file exists, either as a compressed archive, or normal
+		if (SPIFFS.exists(pathWithGz))			    // If there's a compressed version available
+			path += ".gz";				    // Use the compressed verion
+		File file = SPIFFS.open(path, "r");		    // Open the file
 		size_t sent = server.streamFile(file, contentType); // Send it to the client
-		file.close();										// Close the file again
+		file.close();					    // Close the file again
 		Serial.println(String("\tSent file: ") + path);
-		return true;
-	}
-	if (path == "/system_temperature.js")
-	{
-		server.send(200, "text/html", getJsPage(measures.system_temperature));
-		return true;
-	}
-	else if (path == "/system_humidity.js")
-	{
-		server.send(200, "text/html", getJsPage(measures.system_humidity));
-		return true;
-	}
-	else if (path == "/water_temperature.js")
-	{
-		server.send(200, "text/html", getJsPage(measures.water_temperature));
-		return true;
-	}
-	else if (path == "/orp.js")
-	{
-		server.send(200, "text/html", getJsPage((float)measures.orp));
-		return true;
-	}
-	else if (path == "/ph.js")
-	{
-		server.send(200, "text/html", getJsPage(measures.ph));
-		return true;
-	}
-	else if (path == "/pump_pressure.js")
-	{
-		server.send(200, "text/html", getJsPage(measures.pump_pressure));
 		return true;
 	}
 	Serial.println(String("\tFile Not Found: ") + path); // If the file doesn't exist, return false
 	return false;
 }
 
-// handle the file uploads
-bool handleFileUpload()
+bool exists(String path)
+{
+	bool yes = false;
+	File file = SPIFFS.open(path, "r");
+	if (!file.isDirectory())
+	{
+		yes = true;
+	}
+	file.close();
+	return yes;
+}
+
+void handleFileList()
+{
+	if (!server.hasArg("dir"))
+	{
+		server.send(500, "text/plain", "BAD ARGS");
+		return;
+	}
+
+	String path = server.arg("dir");
+	printlnA("handleFileList: " + path);
+
+	File root = SPIFFS.open(path);
+	path = String();
+
+	String output = "[";
+	if (root.isDirectory())
+	{
+		File file = root.openNextFile();
+		while (file)
+		{
+			if (output != "[")
+			{
+				output += ',';
+			}
+			output += "{\"type\":\"";
+			output += (file.isDirectory()) ? "dir" : "file";
+			output += "\",\"name\":\"";
+			output += String(file.name()).substring(1);
+			output += "\"}";
+			file = root.openNextFile();
+		}
+	}
+	output += "]";
+	server.send(200, "text/json", output);
+}
+void handleFileUpload()
+{
+	if (server.uri() != "/edit")
+	{
+		return;
+	}
+	HTTPUpload &upload = server.upload();
+	if (upload.status == UPLOAD_FILE_START)
+	{
+		String filename = upload.filename;
+		if (!filename.startsWith("/"))
+		{
+			filename = "/" + filename;
+		}
+		printA("handleFileUpload Name: ");
+		printlnA(filename);
+		fsUploadFile = SPIFFS.open(filename, "w");
+		filename = String();
+	}
+	else if (upload.status == UPLOAD_FILE_WRITE)
+	{
+		//printA("handleFileUpload Data: "); printlnA(upload.currentSize);
+		if (fsUploadFile)
+		{
+			fsUploadFile.write(upload.buf, upload.currentSize);
+		}
+	}
+	else if (upload.status == UPLOAD_FILE_END)
+	{
+		if (fsUploadFile)
+		{
+			fsUploadFile.close();
+		}
+		printA("handleFileUpload Size: ");
+		printlnA(upload.totalSize);
+	}
+}
+
+void handleFileDelete()
+{
+	if (server.args() == 0)
+	{
+		return server.send(500, "text/plain", "BAD ARGS");
+	}
+	String path = server.arg(0);
+	printlnA("handleFileDelete: " + path);
+	if (path == "/")
+	{
+		return server.send(500, "text/plain", "BAD PATH");
+	}
+	if (!exists(path))
+	{
+		return server.send(404, "text/plain", "FileNotFound");
+	}
+	SPIFFS.remove(path);
+	server.send(200, "text/plain", "");
+	path = String();
+}
+
+void handleFileCreate()
+{
+	if (server.args() == 0)
+	{
+		return server.send(500, "text/plain", "BAD ARGS");
+	}
+	String path = server.arg(0);
+	printlnA("handleFileCreate: " + path);
+	if (path == "/")
+	{
+		return server.send(500, "text/plain", "BAD PATH");
+	}
+	if (exists(path))
+	{
+		return server.send(500, "text/plain", "FILE EXISTS");
+	}
+	File file = SPIFFS.open(path, "w");
+	if (file)
+	{
+		file.close();
+	}
+	else
+	{
+		return server.send(500, "text/plain", "CREATE FAILED");
+	}
+	server.send(200, "text/plain", "");
+	path = String();
+}
+
+// handle the TFT file uploads
+bool handleTftFileUpload()
 {
 	static bool init_done = false;
 
-	printlnA(F("handleFileUpload"));
+	printlnA(F("handleTftFileUpload"));
 	if (init_done == false)
 	{
 
@@ -190,31 +282,50 @@ bool handleFileUpload()
 
 void webserver_init(void)
 {
+	printlnA(F("Init Webserver"))
 	if (!SPIFFS.begin())
 	{
 		return;
 	}
-
 	MDNS.begin(host);
 
-	//SERVER INIT
+	// /settings POST request -> TFT Upload request
 	server.on(
-		"/settings.html", HTTP_POST, []() {
-			Serial.println(F("Succesfully updated Nextion!\n"));
-			// Redirect the client to the success page after handeling the file upload
-			server.sendHeader(F("Location"), F("/success.html"));
-			server.send(303);
-			tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
-			return true;
-		},
-		// Receive and save the file
-		handleFileUpload);
+	    "/settings.html", HTTP_POST, []() {
+		    Serial.println(F("Succesfully updated Nextion!\n"));
+		    // Redirect the client to the success page after handeling the file upload
+		    server.sendHeader(F("Location"), F("/success.html"));
+		    server.send(303);
+		    tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
+		    return true;
+	    },
+	    // Receive and save the file
+	    handleTftFileUpload);
 
 	// receive fileSize once a file is selected (Workaround as the file content-length is of by +/- 200 bytes. Known issue: https://github.com/esp8266/Arduino/issues/3787)
 	server.on("/fs", HTTP_POST, []() {
 		fileSize = server.arg(F("fileSize")).toInt();
 		server.send(200, F("text/plain"), "");
 	});
+	// list fs content
+	server.on("/list", HTTP_GET, handleFileList);
+	server.on("/edit", HTTP_GET, []() {
+		if (!handleFileRead("/edit.htm"))
+		{
+			server.send(404, "text/plain", "FileNotFound");
+		}
+	});
+	//create file
+	server.on("/edit", HTTP_PUT, handleFileCreate);
+	//delete file
+	server.on("/edit", HTTP_DELETE, handleFileDelete);
+	//first callback is called after the request has ended with all parsed arguments
+	//second callback handles file uploads at that location
+	server.on(
+	    "/edit", HTTP_POST, []() {
+		    server.send(200, "text/plain", "");
+	    },
+	    handleFileUpload);
 
 	server.on("/getmeasures", HTTP_GET, []() {
 		server.send(200, F("text/plain"), measures_json_string);

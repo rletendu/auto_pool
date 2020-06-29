@@ -101,7 +101,7 @@ enum correction_need_t
 };
 
 extern struct StateStructure state;
-extern struct StateStructure readstate;
+extern struct StateStructure state_default;
 extern char state_filter_json_string[STATE_FILTER_CTRL_JSON_MESSAGE_LEN];
 extern char state_ph_json_string[STATE_PH_CTRL_JSON_MESSAGE_LEN];
 extern char state_orp_json_string[STATE_ORP_CTRL_JSON_MESSAGE_LEN];
@@ -114,7 +114,7 @@ bool filter_state_json_to_state(char *json_str);
 bool orp_state_json_to_state(char *json_str);
 bool ph_state_json_to_state(char *json_str);
 
-bool state_read_file(void);
-bool state_write_file(void);
+bool state_default_read_file(void);
+bool state_default_write_file(void);
 
 #endif

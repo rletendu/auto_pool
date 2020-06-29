@@ -66,7 +66,6 @@ void filter_enter_mode(enum filter_mode_t filter_mode)
 	}
 }
 
-
 void filter_enter_power_mode(enum filter_power_t filter_power)
 {
 #if HAS_FILTER_PWR_CTRL
@@ -89,7 +88,7 @@ void filter_enter_power_mode(enum filter_power_t filter_power)
 			state.filter_power = FILTER_POWER_REG;
 			mqtt_publish_filter_state();
 		}
-		pump_filtration_reg();
+		pump_filtration_pwr_reg();
 		break;
 
 	default:
@@ -102,14 +101,9 @@ void filter_control_init(void)
 {
 	printlnA(F("Filter Control Init"));
 	disp_led_pump_water.setPic(ID_IMAGE_RED);
-	
-	filter_enter_mode(readstate.filter_mode);
-	filter_enter_power_mode(readstate.filter_power);
-	/*
-	filter_enter_mode(FILTER_AUTO);
-	filter_enter_power_mode(FILTER_POWER_FULL);
-	*/
-	filter_control_update_task = timer_pool.every(FILTER_CONTROL_UPDATE_S*1000, filter_control_update);
+	filter_enter_mode(state_default.filter_mode);
+	filter_enter_power_mode(state_default.filter_power);
+	filter_control_update_task = timer_pool.every(FILTER_CONTROL_UPDATE_S * 1000, filter_control_update);
 	mqtt_publish_filter_state();
 }
 
@@ -132,6 +126,7 @@ bool filter_control_update(void *)
 					counter_warm_up = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FILTER_CONTROL_WARM_UP_S;
 					state.filter_control_state = FILTER_AUTO_ACTIVE_WARM_UP;
 					log_append("Filter started from timer prog");
+					printlnA(F("Filter enter warm-up state"));
 				}
 			}
 			else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
@@ -140,8 +135,10 @@ bool filter_control_update(void *)
 			}
 			break;
 		case FILTER_AUTO_ACTIVE_WARM_UP:
-			if (--counter_warm_up<=0) {
+			if (--counter_warm_up <= 0)
+			{
 				state.filter_control_state = FILTER_AUTO_ACTIVE;
+				printlnA(F("Filter enter FILTER_AUTO_ACTIVE state"));
 			}
 			break;
 		case FILTER_AUTO_ACTIVE:
@@ -180,8 +177,9 @@ bool filter_control_update(void *)
 		default:
 			break;
 		}
-	} else {
-		
+	}
+	else
+	{
 	}
 	return true;
 }

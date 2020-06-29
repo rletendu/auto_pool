@@ -122,17 +122,17 @@ void setup()
 	configTime(GMTOFFSET, DAYLIGHTOFFSET, NTPSERVER);
 	rtc_init();
 
-	if (state_read_file()) {
+	if (state_default_read_file()) {
 		printlnA(F("State.json file read sucessfully"));
 		printA("Read filter mode : ");
-		printlnA(readstate.filter_mode);
+		printlnA(state_default.filter_mode);
 	} else {
 		printlnA(F("Could not read State.json file, applying default"));
-		readstate.filter_mode = FILTER_AUTO;
-		readstate.ph_minus_mode = PH_MINUS_AUTO;
-		readstate.ph_plus_mode = PH_PLUS_OFF;
-		readstate.orp_mode = ORP_AUTO;
-		readstate.filter_power = FILTER_POWER_FULL;
+		state_default.filter_mode = FILTER_AUTO;
+		state_default.ph_minus_mode = PH_MINUS_AUTO;
+		state_default.ph_plus_mode = PH_PLUS_OFF;
+		state_default.orp_mode = ORP_AUTO;
+		state_default.filter_power = FILTER_POWER_FULL;
 	}
 
 	disp_boot_progress_message("Filter Control Init");

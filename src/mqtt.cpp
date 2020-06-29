@@ -49,6 +49,14 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	{
 		filter_state_json_to_state(payload);
 	}
+	else if (in_topic == "FILTER_PWR_FULL")
+	{
+		filter_enter_power_mode(FILTER_POWER_FULL);
+	}
+	else if (in_topic == "FILTER_PWR_REG")
+	{
+		filter_enter_power_mode(FILTER_POWER_REG);
+	}
 	else if (in_topic == "ORP_STATE")
 	{
 		orp_state_json_to_state(payload);

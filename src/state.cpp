@@ -1,7 +1,7 @@
 #include "autopool.h"
 
 struct StateStructure state = {.filter_mode = FILTER_NOT_SET, .filter_power=FILTER_POWER_NOT_SET};
-struct StateStructure readstate;
+struct StateStructure state_default;
 
 char state_filter_json_string[STATE_FILTER_CTRL_JSON_MESSAGE_LEN];
 char state_ph_json_string[STATE_PH_CTRL_JSON_MESSAGE_LEN];
@@ -16,7 +16,7 @@ void filter_state_to_json_string(void)
 	json["filter_control_state"] = (int)state.filter_control_state;
 	json["filter_power"] = (int)state.filter_power;
 	json.printTo(state_filter_json_string, sizeof(state_filter_json_string));
-	printA("Fiter Json:");
+	printA("Filter Json:");
 	printlnA(state_filter_json_string);
 }
 
@@ -100,7 +100,7 @@ bool ph_state_json_to_state(char *json_str)
 	}
 }
 
-bool state_write_file(void)
+bool state_default_write_file(void)
 {
 	printlnA(F("Saving state to file"));
 	DynamicJsonBuffer jsonBuffer;
@@ -122,7 +122,7 @@ bool state_write_file(void)
 	return true;
 }
 
-bool state_read_file(void)
+bool state_default_read_file(void)
 {
 	if (SPIFFS.begin())
 	{
@@ -141,11 +141,11 @@ bool state_read_file(void)
 				JsonObject &json = jsonBuffer.parseObject(buf.get());
 				if (json.success())
 				{
-					readstate.filter_mode = (filter_mode_t)(int)json["filter_mode"];
-					readstate.orp_mode = (orp_mode_t)(int)json["orp_mode"];
-					readstate.ph_minus_mode = (ph_minus_mode_t)(int)json["ph_minus_mode"];
-					readstate.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
-					readstate.filter_power = (filter_power_t)(int)json["filter_power"];
+					state_default.filter_mode = (filter_mode_t)(int)json["filter_mode"];
+					state_default.orp_mode = (orp_mode_t)(int)json["orp_mode"];
+					state_default.ph_minus_mode = (ph_minus_mode_t)(int)json["ph_minus_mode"];
+					state_default.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
+					state_default.filter_power = (filter_power_t)(int)json["filter_power"];
 					return true;
 				}
 				else

@@ -87,10 +87,10 @@ inline bool pump_filtration_is_on(void) { return digitalRead(PIN_RELAY_PUMP_FILT
 
 #if HAS_FILTER_PWR_CTRL
 inline void pump_filtration_pwr_full(void) { digitalWrite(PIN_PUMP_PWR, PUMP_PWR_FULL_VALUE); }
-inline void pump_filtration_reg(void) { digitalWrite(PIN_PUMP_PWR, PUMP_PWR_REG_VALUE); }
+inline void pump_filtration_pwr_reg(void) { digitalWrite(PIN_PUMP_PWR, PUMP_PWR_REG_VALUE); }
 #else 
 inline void pump_filtration_pwr_full(void) {}
-inline void pump_filtration_reg(void) {}
+inline void pump_filtration_pwr_reg(void) {}
 #endif
 
 inline void pump_ph_minus_on(void) { digitalWrite(PIN_RELAY_PUMP_PH_M, PUMP_ACTIVE_VALUE); }

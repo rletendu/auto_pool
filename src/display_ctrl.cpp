@@ -59,6 +59,11 @@ void disp_control_filter_power_reg_Callback(void *ptr)
 	filter_enter_power_mode(FILTER_POWER_REG);
 }
 
+void disp_control_save_default_Callback(void *ptr)
+{
+	state_default_write_file();
+}
+
 void display_control_ph_plus_auto(void)
 {
 	disp_control_ph_plus_auto.Set_background_color_bco(DISP_COLOR_GREEN);

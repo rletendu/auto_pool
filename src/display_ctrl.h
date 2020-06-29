@@ -27,6 +27,7 @@ void disp_control_filter_on_Callback(void *ptr);
 void disp_control_filter_off_Callback(void *ptr);
 void disp_control_filter_power_full_Callback(void *ptr);
 void disp_control_filter_power_reg_Callback(void *ptr);
+void disp_control_save_default_Callback(void *ptr);
 void display_control_ph_plus_auto(void);
 void control_ph_plus_on(void);
 void display_control_ph_plus_off(void);

@@ -8,20 +8,15 @@ static int32_t counter_injection_on = 0;
 static int32_t counter_injection_off = 0;
 
 enum ph_control_state_t ph_control_state = PH_IDLE;
-bool ph_minus_control_injection_timer_completed(void *);
-bool ph_plus_control_injection_timer_completed(void *);
 
 void ph_control_init(void)
 {
 	ph_control_state = PH_IDLE;
 	printlnA(F("Ph Control Init"));
 	disp_led_pump_ph_minus.setPic(ID_IMAGE_RED);
-	ph_minus_enter_mode(readstate.ph_minus_mode);
-	ph_plus_enter_mode(readstate.ph_plus_mode);
-
+	ph_minus_enter_mode(state_default.ph_minus_mode);
 #if HAS_PH_PLUS_PUMP
-	ph_plus_enter_mode(PH_PLUS_OFF);
-	ph_plus_enter_mode(PH_PLUS_AUTO);
+	ph_plus_enter_mode(state_default.ph_plus_mode);
 #endif
 	ph_control_update_task = timer_pool.every(PH_CONTROL_UPDATE_S * 1000, ph_control_update);
 	mqtt_publish_ph_state();
