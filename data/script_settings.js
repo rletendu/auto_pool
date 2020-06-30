@@ -1,4 +1,4 @@
-const dummy_param_str = '{"mqtt_server":"192.168.1.39","mqtt_port":"1883","mqtt_user":"admin","mqtt_pass":"RADE","base_topic":"autopool","target_ph":7.2,"delta_ph":0.5,"target_orp":650,"delta_orp":50,"flow_cl":20,"flow_ph_minus":20,"flow_ph_plus":20.2,"filter_auto_mode":0,"timer_prog":16775168,"pressure_warning":1.8,"cl_max_day":1000,"phm_max_day":1000,"orp_offset":0,"ph_offset":0.1}'
+const dummy_param_str = '{"mqtt_server":"192.168.1.39","mqtt_port":"1883","mqtt_user":"admin","mqtt_pass":"RADE","base_topic":"autopool","target_ph":7.2,"delta_ph":0.5,"target_orp":650,"delta_orp":50,"flow_cl":20,"flow_ph_minus":20,"flow_ph_plus":20.2,"filter_auto_mode":0,"timer_prog":16775168,"pressure_warning":1.8,"cl_max_day":1000,"phm_max_day":1000,"orp_offset":0,"ph_offset":0.1,"timer_prog_temperature":[0,0,0,0,0,0,0,0,0,0,0]}'
 var json_param =  JSON.parse(dummy_param_str);
 
 function validate_param() {
@@ -61,6 +61,7 @@ function page_2_json_param() {
         var s = new String('h') + String(i);
         json_param.timer_prog +=  document.getElementById(s).checked<<i;
     }
+    read_table_prog_temperature();
 }
 
 
@@ -89,6 +90,38 @@ document.addEventListener('readystatechange', event => {
     }
 });
 
+function read_table_prog_temperature() {
+	var table_prog = []
+	for (t = 10; t <= 30; t += 2) {
+		val =0
+		for (h = 0; h < 24; h++) {
+			id = `t${t}_h${h}`
+			val += document.getElementById(id).checked<<h
+		}
+		table_prog.push(val)
+		console.log("T",t,val)
+	}
+	console.log("Table",table_prog)
+}
+
+window.addEventListener("load", function () {
+	var h = 0;
+	var t = 10;
+	to_be_inserted = ""
+	for (t = 10; t <= 30; t += 2) {
+		to_be_inserted += `${t}°C :`
+		for (h = 0; h < 24; h++) {
+			if (h%6==0) {
+				to_be_inserted +=`${h}h`
+			}
+			var s = new String('h') + String(h);
+			id = `t${t}_h${h}`
+			to_be_inserted += `<input id="${id}" class="w3-check" type="checkbox"></input>`
+		}
+		to_be_inserted += '<br>'
+	}
+	document.getElementById("table_prog_temperature_id").innerHTML = to_be_inserted;
+});
 
 /*
 

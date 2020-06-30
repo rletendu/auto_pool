@@ -54,7 +54,7 @@
     </div>
 
     <div class="w3-margin w3-center w3-card w3-padding-24">
-        <h3>Filter Prog.</h3>
+        <h3>Filter Timer Prog. - Fixed mode</h3>
         <br>
         00
         <input id="h0" class="w3-check" type="checkbox">
@@ -63,7 +63,7 @@
         <input id="h3" class="w3-check" type="checkbox">
         <input id="h4" class="w3-check" type="checkbox">
         <input id="h5" class="w3-check" type="checkbox">
-        6
+        06
         <input id="h6" class="w3-check" type="checkbox">
         <input id="h7" class="w3-check" type="checkbox">
         <input id="h8" class="w3-check" type="checkbox">
@@ -87,7 +87,11 @@
         <input id="h23" class="w3-check" type="checkbox">
         <br><br>
     </div>
-
+    <div class="w3-margin w3-center w3-card w3-padding-24">
+        <h3>Filter Timer Prog. - F(T°C) mode</h3>
+        <br>
+        <span id="table_prog_temperature_id">---</span>
+    </div>
     <div class="w3-margin w3-center w3-card w3-padding-24">
     <table class="w3-margin w3-center">
         <tr>
@@ -147,6 +151,8 @@
         </tr>
     </table>
     </div>
+
+
 
     <div class="w3-margin w3-center w3-card w3-padding-24">
     <button onclick="validate_param()" class="w3-button w3-green w3-xlarge w3-ripple w3-wide w3-center"

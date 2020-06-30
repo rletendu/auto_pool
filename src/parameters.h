@@ -33,6 +33,7 @@ struct ParametersStruture
 	float phm_max_day;
 	float orp_offset;
 	float ph_offset;
+	uint32_t timer_prog_temperature[11];
 };
 
 extern struct ParametersStruture parameters;
