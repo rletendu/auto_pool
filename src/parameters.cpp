@@ -48,6 +48,7 @@ bool parameters_read_file(void)
 
 bool parameters_write_file(void)
 {
+	uint8_t i;
 	printlnA(F("Saving parameters to file"));
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject &json = jsonBuffer.createObject();
@@ -70,7 +71,11 @@ bool parameters_write_file(void)
 	json["phm_max_day"] = parameters.phm_max_day;
 	json["orp_offset"] = parameters.orp_offset;
 	json["ph_offset"] = parameters.ph_offset;
-	json["timer_prog_temperature"] = parameters.timer_prog_temperature;
+	JsonArray &data = json.createNestedArray("timer_prog_temperature");
+	for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
+	{
+		data.add(parameters.timer_prog_temperature[i]);
+	}
 	File configFile = SPIFFS.open(PARAMETER_FILENAME, "w");
 	if (!configFile)
 	{
@@ -108,7 +113,8 @@ void parameters_set_default(void)
 	parameters.phm_max_day = 2000.0;
 	parameters.orp_offset = 0.0;
 	parameters.ph_offset = 0.0;
-	for (i=0;i<PARAM_NB_TEMP_TIMER_PROG;i++) {
+	for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
+	{
 		parameters.timer_prog_temperature[i] = 0;
 	}
 }
@@ -139,7 +145,8 @@ bool parameters_json_to_param(char *json_str)
 		parameters.phm_max_day = json["phm_max_day"];
 		parameters.orp_offset = json["orp_offset"];
 		parameters.ph_offset = json["ph_offset"];
-		for (i=0;i<PARAM_NB_TEMP_TIMER_PROG;i++) {
+		for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
+		{
 			parameters.timer_prog_temperature[i] = json["timer_prog_temperature"][i];
 		}
 		json.printTo(parameters_json_string);
