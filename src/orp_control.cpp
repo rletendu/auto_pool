@@ -13,6 +13,7 @@ static void orp_on(void)
 	pump_orp_on();
 	if (state.orp_pump != PUMP_ON)
 	{
+		state.orp_time_pump_on = millis();
 		state.orp_pump = PUMP_ON;
 		disp_led_pump_cl.setPic(ID_IMAGE_GREEN);
 		mqtt_publish_orp_state();
@@ -24,6 +25,7 @@ static void orp_off(void)
 	pump_orp_off();
 	if (state.orp_pump != PUMP_OFF)
 	{
+		state.orp_time_pump_off = millis();
 		state.orp_pump = PUMP_OFF;
 		disp_led_pump_cl.setPic(ID_IMAGE_RED);
 		mqtt_publish_orp_state();

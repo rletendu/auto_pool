@@ -55,17 +55,21 @@ bool update_measures(void *)
 	float dht;
 	static int quiet_measure_cnt = 0;
 	bool quiet_measure = false;
+
 	debug_pin1_on();
 	led0_on();
 	measures.index = millis() / 1000;
 	printlnA(measures.index);
-	
+
 #if HAS_QUIET_MEASURES
 	if (++quiet_measure_cnt > (MEASURE_QUIET_MODE_UPDATE_S / MEASURES_UPDATE_S))
 	{
 		quiet_measure_cnt = 0;
-		quiet_measure = true;
-		pump_filtration_off();
+		if (pump_filtration_is_on())
+		{
+			quiet_measure = true;
+			pump_filtration_off();
+		}
 	}
 #endif
 	if (measures_are_vitual)
@@ -89,13 +93,26 @@ bool update_measures(void *)
 		{
 			measures.system_humidity = dht;
 		}
-		measures.water_temperature = water_get_temperature();
+		measures.water_temperature_raw = water_get_temperature();
+		if (((millis() - state.filter_time_pump_on) / 1000) >= FILTER_PUMP_ON_MIN_TIME_S)
+		{
+			if (measures.water_temperature_raw > measures.day_max_water_temperature)
+			{
+				measures.day_max_water_temperature = measures.water_temperature_raw;
+			}
+		}
+		measures.day_max_water_temperature = measures.water_temperature_raw;
 		measures.pump_pressure = pump_filtration_get_pressure(false);
+#if HAS_QUIET_MEASURES
 		if (quiet_measure)
 		{
 			measures.ph_raw = water_get_ph();
 			measures.orp_raw = water_get_orp();
 		}
+#else
+		measures.ph_raw = water_get_ph();
+		measures.orp_raw = water_get_orp();
+#endif
 		measures.ph = measures.ph_raw + parameters.ph_offset;
 		measures.orp = measures.orp_raw + parameters.orp_offset;
 		measures.level_cl = level_cl_is_ok();
@@ -106,13 +123,15 @@ bool update_measures(void *)
 	measures_to_json_string();
 	disp_measures_to_display();
 	mqtt_publish_measures();
-	//display_log_append("Measure...");
 	debug_pin1_off();
 	led0_off();
+
+#if HAS_QUIET_MEASURES
 	if (quiet_measure)
 	{
 		pump_filtration_on();
 	}
+#endif
 	return true;
 }
 
@@ -128,7 +147,7 @@ void measures_to_json_string(void)
 	json["index"] = measures.index;
 	json["system_temperature"] = measures.system_temperature;
 	json["system_humidity"] = measures.system_humidity;
-	json["water_temperature"] = measures.water_temperature;
+	json["water_temperature_raw"] = measures.water_temperature_raw;
 	json["pump_pressure"] = measures.pump_pressure;
 	json["ph"] = measures.ph;
 	json["orp"] = measures.orp;
@@ -151,7 +170,7 @@ bool measures_json_to_measures(char *json_str)
 	{
 		measures.system_temperature = json["system_temperature"];
 		measures.system_humidity = json["system_humidity"];
-		measures.water_temperature = json["water_temperature"];
+		measures.water_temperature_raw = json["water_temperature_raw"];
 		measures.pump_pressure = json["pump_pressure"];
 		measures.ph = json["ph"];
 		measures.orp = json["orp"];

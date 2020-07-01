@@ -79,16 +79,25 @@ struct StateStructure
 	enum filter_power_t filter_power;
 	enum pump_state_t filter_pump;
 	enum filter_control_state_t filter_control_state;
+	uint32_t filter_time_pump_on;
+	uint32_t filter_time_pump_off;
 
 	enum orp_mode_t orp_mode;
 	enum orp_control_state_t orp_control_state;
 	enum pump_state_t orp_pump;
+	uint32_t orp_time_pump_on;
+	uint32_t orp_time_pump_off;
 
 	enum ph_minus_mode_t ph_minus_mode;
 	enum ph_plus_mode_t ph_plus_mode;
+	uint32_t ph_minus_time_pump_on;
+	uint32_t ph_minus_time_pump_off;
+
 	enum pump_state_t ph_minus_pump;
 	enum pump_state_t ph_plus_pump;
 	enum ph_control_state_t ph_control_state;
+	uint32_t ph_plus_time_pump_on;
+	uint32_t ph_plus_time_pump_off;
 };
 
 enum correction_need_t

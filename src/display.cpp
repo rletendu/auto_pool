@@ -285,7 +285,7 @@ void disp_ota_progress(uint8_t progress)
 void disp_measures_to_display(void)
 {
 	float val_f;
-	disp_water_temperature.setValue(measures.water_temperature);
+	disp_water_temperature.setValue(measures.water_temperature_raw);
 	disp_ph.setValue(measures.ph);
 	disp_options_ph_raw_value.setValue(measures.ph_raw);
 	if (disp_page_options_is_active())
@@ -397,7 +397,7 @@ void disp_measures_to_graph(void)
 	disp_graph_ph.addValue(0, val);
 	val = map(measures.orp, 0, 9, 0, 150);
 	disp_graph_orp.addValue(0, val);
-	val = map(measures.water_temperature, 0, 9, 0, 150);
+	val = map(measures.water_temperature_raw, 0, 9, 0, 150);
 	disp_graph_temp.addValue(0, val);
 	val = map(measures.pump_pressure, 0, 9, 0, 150);
 	disp_graph_press.addValue(0, val);
@@ -420,7 +420,7 @@ void disp_compute_graph_buffers(void)
 			graph_orp_buf[i] = graph_orp_buf[i + 1];
 		}
 	}
-	graph_temperature_buf[graph_nb_pts - 1] = map(measures.water_temperature, 0, 9, 0, 150);
+	graph_temperature_buf[graph_nb_pts - 1] = map(measures.water_temperature_raw, 0, 9, 0, 150);
 	graph_ph_buf[graph_nb_pts - 1] = map(measures.ph, 0, 9, 0, 150);
 	graph_pressure_buf[graph_nb_pts - 1] = map(measures.pump_pressure, 0, 9, 0, 150);
 	graph_orp_buf[graph_nb_pts - 1] = map(measures.orp, 0, 9, 0, 150);

@@ -15,6 +15,8 @@ void filter_state_to_json_string(void)
 	json["filter_pump"] = (int)state.filter_pump;
 	json["filter_control_state"] = (int)state.filter_control_state;
 	json["filter_power"] = (int)state.filter_power;
+	json["filter_time_pump_on"] = state.filter_time_pump_on;
+	json["filter_time_pump_off"] = state.filter_time_pump_off;
 	json.printTo(state_filter_json_string, sizeof(state_filter_json_string));
 	printA("Filter Json:");
 	printlnA(state_filter_json_string);
@@ -45,6 +47,8 @@ void orp_state_to_json_string(void)
 	json["orp_mode"] = (int)state.orp_mode;
 	json["orp_pump"] = (int)state.orp_pump;
 	json["orp_control_state"] = (int)state.orp_control_state;
+	json["orp_time_pump_on"] = state.orp_time_pump_on;
+	json["orp_time_pump_off"] = state.orp_time_pump_off;
 	json.printTo(state_orp_json_string, sizeof(state_orp_json_string));
 	printA("ORP Json:");
 	printlnA(state_orp_json_string);
@@ -75,6 +79,10 @@ void ph_state_to_json_string(void)
 	json["ph_plus_mode"] = (int)state.ph_plus_mode;
 	json["ph_minus_pump"] = (int)state.ph_minus_pump;
 	json["ph_plus_pump"] = (int)state.ph_plus_pump;
+	json["ph_plus_time_pump_on"] = state.ph_plus_time_pump_on;
+	json["ph_plus_time_pump_off"] = state.ph_plus_time_pump_off;
+	json["ph_minus_time_pump_on"] = state.ph_minus_time_pump_on;
+	json["ph_minus_time_pump_off"] = state.ph_minus_time_pump_off;
 	json["ph_control_state"] = (int)state.ph_control_state;
 	json.printTo(state_ph_json_string, sizeof(state_ph_json_string));
 	printA("pH Json:");

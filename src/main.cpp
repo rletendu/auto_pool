@@ -24,7 +24,8 @@ bool time_update(void *)
 		measures.daily_ml_ph_minus = 0;
 		measures.daily_ml_ph_plus = 0;
 		measures.daily_ml_orp = 0;
-		mqtt_publish_log("Reset injecion counters");
+		mqtt_publish_log("Reset injecion counters and max water temperature");
+		measures.day_max_water_temperature = measures.water_temperature_raw;
 	}
 	// Backup injection counters in RTC memory
 	daily_ml_ph_minus_backup = measures.daily_ml_ph_minus;

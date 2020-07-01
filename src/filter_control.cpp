@@ -9,6 +9,7 @@ static void filter_on(void)
 	pump_filtration_on();
 	if (state.filter_pump != PUMP_ON)
 	{
+		state.filter_time_pump_on = millis();
 		state.filter_pump = PUMP_ON;
 		disp_led_pump_water.setPic(ID_IMAGE_GREEN);
 		mqtt_publish_filter_state();
@@ -20,6 +21,7 @@ static void filter_off(void)
 	pump_filtration_off();
 	if (state.filter_pump != PUMP_OFF)
 	{
+		state.filter_time_pump_off = millis();
 		state.filter_pump = PUMP_OFF;
 		disp_led_pump_water.setPic(ID_IMAGE_RED);
 		mqtt_publish_filter_state();
@@ -111,29 +113,47 @@ bool filter_control_update(void *)
 {
 	static int32_t counter_warm_up = 0;
 	uint32_t timer_prog_ok;
+	uint8_t temperature_index;
 
-	timer_prog_ok = parameters.timer_prog & uint32_t(1 << rtc_get_hour());
 	if (state.filter_mode == FILTER_AUTO)
 	{
+		if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
+		{
+			timer_prog_ok = parameters.timer_prog & uint32_t(1 << rtc_get_hour());
+		}
+		else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
+		{
+			if (measures.day_max_water_temperature <= PARAM_FIRST_TEMP_TIMER_PROG)
+			{
+				temperature_index = 0;
+			}
+			else if ((measures.day_max_water_temperature >= (PARAM_FIRST_TEMP_TIMER_PROG + (PARAM_NB_TEMP_TIMER_PROG - 1) * PARAM_STEP_TEMP_TIMER_PROG)))
+			{
+				temperature_index = PARAM_NB_TEMP_TIMER_PROG - 1;
+			}
+			else
+			{
+				temperature_index = (measures.day_max_water_temperature - PARAM_FIRST_TEMP_TIMER_PROG) / PARAM_STEP_TEMP_TIMER_PROG;
+			}
+			timer_prog_ok = parameters.timer_prog_temperature[temperature_index] & uint32_t(1 << rtc_get_hour());
+		}
+		else
+		{
+			timer_prog_ok = parameters.timer_prog & uint32_t(1 << rtc_get_hour());
+		}
+
 		switch (state.filter_control_state)
 		{
 		case FILTER_IDLE:
-			if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
+			if (timer_prog_ok)
 			{
-				if (timer_prog_ok)
-				{
-					filter_on();
-					counter_warm_up = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FILTER_CONTROL_WARM_UP_S;
-					state.filter_control_state = FILTER_AUTO_ACTIVE_WARM_UP;
-					log_append("Filter started from timer prog");
-					printlnA(F("Filter enter warm-up state"));
-				}
+				filter_on();
+				counter_warm_up = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FILTER_CONTROL_WARM_UP_S;
+				state.filter_control_state = FILTER_AUTO_ACTIVE_WARM_UP;
+				log_append("Filter started from timer prog");
+				printlnA(F("Filter enter warm-up state"));
 			}
-			else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
-			{
-#warning TODO not implemented yet
-			}
-			break;
+
 		case FILTER_AUTO_ACTIVE_WARM_UP:
 			if (--counter_warm_up <= 0)
 			{

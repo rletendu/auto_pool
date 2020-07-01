@@ -5,6 +5,9 @@
 #include "config.h"
 
 #define PARAM_MAX_STR 50
+#define PARAM_NB_TEMP_TIMER_PROG 11
+#define PARAM_FIRST_TEMP_TIMER_PROG 10
+#define PARAM_STEP_TEMP_TIMER_PROG 2
 
 enum filter_auto_mode_t
 {
@@ -33,7 +36,7 @@ struct ParametersStruture
 	float phm_max_day;
 	float orp_offset;
 	float ph_offset;
-	uint32_t timer_prog_temperature[11];
+	uint32_t timer_prog_temperature[PARAM_NB_TEMP_TIMER_PROG];
 };
 
 extern struct ParametersStruture parameters;
