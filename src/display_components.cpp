@@ -116,6 +116,8 @@ NexXfloat disp_options_ph_value = NexXfloat(PID_OPTIONS2, 29, "options_2.ph_valu
 NexXfloat disp_options_ph_raw_value = NexXfloat(PID_OPTIONS2, 16, "options_2.ph_raw_value");
 NexButton disp_options_rst_cl_day = NexButton(PID_OPTIONS2, 12, "options_2.rst_cl_day");
 NexButton disp_options_rst_phm_day = NexButton(PID_OPTIONS2, 13, "options_2.rst_phm_day");
+NexXfloat disp_options_periodic_filter = NexXfloat(PID_OPTIONS2, 38, "options_2.per_filter");
+
 
 //NexButton disp_options_portal = NexButton(PID_OPTIONS2, 38, "options_2.portal");
 

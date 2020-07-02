@@ -37,6 +37,7 @@ struct ParametersStruture
 	float orp_offset;
 	float ph_offset;
 	uint32_t timer_prog_temperature[PARAM_NB_TEMP_TIMER_PROG];
+	float periodic_filter_time;
 };
 
 extern struct ParametersStruture parameters;

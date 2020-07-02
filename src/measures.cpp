@@ -93,9 +93,11 @@ bool update_measures(void *)
 		{
 			measures.system_humidity = dht;
 		}
+
 		measures.water_temperature_raw = water_get_temperature();
-		if (((millis() - state.filter_time_pump_on) / 1000) >= FILTER_PUMP_ON_MIN_TIME_S)
+		if ((pump_filtration_is_on()) && ((abs(millis() - state.filter_time_pump_on) / 1000) >= FILTER_PUMP_ON_MIN_TIME_S))
 		{
+			measures.water_temperature = measures.water_temperature_raw;
 			if (measures.water_temperature_raw > measures.day_max_water_temperature)
 			{
 				measures.day_max_water_temperature = measures.water_temperature_raw;
@@ -103,7 +105,6 @@ bool update_measures(void *)
 				printlnA(measures.day_max_water_temperature);
 			}
 		}
-		measures.day_max_water_temperature = measures.water_temperature_raw;
 		measures.pump_pressure = pump_filtration_get_pressure(false);
 #if HAS_QUIET_MEASURES
 		if (quiet_measure)
@@ -149,6 +150,7 @@ void measures_to_json_string(void)
 	json["index"] = measures.index;
 	json["system_temperature"] = measures.system_temperature;
 	json["system_humidity"] = measures.system_humidity;
+	json["water_temperature"] = measures.water_temperature;
 	json["water_temperature_raw"] = measures.water_temperature_raw;
 	json["day_max_water_temperature"] = measures.day_max_water_temperature;
 	json["pump_pressure"] = measures.pump_pressure;
@@ -174,6 +176,7 @@ bool measures_json_to_measures(char *json_str)
 		measures.system_temperature = json["system_temperature"];
 		measures.system_humidity = json["system_humidity"];
 		measures.water_temperature_raw = json["water_temperature_raw"];
+		measures.water_temperature = json["water_temperature"];
 		measures.day_max_water_temperature = json["day_max_water_temperature"];
 		measures.pump_pressure = json["pump_pressure"];
 		measures.ph = json["ph"];

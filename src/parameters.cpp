@@ -71,6 +71,7 @@ bool parameters_write_file(void)
 	json["phm_max_day"] = parameters.phm_max_day;
 	json["orp_offset"] = parameters.orp_offset;
 	json["ph_offset"] = parameters.ph_offset;
+	json["periodic_filter_time"] = parameters.periodic_filter_time;
 	JsonArray &data = json.createNestedArray("timer_prog_temperature");
 	for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 	{
@@ -113,6 +114,7 @@ void parameters_set_default(void)
 	parameters.phm_max_day = 2000.0;
 	parameters.orp_offset = 0.0;
 	parameters.ph_offset = 0.0;
+	parameters.periodic_filter_time = 0;
 	for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 	{
 		parameters.timer_prog_temperature[i] = 0;
@@ -145,6 +147,7 @@ bool parameters_json_to_param(char *json_str)
 		parameters.phm_max_day = json["phm_max_day"];
 		parameters.orp_offset = json["orp_offset"];
 		parameters.ph_offset = json["ph_offset"];
+		parameters.periodic_filter_time = json["periodic_filter_time"];
 		for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 		{
 			parameters.timer_prog_temperature[i] = json["timer_prog_temperature"][i];

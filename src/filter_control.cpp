@@ -112,8 +112,10 @@ void filter_control_init(void)
 bool filter_control_update(void *)
 {
 	static int32_t counter_warm_up = 0;
+	static int32_t counter_active_periodic = 0;
 	uint32_t timer_prog_ok;
 	uint8_t temperature_index;
+	static unsigned long last_periodic_filter_time = 0;
 
 	if (state.filter_mode == FILTER_AUTO)
 	{
@@ -153,6 +155,24 @@ bool filter_control_update(void *)
 				log_append("Filter started from timer prog");
 				printlnA(F("Filter enter warm-up state"));
 			}
+			else if (parameters.periodic_filter_time && (abs(millis() - last_periodic_filter_time) >= parameters.periodic_filter_time))
+			{
+				last_periodic_filter_time = millis();
+				filter_on();
+				counter_active_periodic = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FILTER_CONTROL_PERIODIC_DURATION_S;
+				state.filter_control_state = FILTER_AUTO_ACTIVE_PERIODIC;
+				printlnA(F("Activate periodic filter"));
+			}
+			break;
+
+		case FILTER_AUTO_ACTIVE_PERIODIC:
+			if (--counter_active_periodic <= 0)
+			{
+				state.filter_control_state = FILTER_IDLE;
+				filter_off();
+				printlnA(F("End of periodic filter"));
+			}
+			break;
 
 		case FILTER_AUTO_ACTIVE_WARM_UP:
 			if (--counter_warm_up <= 0)

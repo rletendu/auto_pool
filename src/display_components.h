@@ -219,6 +219,8 @@ extern NexXfloat disp_options_max_phm;
 extern NexXfloat disp_options_orp_offset;
 extern NexXfloat disp_options_ph_offset;
 
+extern NexXfloat disp_options_periodic_filter;
+
 extern NexXfloat disp_options_orp_value;
 extern NexXfloat disp_options_orp_raw_value;
 extern NexXfloat disp_options_ph_value;

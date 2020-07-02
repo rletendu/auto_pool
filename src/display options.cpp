@@ -118,6 +118,10 @@ void disp_parameters_to_display(void)
 	{
 		printlnA(F("disp_options_ph_offset.setValue(parameters.ph_offset)"));
 	}
+	if (disp_options_periodic_filter.setValue(parameters.periodic_filter_time) == false)
+	{
+		printlnA(F("disp_options_periodic_filter.setValue(parameters.periodic_filter_time)"));
+	}
 	if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
 	{
 
@@ -182,6 +186,8 @@ void disp_options_to_parameters(void)
 	parameters.orp_offset = val_f;
 	disp_options_ph_offset.getValue(&val_f);
 	parameters.ph_offset = val_f;
+	disp_options_periodic_filter.getValue(&val_f);
+	parameters.periodic_filter_time = val_f;
 	disp_options_mode_timer_prog.getValue(&val_u);
 	if (val_u)
 	{

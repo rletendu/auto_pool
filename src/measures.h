@@ -9,6 +9,7 @@ struct MeasuresStructure
 {
 	uint32_t index;
 	float water_temperature_raw;
+	float water_temperature;
 	float day_max_water_temperature;
 	float system_temperature;
 	float system_humidity;

@@ -39,6 +39,7 @@ enum filter_control_state_t
 	FILTER_AUTO_ACTIVE_WARM_UP,
 	FILTER_AUTO_ACTIVE,
 	FILTER_AUTO_ACTIVE_EXTENDED,
+	FILTER_AUTO_ACTIVE_PERIODIC,
 };
 
 enum orp_control_state_t

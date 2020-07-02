@@ -42,11 +42,17 @@ function json_param_2_page() {
 		document.getElementById(s).checked = (json_param.timer_prog >> i) & 1;
 	}
 	for (t = 10; t <= 30; t += 2) {
-		val =0
+		val = 0
 		for (h = 0; h < 24; h++) {
 			id = `t${t}_h${h}`
-			document.getElementById(id).checked = (json_param.timer_prog_temperature[(t-10)/2] >> h) & 1;
+			document.getElementById(id).checked = (json_param.timer_prog_temperature[(t - 10) / 2] >> h) & 1;
 		}
+	}
+	if (json_param.filter_auto_mode == 1) {
+		document.getElementById("FilterTimerTemperature").checked = 1
+
+	} else {
+		document.getElementById("FilterTimerFixed").checked = 1
 	}
 }
 
@@ -68,6 +74,7 @@ function page_2_json_param() {
 		var s = new String('h') + String(i);
 		json_param.timer_prog += document.getElementById(s).checked << i;
 	}
+
 	var table_prog = []
 	for (t = 10; t <= 30; t += 2) {
 		val = 0
@@ -78,6 +85,11 @@ function page_2_json_param() {
 		table_prog.push(val)
 	}
 	json_param.timer_prog_temperature = table_prog;
+	if ( document.getElementById("FilterTimerTemperature").checked) {
+		json_param.filter_auto_mode = 1;
+	} else {
+		json_param.filter_auto_mode = 0;
+	}
 }
 
 
@@ -86,11 +98,11 @@ function page_2_json_param() {
 document.addEventListener('readystatechange', event => {
 
 	// When HTML/DOM elements are ready:
-    /*
-     if (event.target.readyState === "interactive") {   //does same as:  ..addEventListener("DOMContentLoaded"..
-         alert("hi 1");
-     }
-     */
+	/*
+	 if (event.target.readyState === "interactive") {   //does same as:  ..addEventListener("DOMContentLoaded"..
+	     alert("hi 1");
+	 }
+	 */
 
 	// When window loaded ( external resources are loaded too- `css`,`src`, etc...) 
 	if (event.target.readyState === "complete") {
@@ -137,6 +149,9 @@ window.addEventListener("load", function () {
 		to_be_inserted += '<br>'
 	}
 	document.getElementById("table_prog_temperature_id").innerHTML = to_be_inserted;
+
+
+
 });
 
 /*
