@@ -99,6 +99,8 @@ bool update_measures(void *)
 			if (measures.water_temperature_raw > measures.day_max_water_temperature)
 			{
 				measures.day_max_water_temperature = measures.water_temperature_raw;
+				printA("New day_max_water_temperature :");
+				printlnA(measures.day_max_water_temperature);
 			}
 		}
 		measures.day_max_water_temperature = measures.water_temperature_raw;
@@ -148,6 +150,7 @@ void measures_to_json_string(void)
 	json["system_temperature"] = measures.system_temperature;
 	json["system_humidity"] = measures.system_humidity;
 	json["water_temperature_raw"] = measures.water_temperature_raw;
+	json["day_max_water_temperature"] = measures.day_max_water_temperature;
 	json["pump_pressure"] = measures.pump_pressure;
 	json["ph"] = measures.ph;
 	json["orp"] = measures.orp;
@@ -171,6 +174,7 @@ bool measures_json_to_measures(char *json_str)
 		measures.system_temperature = json["system_temperature"];
 		measures.system_humidity = json["system_humidity"];
 		measures.water_temperature_raw = json["water_temperature_raw"];
+		measures.day_max_water_temperature = json["day_max_water_temperature"];
 		measures.pump_pressure = json["pump_pressure"];
 		measures.ph = json["ph"];
 		measures.orp = json["orp"];
