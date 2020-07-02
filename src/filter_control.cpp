@@ -150,18 +150,20 @@ bool filter_control_update(void *)
 			if (timer_prog_ok)
 			{
 				filter_on();
-				counter_warm_up = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FILTER_CONTROL_WARM_UP_S;
+				counter_warm_up = FILTER_CONTROL_WARM_UP_S / FILTER_CONTROL_UPDATE_S;
 				state.filter_control_state = FILTER_AUTO_ACTIVE_WARM_UP;
 				log_append("Filter started from timer prog");
-				printlnA(F("Filter enter warm-up state"));
+				printA(F("Filter enter warm-up state for"));
+				printlnA(counter_warm_up);
 			}
-			else if (parameters.periodic_filter_time && (abs(millis() - last_periodic_filter_time) >= parameters.periodic_filter_time))
+			else if (parameters.periodic_filter_time && (abs(millis() - last_periodic_filter_time) >= (parameters.periodic_filter_time*1000*60)))
 			{
 				last_periodic_filter_time = millis();
 				filter_on();
-				counter_active_periodic = ((FILTER_CONTROL_UPDATE_S * 100) / 100) / FILTER_CONTROL_PERIODIC_DURATION_S;
+				counter_active_periodic = FILTER_CONTROL_PERIODIC_DURATION_S / FILTER_CONTROL_UPDATE_S;
 				state.filter_control_state = FILTER_AUTO_ACTIVE_PERIODIC;
-				printlnA(F("Activate periodic filter"));
+				printA(F("Activate periodic filter for "));
+				printlnA(counter_active_periodic);
 			}
 			break;
 
