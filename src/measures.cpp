@@ -93,8 +93,10 @@ bool update_measures(void *)
 		{
 			measures.system_humidity = dht;
 		}
-
+		// Raw measure value
 		measures.water_temperature_raw = water_get_temperature();
+
+		// Make real measure only if pump is ON for on time > FILTER_PUMP_ON_MIN_TIME_S
 		if ((pump_filtration_is_on()) && ((abs(millis() - state.filter_time_pump_on) / 1000) >= FILTER_PUMP_ON_MIN_TIME_S))
 		{
 			measures.water_temperature = measures.water_temperature_raw;
@@ -105,6 +107,7 @@ bool update_measures(void *)
 				printlnA(measures.day_max_water_temperature);
 			}
 		}
+		// Pressure value
 		measures.pump_pressure = pump_filtration_get_pressure(false);
 #if HAS_QUIET_MEASURES
 		if (quiet_measure)

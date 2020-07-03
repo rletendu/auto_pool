@@ -336,7 +336,7 @@ void webserver_init(void)
 	});
 
 	server.on("/setparameters", HTTP_POST, []() {
-		char buf[500];
+		char buf[PARAMETERS_JSON_MESSAGE_LEN];
 		sprintf(buf, "%s", server.arg("plain").c_str());
 		if (parameters_json_to_param(buf))
 		{
