@@ -137,6 +137,8 @@ extern NexProgressBar ota_progress;
 extern NexText ota_title;
 
 extern NexXfloat disp_water_temperature;
+extern NexXfloat disp_water_temperature_raw;
+extern NexXfloat disp_water_temperature_max;
 extern NexXfloat disp_ph;
 extern NexXfloat disp_orp;
 extern NexXfloat disp_pressure;

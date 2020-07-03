@@ -183,6 +183,7 @@ bool filter_control_update(void *)
 				printlnA(F("Filter enter FILTER_AUTO_ACTIVE state"));
 			}
 			break;
+
 		case FILTER_AUTO_ACTIVE:
 			if (timer_prog_ok)
 			{
@@ -204,6 +205,7 @@ bool filter_control_update(void *)
 				}
 			}
 			break;
+			
 		case FILTER_AUTO_ACTIVE_EXTENDED:
 			if (state.ph_control_state == PH_IDLE && state.orp_control_state == ORP_IDLE)
 			{

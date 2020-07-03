@@ -43,5 +43,6 @@
 #include "NexRtc.h"
 #include "NexXfloat.h"
 #include "NexSystem.h"
+#include "NexDraw.h"
 
 #endif /* #ifndef __NEXTION_H__ */

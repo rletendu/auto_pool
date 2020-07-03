@@ -285,7 +285,10 @@ void disp_ota_progress(uint8_t progress)
 void disp_measures_to_display(void)
 {
 	float val_f;
-	disp_water_temperature.setValue(measures.water_temperature_raw);
+	disp_water_temperature.setValue(measures.water_temperature);
+	disp_water_temperature_raw.setValue(measures.water_temperature_raw);
+	disp_water_temperature_max.setValue(measures.day_max_water_temperature);
+
 	disp_ph.setValue(measures.ph);
 	disp_options_ph_raw_value.setValue(measures.ph_raw);
 	if (disp_page_options_is_active())

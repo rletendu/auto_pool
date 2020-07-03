@@ -27,6 +27,9 @@ NexProgressBar ota_progress = NexProgressBar(PID_OTA, 1, "j0");
 NexText ota_title = NexText(PID_OTA, 2, "ota_text");
 
 NexXfloat disp_water_temperature = NexXfloat(PID_STATUS, CID_STATUS_WATER_TEMP, "status.temp_value");
+NexXfloat disp_water_temperature_raw = NexXfloat(PID_STATUS, 52, "status.temp_raw");
+NexXfloat disp_water_temperature_max = NexXfloat(PID_STATUS, 53, "status.temp_max");
+
 NexXfloat disp_ph = NexXfloat(PID_STATUS, CID_STATUS_PH, "status.ph_value");
 NexXfloat disp_orp = NexXfloat(PID_STATUS, CID_STATUS_ORP, "status.orp_value");
 NexXfloat disp_pressure = NexXfloat(PID_STATUS, CID_STATUS_PRESSURE, "status.press_value");

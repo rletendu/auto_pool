@@ -36,6 +36,7 @@ function json_param_2_page() {
 	document.getElementById("phm_max_day").value = json_param.phm_max_day;
 	document.getElementById("orp_offset").value = json_param.orp_offset;
 	document.getElementById("ph_offset").value = json_param.ph_offset;
+	document.getElementById("periodic_filter_time").value = json_param.periodic_filter_time
 	var i = 0;
 	for (i = 0; i < 24; i++) {
 		var s = new String('h') + String(i);
@@ -68,6 +69,7 @@ function page_2_json_param() {
 	json_param.phm_max_day = document.getElementById("phm_max_day").value;
 	json_param.orp_offset = document.getElementById("orp_offset").value;
 	json_param.ph_offset = document.getElementById("ph_offset").value;
+	json_param.periodic_filter_time = document.getElementById("periodic_filter_time").value
 	var i = 0;
 	json_param.timer_prog = 0;
 	for (i = 0; i < 24; i++) {
