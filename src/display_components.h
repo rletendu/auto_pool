@@ -10,6 +10,10 @@
 #define ID_IMAGE_RED 8
 #define ID_IMAGE_ORANGE 9
 
+#define ID_IMAGE_TIME_PROG_BLACK 10
+#define ID_IMAGE_TIME_PROG_WHITE 11
+#define ID_IMAGE_TIME_PROG_RED 12
+
 #define PID_BOOT 0
 #define PID_STATUS 1
 #define PID_CONTROL 2
@@ -161,6 +165,34 @@ extern NexPicture disp_led_level_ph_minus;
 extern NexPicture disp_led_pump_water;
 extern NexPicture disp_led_pump_cl;
 extern NexPicture disp_led_pump_ph_minus;
+
+extern NexPicture disp_timer_prog00;
+extern NexPicture disp_timer_prog01;
+extern NexPicture disp_timer_prog02;
+extern NexPicture disp_timer_prog03;
+extern NexPicture disp_timer_prog04;
+extern NexPicture disp_timer_prog05;
+extern NexPicture disp_timer_prog06;
+extern NexPicture disp_timer_prog07;
+extern NexPicture disp_timer_prog08;
+extern NexPicture disp_timer_prog09;
+extern NexPicture disp_timer_prog10;
+extern NexPicture disp_timer_prog11;
+extern NexPicture disp_timer_prog12;
+extern NexPicture disp_timer_prog13;
+extern NexPicture disp_timer_prog14;
+extern NexPicture disp_timer_prog15;
+extern NexPicture disp_timer_prog16;
+extern NexPicture disp_timer_prog17;
+extern NexPicture disp_timer_prog18;
+extern NexPicture disp_timer_prog19;
+extern NexPicture disp_timer_prog20;
+extern NexPicture disp_timer_prog21;
+extern NexPicture disp_timer_prog22;
+extern NexPicture disp_timer_prog23;
+
+extern NexProgressBar disp_progress_hour;
+extern NexProgressBar disp_progress_filter;
 
 extern NexPicture disp_options;
 

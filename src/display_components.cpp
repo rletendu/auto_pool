@@ -54,6 +54,34 @@ NexPicture disp_led_pump_water = NexPicture(PID_STATUS, 46, "status.filter_pump"
 NexPicture disp_led_pump_cl = NexPicture(PID_STATUS, 47, "status.cl_pump");
 NexPicture disp_led_pump_ph_minus = NexPicture(PID_STATUS, 48, "status.phm_pump");
 
+NexPicture disp_timer_prog00 = NexPicture(PID_STATUS, 56, "status.s0");
+NexPicture disp_timer_prog01 = NexPicture(PID_STATUS, 57, "status.s1");
+NexPicture disp_timer_prog02 = NexPicture(PID_STATUS, 58, "status.s2");
+NexPicture disp_timer_prog03 = NexPicture(PID_STATUS, 59, "status.s3");
+NexPicture disp_timer_prog04 = NexPicture(PID_STATUS, 60, "status.s4");
+NexPicture disp_timer_prog05 = NexPicture(PID_STATUS, 61, "status.s5");
+NexPicture disp_timer_prog06 = NexPicture(PID_STATUS, 62, "status.s6");
+NexPicture disp_timer_prog07 = NexPicture(PID_STATUS, 63, "status.s7");
+NexPicture disp_timer_prog08 = NexPicture(PID_STATUS, 64, "status.s8");
+NexPicture disp_timer_prog09 = NexPicture(PID_STATUS, 65, "status.s9");
+NexPicture disp_timer_prog10 = NexPicture(PID_STATUS, 79, "status.s10");
+NexPicture disp_timer_prog11 = NexPicture(PID_STATUS, 66, "status.s11");
+NexPicture disp_timer_prog12 = NexPicture(PID_STATUS, 78, "status.s12");
+NexPicture disp_timer_prog13 = NexPicture(PID_STATUS, 67, "status.s13");
+NexPicture disp_timer_prog14 = NexPicture(PID_STATUS, 77, "status.s14");
+NexPicture disp_timer_prog15 = NexPicture(PID_STATUS, 76, "status.s15");
+NexPicture disp_timer_prog16 = NexPicture(PID_STATUS, 75, "status.s16");
+NexPicture disp_timer_prog17 = NexPicture(PID_STATUS, 74, "status.s17");
+NexPicture disp_timer_prog18 = NexPicture(PID_STATUS, 73, "status.s18");
+NexPicture disp_timer_prog19 = NexPicture(PID_STATUS, 72, "status.s19");
+NexPicture disp_timer_prog20 = NexPicture(PID_STATUS, 71, "status.s20");
+NexPicture disp_timer_prog21 = NexPicture(PID_STATUS, 70, "status.s21");
+NexPicture disp_timer_prog22 = NexPicture(PID_STATUS, 69, "status.s22");
+NexPicture disp_timer_prog23 = NexPicture(PID_STATUS, 68, "status.s23");
+
+NexProgressBar disp_progress_hour = NexProgressBar(PID_STATUS, 80, "status.hour_done");
+NexProgressBar disp_progress_filter = NexProgressBar(PID_STATUS, 81, "status.filter_done");
+
 NexPicture disp_options = NexPicture(PID_STATUS, CID_OPTIONS, "p1");
 
 NexPicture disp_next_status = NexPicture(PID_STATUS, CID_STATUS_NEXT, "p3");
