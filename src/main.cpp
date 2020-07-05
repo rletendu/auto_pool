@@ -31,6 +31,8 @@ bool time_update(void *)
 	daily_ml_ph_minus_backup = measures.daily_ml_ph_minus;
 	daily_ml_ph_plus_backup = measures.daily_ml_ph_plus;
 	daily_ml_orp_backup = measures.daily_ml_orp;
+
+	disp_progress_hour.setValue((uint8_t)map(rtc_get_hour()*60+rtc_get_minute(), 0, 24*60, 0, 100));
 	return true; // repeat? true
 }
 
@@ -123,11 +125,14 @@ void setup()
 	configTime(GMTOFFSET, DAYLIGHTOFFSET, NTPSERVER);
 	rtc_init();
 
-	if (state_default_read_file()) {
+	if (state_default_read_file())
+	{
 		printlnA(F("State.json file read sucessfully"));
 		printA("Read filter mode : ");
 		printlnA(state_default.filter_mode);
-	} else {
+	}
+	else
+	{
 		printlnA(F("Could not read State.json file, applying default"));
 		state_default.filter_mode = FILTER_AUTO;
 		state_default.ph_minus_mode = PH_MINUS_AUTO;
@@ -174,6 +179,8 @@ void setup()
 	log_append(boot_msg);
 	time_update(NULL);
 	page_status.show();
+//	disp_progress_hour.setValue((uint8_t)map(rtc_get_hour()*60+rtc_get_minute(), 0, 24*60, 0, 100));
+//	disp_progress_filter.setValue(85);
 }
 
 volatile unsigned long tmp = 0;

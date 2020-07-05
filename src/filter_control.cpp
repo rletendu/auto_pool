@@ -3,6 +3,7 @@
 extern SoftTimer timer_pool;
 uintptr_t filter_control_update_task;
 bool filter_control_update(void *);
+void disp_timer_prog_in_use(uint32_t timer_prog);
 
 static void filter_on(void)
 {
@@ -116,12 +117,16 @@ bool filter_control_update(void *)
 	uint32_t timer_prog_ok;
 	uint8_t temperature_index;
 	static unsigned long last_periodic_filter_time = 0;
+	static uint32_t last_timer_prog;
+	uint32_t timer_prog;
+	uint8_t i, h;
+	uint32_t h_filter_done, h_filter_total;
 
 	if (state.filter_mode == FILTER_AUTO)
 	{
 		if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
 		{
-			timer_prog_ok = parameters.timer_prog & uint32_t(1 << rtc_get_hour());
+			timer_prog = parameters.timer_prog;
 		}
 		else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
 		{
@@ -137,13 +142,37 @@ bool filter_control_update(void *)
 			{
 				temperature_index = (measures.day_max_water_temperature - PARAM_FIRST_TEMP_TIMER_PROG) / PARAM_STEP_TEMP_TIMER_PROG;
 			}
-			timer_prog_ok = parameters.timer_prog_temperature[temperature_index] & uint32_t(1 << rtc_get_hour());
+			timer_prog = parameters.timer_prog_temperature[temperature_index];
 		}
 		else
 		{
-			timer_prog_ok = parameters.timer_prog & uint32_t(1 << rtc_get_hour());
+			timer_prog = parameters.timer_prog;
 		}
-
+		timer_prog_ok = timer_prog & uint32_t(1 << rtc_get_hour());
+		if (timer_prog != last_timer_prog)
+		{
+			last_timer_prog = timer_prog;
+			disp_timer_prog_in_use(timer_prog);
+		}
+		h = rtc_get_hour();
+		h_filter_total = 0;
+		h_filter_done = 0;
+		for (i = 0; i < 24; i++)
+		{
+			if (timer_prog & uint32_t(1 << i))
+			{
+				h_filter_total += 60;
+				if (h > i)
+				{
+					h_filter_done += 60;
+				}
+				else if (h == i)
+				{
+					h_filter_done += rtc_get_minute();
+				}
+			}
+		}
+		disp_progress_filter.setValue((uint8_t)map(h_filter_done, 0, h_filter_total, 0, 100));
 		switch (state.filter_control_state)
 		{
 		case FILTER_IDLE:
@@ -156,12 +185,13 @@ bool filter_control_update(void *)
 				printA(F("Filter enter warm-up state for"));
 				printlnA(counter_warm_up);
 			}
-			else if (parameters.periodic_filter_time && (abs(millis() - last_periodic_filter_time) >= (parameters.periodic_filter_time*1000*60)))
+			else if ((last_periodic_filter_time == 0) || (parameters.periodic_filter_time && (abs(millis() - last_periodic_filter_time) >= (parameters.periodic_filter_time * 1000 * 60))))
 			{
 				last_periodic_filter_time = millis();
 				filter_on();
 				counter_active_periodic = FILTER_CONTROL_PERIODIC_DURATION_S / FILTER_CONTROL_UPDATE_S;
 				state.filter_control_state = FILTER_AUTO_ACTIVE_PERIODIC;
+				log_append("Auto Periodic Filter active");
 				printA(F("Activate periodic filter for "));
 				printlnA(counter_active_periodic);
 			}
@@ -172,6 +202,7 @@ bool filter_control_update(void *)
 			{
 				state.filter_control_state = FILTER_IDLE;
 				filter_off();
+				log_append("Auto Periodic Filter Done");
 				printlnA(F("End of periodic filter"));
 			}
 			break;
@@ -205,7 +236,7 @@ bool filter_control_update(void *)
 				}
 			}
 			break;
-			
+
 		case FILTER_AUTO_ACTIVE_EXTENDED:
 			if (state.ph_control_state == PH_IDLE && state.orp_control_state == ORP_IDLE)
 			{
@@ -226,4 +257,200 @@ bool filter_control_update(void *)
 	{
 	}
 	return true;
+}
+
+void disp_timer_prog_in_use(uint32_t timer_prog)
+{
+	if ((timer_prog >> 0) & 0x01)
+	{
+		disp_timer_prog00.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog00.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 1) & 0x01)
+	{
+		disp_timer_prog01.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog01.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 2) & 0x01)
+	{
+		disp_timer_prog02.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog02.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 3) & 0x01)
+	{
+		disp_timer_prog03.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog03.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 4) & 0x01)
+	{
+		disp_timer_prog04.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog04.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 5) & 0x01)
+	{
+		disp_timer_prog05.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog05.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 6) & 0x01)
+	{
+		disp_timer_prog06.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog06.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 7) & 0x01)
+	{
+		disp_timer_prog07.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog07.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 8) & 0x01)
+	{
+		disp_timer_prog08.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog08.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 9) & 0x01)
+	{
+		disp_timer_prog09.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog09.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 10) & 0x01)
+	{
+		disp_timer_prog10.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog10.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 11) & 0x01)
+	{
+		disp_timer_prog11.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog11.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 12) & 0x01)
+	{
+		disp_timer_prog12.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog12.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 13) & 0x01)
+	{
+		disp_timer_prog13.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog13.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 14) & 0x01)
+	{
+		disp_timer_prog14.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog14.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 15) & 0x01)
+	{
+		disp_timer_prog15.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog15.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 16) & 0x01)
+	{
+		disp_timer_prog16.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog16.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 17) & 0x01)
+	{
+		disp_timer_prog17.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog17.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 18) & 0x01)
+	{
+		disp_timer_prog18.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog18.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 19) & 0x01)
+	{
+		disp_timer_prog19.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog19.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 20) & 0x01)
+	{
+		disp_timer_prog20.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog20.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 21) & 0x01)
+	{
+		disp_timer_prog21.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog21.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 22) & 0x01)
+	{
+		disp_timer_prog22.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog22.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
+	if ((timer_prog >> 23) & 0x01)
+	{
+		disp_timer_prog23.setPic(ID_IMAGE_TIME_PROG_BLACK);
+	}
+	else
+	{
+		disp_timer_prog23.setPic(ID_IMAGE_TIME_PROG_WHITE);
+	}
 }
