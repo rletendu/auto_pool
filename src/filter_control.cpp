@@ -119,15 +119,19 @@ bool filter_control_update(void *)
 	static unsigned long last_periodic_filter_time = 0;
 	static uint32_t last_timer_prog;
 	uint32_t timer_prog;
-	uint8_t i, h;
-	uint32_t h_filter_done, h_filter_total;
+	uint8_t i, current_hour, current_minute;
+	uint32_t done_filter_time, daily_fiter_time;
 
+
+	// In filter AUTO mode , get the hours when filtering will be activated
 	if (state.filter_mode == FILTER_AUTO)
 	{
+		// Fixed dayly timer mode
 		if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
 		{
 			timer_prog = parameters.timer_prog;
 		}
+		// Temperature dependant timer prog
 		else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
 		{
 			if (measures.day_max_water_temperature <= PARAM_FIRST_TEMP_TIMER_PROG)
@@ -148,31 +152,36 @@ bool filter_control_update(void *)
 		{
 			timer_prog = parameters.timer_prog;
 		}
+
+		// Timer prog OK ?
 		timer_prog_ok = timer_prog & uint32_t(1 << rtc_get_hour());
+		// If different timer prog scheme, update display
 		if (timer_prog != last_timer_prog)
 		{
 			last_timer_prog = timer_prog;
 			disp_timer_prog_in_use(timer_prog);
 		}
-		h = rtc_get_hour();
-		h_filter_total = 0;
-		h_filter_done = 0;
+
+		current_hour = rtc_get_hour();
+		current_minute = rtc_get_minute();
+		daily_fiter_time = 0;
+		done_filter_time = 0;
 		for (i = 0; i < 24; i++)
 		{
 			if (timer_prog & uint32_t(1 << i))
 			{
-				h_filter_total += 60;
-				if (h > i)
+				daily_fiter_time += 60;
+				if (current_hour > i)
 				{
-					h_filter_done += 60;
+					done_filter_time += 60;
 				}
-				else if (h == i)
+				else if (current_hour == i)
 				{
-					h_filter_done += rtc_get_minute();
+					done_filter_time += current_minute;
 				}
 			}
 		}
-		disp_progress_filter.setValue((uint8_t)map(h_filter_done, 0, h_filter_total, 0, 100));
+		disp_progress_filter.setValue((uint8_t)map(done_filter_time, 0, daily_fiter_time, 0, 100));
 		switch (state.filter_control_state)
 		{
 		case FILTER_IDLE:
@@ -198,6 +207,7 @@ bool filter_control_update(void *)
 			break;
 
 		case FILTER_AUTO_ACTIVE_PERIODIC:
+			// Periodc small filter timer each parameters.periodic_filter_time minutes to perform some measures (mainly temp)
 			if (--counter_active_periodic <= 0)
 			{
 				state.filter_control_state = FILTER_IDLE;
@@ -208,6 +218,8 @@ bool filter_control_update(void *)
 			break;
 
 		case FILTER_AUTO_ACTIVE_WARM_UP:
+			// Within this state auto corrections are not possible
+			// Ensure min filtering time before allowing corrections...
 			if (--counter_warm_up <= 0)
 			{
 				state.filter_control_state = FILTER_AUTO_ACTIVE;
@@ -220,7 +232,7 @@ bool filter_control_update(void *)
 			{
 				// Ok Keep going;
 			}
-			else
+			else // Timer prog completed, check if extended time is needed for ORP / pH injections
 			{
 				if (state.ph_control_state == PH_IDLE && state.orp_control_state == ORP_IDLE)
 				{
@@ -238,6 +250,7 @@ bool filter_control_update(void *)
 			break;
 
 		case FILTER_AUTO_ACTIVE_EXTENDED:
+			// Filter time extended for ORP / pH on-going injections
 			if (state.ph_control_state == PH_IDLE && state.orp_control_state == ORP_IDLE)
 			{
 				state.filter_control_state = FILTER_IDLE;
