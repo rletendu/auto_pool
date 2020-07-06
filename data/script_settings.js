@@ -1,5 +1,6 @@
 const dummy_param_str = '{"mqtt_server":"192.168.1.39","mqtt_port":"1883","mqtt_user":"admin","mqtt_pass":"RADE","base_topic":"autopool","target_ph":7.2,"delta_ph":0.5,"target_orp":650,"delta_orp":50,"flow_cl":20,"flow_ph_minus":20,"flow_ph_plus":20.2,"filter_auto_mode":0,"timer_prog":16775168,"pressure_warning":1.8,"cl_max_day":1000,"phm_max_day":1000,"orp_offset":0,"ph_offset":0.1,"timer_prog_temperature":[0,0,0,0,0,0,0,0,0,0,0]}'
 var json_param = JSON.parse(dummy_param_str);
+const default_table = [264192, 264192, 329728, 329728, 460800, 460800, 493568, 494592, 510976, 1043456, 2092544];
 
 function validate_param() {
 	page_2_json_param();
@@ -23,6 +24,7 @@ function getParameters() {
 	xhttp_measures.open("GET", "getparameters", true);
 	xhttp_measures.send();
 }
+
 
 function json_param_2_page() {
 	document.getElementById("target_ph").value = json_param.target_ph;
@@ -156,6 +158,41 @@ window.addEventListener("load", function () {
 
 });
 
+function copy_daily2temp() {
+	if (!confirm("Ok to copy ?")) {
+		return;
+	} 
+	var i = 0;
+	var fixed_timer_prog = 0;
+	for (i = 0; i < 24; i++) {
+		var s = new String('h') + String(i);
+		fixed_timer_prog += document.getElementById(s).checked << i;
+	}
+	var t = 0;
+	var h = 0;
+	for (t = 10; t <= 30; t += 2) {
+		val = 0
+		for (h = 0; h < 24; h++) {
+			id = `t${t}_h${h}`
+			document.getElementById(id).checked = (fixed_timer_prog >> h) & 1;
+		}
+	}
+}
+
+function load_defaults_timer_prog() {
+	if (!confirm("Ok to laod default table?")) {
+		return;
+	} 
+	var t = 0;
+	var h = 0;
+	for (t = 10; t <= 30; t += 2) {
+		val = 0
+		for (h = 0; h < 24; h++) {
+			id = `t${t}_h${h}`
+			document.getElementById(id).checked = (default_table[(t-10)/2] >> h) & 1;
+		}
+	}
+}
 /*
 
 {"mqtt_server":"192.168.1.39","mqtt_port":"1883","mqtt_user":"admin","mqtt_pass":"pulsar","base_topic":"autopool","target_ph":7.2,"delta_ph":0.5,"target_orp":650,"delta_orp":50,"flow_cl":20,"flow_ph_minus":20,"flow_ph_plus":20.2,"filter_auto_mode":0,"timer_prog":16775168,"pressure_warning":1.8,"cl_max_day":1000,"phm_max_day":1000,"orp_offset":0,"ph_offset":0,"timer_prog_temperature":[0,0,0,0,0,0,0,0,0,0,0]}}
