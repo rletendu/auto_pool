@@ -66,7 +66,7 @@ void pump_filtration_off(void);
 #define PUMP_ACTIVE_VALUE false
 #define PUMP_INACTIVE_VALUE ~PUMP_ACTIVE_VALUE
 
-#define PUMP_PWR_FULL_VALUE false
+#define PUMP_PWR_FULL_VALUE true
 #define PUMP_PWR_REG_VALUE ~PUMP_PWR_FULL_VALUE
 
 #define LEVEL_WATER_OK_VALUE true
