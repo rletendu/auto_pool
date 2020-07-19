@@ -5,7 +5,6 @@
 
 const char *host = "autopool";
 
-
 WebServer server(80);
 ota_tft nextion(115200);
 extern SoftTimer timer_pool;
@@ -51,16 +50,16 @@ bool handleFileRead(String path)
 	// send the right file to the client (if it exists)
 	Serial.print("handleFileRead: " + path);
 	if (path.endsWith("/"))
-		path += "index.html";		   // If a folder is requested, send the index file
+		path += "index.html";				   // If a folder is requested, send the index file
 	String contentType = getContentType(path); // Get the MIME type
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
-	{							    // If the file exists, either as a compressed archive, or normal
-		if (SPIFFS.exists(pathWithGz))			    // If there's a compressed version available
-			path += ".gz";				    // Use the compressed verion
-		File file = SPIFFS.open(path, "r");		    // Open the file
+	{														// If the file exists, either as a compressed archive, or normal
+		if (SPIFFS.exists(pathWithGz))						// If there's a compressed version available
+			path += ".gz";									// Use the compressed verion
+		File file = SPIFFS.open(path, "r");					// Open the file
 		size_t sent = server.streamFile(file, contentType); // Send it to the client
-		file.close();					    // Close the file again
+		file.close();										// Close the file again
 		Serial.println(String("\tSent file: ") + path);
 		return true;
 	}
@@ -282,8 +281,7 @@ bool handleTftFileUpload()
 
 void webserver_init(void)
 {
-	printlnA(F("Init Webserver"))
-	if (!SPIFFS.begin())
+	printlnA(F("Init Webserver")) if (!SPIFFS.begin())
 	{
 		return;
 	}
@@ -291,16 +289,16 @@ void webserver_init(void)
 
 	// /settings POST request -> TFT Upload request
 	server.on(
-	    "/settings.html", HTTP_POST, []() {
-		    Serial.println(F("Succesfully updated Nextion!\n"));
-		    // Redirect the client to the success page after handeling the file upload
-		    server.sendHeader(F("Location"), F("/success.html"));
-		    server.send(303);
-		    tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
-		    return true;
-	    },
-	    // Receive and save the file
-	    handleTftFileUpload);
+		"/settings.html", HTTP_POST, []() {
+			Serial.println(F("Succesfully updated Nextion!\n"));
+			// Redirect the client to the success page after handeling the file upload
+			server.sendHeader(F("Location"), F("/success.html"));
+			server.send(303);
+			tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
+			return true;
+		},
+		// Receive and save the file
+		handleTftFileUpload);
 
 	// receive fileSize once a file is selected (Workaround as the file content-length is of by +/- 200 bytes. Known issue: https://github.com/esp8266/Arduino/issues/3787)
 	server.on("/fs", HTTP_POST, []() {
@@ -322,10 +320,10 @@ void webserver_init(void)
 	//first callback is called after the request has ended with all parsed arguments
 	//second callback handles file uploads at that location
 	server.on(
-	    "/edit", HTTP_POST, []() {
-		    server.send(200, "text/plain", "");
-	    },
-	    handleFileUpload);
+		"/edit", HTTP_POST, []() {
+			server.send(200, "text/plain", "");
+		},
+		handleFileUpload);
 
 	server.on("/getmeasures", HTTP_GET, []() {
 		server.send(200, F("text/plain"), measures_json_string);
@@ -372,6 +370,11 @@ void webserver_init(void)
 	server.on("/filter_auto", HTTP_GET, []() {
 		filter_enter_mode(FILTER_AUTO);
 		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/reboot", HTTP_GET, []() {
+		server.send(200, F("text/plain"), "Ok reboot in 5 sec");
+		tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
 	});
 
 	server.on("/filter_off", HTTP_GET, []() {

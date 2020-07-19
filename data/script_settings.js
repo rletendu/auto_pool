@@ -12,6 +12,12 @@ function validate_param() {
 	xhttp.send(payload);
 }
 
+function reboot() {
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("GET", "reboot", true);
+	xhttp.send("1");
+}
+
 function getParameters() {
 	var xhttp_measures = new XMLHttpRequest();
 	xhttp_measures.onreadystatechange = function () {

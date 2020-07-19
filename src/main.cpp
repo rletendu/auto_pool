@@ -76,6 +76,12 @@ void setup()
 	disp_options_version.setText(msg);
 	delay(500);
 
+	#if HAS_CUSTOM_MAC
+	#error CUSTUM MAC not working yet !
+	uint8_t newMACAddress[] = CUSTOM_MAC;
+	esp_wifi_set_mac(ESP_IF_WIFI_STA, &newMACAddress[0]);
+	#endif
+
 	disp_options_mac.setText(WiFi.macAddress().c_str());
 	wifimanager_init();
 	if (wifimanager_autoconnect())

@@ -55,4 +55,7 @@
 
 #define TOUCH_TIMEOUT_S 60
 
+#define HAS_CUSTOM_MAC 0
+#define CUSTOM_MAC {0x24,0x6F,0x28,0xA1,0x5E,0x34}
+
 #endif
