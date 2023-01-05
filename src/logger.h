@@ -4,7 +4,7 @@
 
 
 
-void log_append(char *msg);
+void log_append(const char *msg);
 
 
 #endif

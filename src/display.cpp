@@ -50,7 +50,7 @@ void disp_wifi_status(bool enable)
 	}
 }
 
-void disp_boot_progress_message(char *msg)
+void disp_boot_progress_message(const char *msg)
 {
 	static uint8_t progress = 0;
 	progress += 100 / NB_BOOT_STEP_MSG;
@@ -63,7 +63,7 @@ void disp_boot_progress_message(char *msg)
 	delay(500);
 }
 
-void disp_boot_mesg(char *msg)
+void disp_boot_mesg(const char *msg)
 {
 	boot_message.setText(msg);
 }

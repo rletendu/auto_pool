@@ -125,7 +125,7 @@ void mqtt_reconnect()
 	}
 }
 
-void mqtt_publish_log(char *message)
+void mqtt_publish_log(const char *message)
 {
 	char topic[40];
 	strcpy(topic, parameters.mqtt_base_topic);
@@ -136,7 +136,7 @@ void mqtt_publish_log(char *message)
 	}
 }
 
-void mqtt_publish_debug(char *message)
+void mqtt_publish_debug(const char *message)
 {
 	char topic[40];
 	strcpy(topic, parameters.mqtt_base_topic);

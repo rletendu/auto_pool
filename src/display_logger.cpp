@@ -12,7 +12,7 @@ void display_log_clear(void)
 	}
 }
 
-void display_log_append(char *msg)
+void display_log_append(const char *msg)
 {
 	static int write_index = 0;
 	static int read_index;

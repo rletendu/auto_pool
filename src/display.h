@@ -21,9 +21,9 @@ void display_loop(void);
 void stop_display_tasks(void);
 void disp_wifi_status(bool enable);
 
-void disp_boot_mesg(char * msg);
+void disp_boot_mesg(const char * msg);
 void disp_boot_progress(uint8_t progress);
-void disp_boot_progress_message(char *msg);
+void disp_boot_progress_message(const char *msg);
 
 void disp_page_ota();
 void disp_ota_progress(uint8_t progress);

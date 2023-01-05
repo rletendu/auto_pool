@@ -4,7 +4,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Nextion.h>
-#include <Adafruit_ADS1015.h> // https://github.com/adafruit/Adafruit_ADS1X15.git
+#include <Adafruit_ADS1X15.h> // https://github.com/adafruit/Adafruit_ADS1X15.git
 #include <DS3231.h>
 
 DS3231 rtc;

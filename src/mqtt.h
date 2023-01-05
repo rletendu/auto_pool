@@ -6,8 +6,8 @@
 void mqtt_init(void);
 void mqtt_loop(void);
 void mqtt_reconnect();
-void mqtt_publish_debug(char *message);
-void mqtt_publish_log(char *message);
+void mqtt_publish_debug(const char *message);
+void mqtt_publish_log(const char *message);
 void mqtt_publish_parameters(void);
 void mqtt_publish_measures(void);
 void mqtt_publish_states();
