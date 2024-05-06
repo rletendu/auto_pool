@@ -377,6 +377,11 @@ void webserver_init(void)
 		tft_update_success_task = timer_pool.in(5 * 1000, tft_update_success_action);
 	});
 
+	server.on("/rst_daily_ml_orp", HTTP_GET, []() {
+		measures.daily_ml_orp = 0;
+		server.send(200, F("text/plain"), "Ok reset daily_ml_orp");
+	});
+
 	server.on("/filter_off", HTTP_GET, []() {
 		filter_enter_mode(FILTER_OFF);
 		server.send(200, F("text/plain"), measures_json_string);
