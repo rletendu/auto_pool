@@ -26,8 +26,33 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	{
 		printlnA("Found in topic");
 	}
-	else if (in_topic == "FILTER_MODE")
+	else if (in_topic == "FILTER_MODE_AUTO")
 	{
+		filter_enter_mode(FILTER_AUTO);
+	}
+	else if (in_topic == "FILTER_MODE_OFF")
+	{
+		filter_enter_mode(FILTER_OFF);
+	}
+	else if (in_topic == "FILTER_MODE_ON")
+	{
+		filter_enter_mode(FILTER_ON);
+	}
+	else if (in_topic == "ORP_MODE_AUTO")
+	{
+		orp_enter_mode(ORP_AUTO);
+	}
+	else if (in_topic == "ORP_MODE_OFF")
+	{
+		orp_enter_mode(ORP_OFF);
+	}
+	else if (in_topic == "ORP_MODE_ON")
+	{
+		orp_enter_mode(ORP_ON);
+	}
+	else if (in_topic == "RST_DAILY_ML_ORP")
+	{
+		measures.daily_ml_orp = 0;
 	}
 	else if (in_topic == "RESET")
 	{
