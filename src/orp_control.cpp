@@ -209,6 +209,21 @@ bool orp_control_update(void *)
 		else
 		{
 			printlnA("ORP correction not possible")
+			if (state.orp_mode != ORP_ON) {
+				printlnA("Inc ORP daily injected (ORP ON)")
+				// Inc daily ml injected while in force ON mode
+				measures.daily_ml_orp += (float)((double)(parameters.flow_cl / 60.0) * (ORP_CONTROL_UPDATE_S));
+				if (measures.daily_ml_orp > parameters.cl_max_day) {
+					printlnA("Max ORP daily reached, forcing ORP OFF");
+					log_append("Need FORCE ORP OFF (max daily)");
+					orp_enter_mode(ORP_OFF);
+					beep(10);
+					delay(10);
+					beep(10);
+					delay(10);
+					beep(10);
+				}
+			}
 		}
 		break;
 
