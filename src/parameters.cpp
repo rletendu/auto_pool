@@ -107,7 +107,7 @@ void parameters_set_default(void)
 	parameters.flow_ph_minus = 25.0;
 	parameters.flow_ph_plus = 25.0;
 	parameters.filter_auto_mode = AUTO_TIMER_PROG;
-	parameters.timer_prog = 16773120; //12h to 24h
+	parameters.timer_prog = 0b111111111111000000000000; // 16773120; //12h to 24h
 	parameters.pressure_warning = 1.9;
 
 	parameters.cl_max_day = 2000.0;
