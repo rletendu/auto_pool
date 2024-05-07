@@ -434,8 +434,8 @@ bool ph_control_update(void *)
 		}
 		if (ph_minus_auto_correction_possible() == false)
 		{
-			printlnA("Need to stop active ORP correction");
-			log_append("Need to stop active ORP correction");
+			printlnA("Need to stop active pH Minus correction");
+			log_append("Need to stop active pH Minus correction");
 			state.ph_control_state = PH_IDLE;
 		}
 		break;
@@ -448,8 +448,8 @@ bool ph_control_update(void *)
 		}
 		if (ph_plus_auto_correction_possible() == false)
 		{
-			printlnA("Need to stop active ORP correction");
-			log_append("Need to stop active ORP correction");
+			printlnA("Need to stop active pH Plus correction");
+			log_append("Need to stop active pH Plus correction");
 			state.ph_control_state = PH_IDLE;
 		}
 		break;
