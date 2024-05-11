@@ -277,6 +277,7 @@ bool handleTftFileUpload()
 		printlnA(nextion.statusMessage);
 		return true;
 	}
+	return true;
 }
 
 void webserver_init(void)

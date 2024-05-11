@@ -33,9 +33,14 @@ void measures_init(void)
 	measures.daily_ml_ph_plus = daily_ml_ph_plus_backup;
 	measures.boot_count = bootCount;
 	measures_are_vitual = false;
+	#if HAS_MEASURE_CONTROL
 	update_measures_task = timer_pool.every(MEASURES_UPDATE_S * 1000, update_measures);
 	update_graph_task = timer_pool.every(GRAPH_UPDATE_S * 1000, update_graph);
 	update_measures(NULL);
+	#else
+	printlnA(F("!!! No Measure control !!!"));
+	#endif
+	
 }
 
 void measures_loop_stop(void)
@@ -97,6 +102,7 @@ bool update_measures(void *)
 		measures.water_temperature_raw = water_get_temperature();
 
 		// Make real measure only if pump is ON for on time > FILTER_PUMP_ON_MIN_TIME_S
+		// or within first minute after reset to avoid 0°
 		if ((pump_filtration_is_on()) && ((abs((int)(millis() - state.filter_time_pump_on)) / 1000) >= FILTER_PUMP_ON_MIN_TIME_S))
 		{
 			measures.water_temperature = measures.water_temperature_raw;
@@ -106,6 +112,9 @@ bool update_measures(void *)
 				printA("New day_max_water_temperature :");
 				printlnA(measures.day_max_water_temperature);
 			}
+		} else if ((millis() < 60000) && (measures.water_temperature ==0) ) {
+			printlnA(F("Force temperature assignement during first minute "));
+			measures.water_temperature = measures.water_temperature_raw;
 		}
 		// Pressure value
 		measures.pump_pressure = pump_filtration_get_pressure(false);

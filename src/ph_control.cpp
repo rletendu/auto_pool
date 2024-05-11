@@ -15,12 +15,18 @@ void ph_control_init(void)
 	printlnA(F("Ph Control Init"));
 	disp_led_pump_ph_minus.setPic(ID_IMAGE_RED);
 	ph_minus_enter_mode(state_default.ph_minus_mode);
+#if HAS_PH_CONTROL
 #if HAS_PH_PLUS_PUMP
 	ph_plus_enter_mode(state_default.ph_plus_mode);
 #endif
 	ph_control_update_task = timer_pool.every(PH_CONTROL_UPDATE_S * 1000, ph_control_update);
 	mqtt_publish_ph_state();
+
+#else
+	printlnA(F("!! NO PH Control !!"));
+#endif
 }
+
 void ph_control_stop(void)
 {
 	timer_pool.cancel(ph_control_update_task);
@@ -268,7 +274,7 @@ enum correction_need_t ph_minus_correction_needed(void)
 
 bool ph_control_update(void *)
 {
-	printlnA("pH control task");
+	printlnA("pH control task Update");
 	disp_ph_state_to_display();
 	switch (state.ph_control_state)
 	{
@@ -328,7 +334,7 @@ bool ph_control_update(void *)
 			default:
 				break;
 			}
-		}
+		} 
 #if HAS_PH_PLUS_PUMP
 		else if (ph_plus_auto_correction_possible())
 		{
@@ -388,7 +394,22 @@ bool ph_control_update(void *)
 #endif
 		else
 		{
-			printlnA("pH correction not possible")
+			printlnA(F("Ph Minus correction not possible/needed"))
+			if (state.ph_minus_mode == PH_MINUS_ON) {
+				printlnA(F("Inc Ph Minus daily injected (PH- ON)"))
+				// Inc daily ml injected while in force ON mode
+				measures.daily_ml_ph_minus += (float)((double)(parameters.flow_ph_minus / 60.0) * (ORP_CONTROL_UPDATE_S));
+				if (measures.daily_ml_ph_minus > parameters.phm_max_day) {
+					printlnA("Max PH- daily reached, forcing PH- OFF");
+					log_append("Need FORCE PH- OFF (max daily)");
+					ph_minus_enter_mode(PH_MINUS_OFF);
+					beep(100);
+					delay(10);
+					beep(100);
+					delay(10);
+					beep(100);
+				}
+			}
 		}
 		break;
 
@@ -456,5 +477,6 @@ bool ph_control_update(void *)
 	default:
 		break;
 	}
+	printlnA("pH control task Done");
 	return true;
 }

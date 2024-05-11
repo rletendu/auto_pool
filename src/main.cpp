@@ -17,6 +17,7 @@ void time_update_stop(void)
 bool time_update(void *)
 {
 	char msg[20];
+	printlnA(F("Time Update..."));
 	sprintf(msg, "%02u/%02u/%02u %02u:%02u", rtc_get_day(), rtc_get_month(), rtc_get_year(), rtc_get_hour(), rtc_get_minute());
 	dis_sys_hour.setText(msg);
 	if (rtc_get_hour() == 0 && rtc_get_minute() == 0)
@@ -33,6 +34,7 @@ bool time_update(void *)
 	daily_ml_orp_backup = measures.daily_ml_orp;
 
 	disp_progress_hour.setValue((uint8_t)map(rtc_get_hour()*60+rtc_get_minute(), 0, 24*60, 0, 100));
+	printlnA(F("Time Update Done"));
 	return true; // repeat? true
 }
 
@@ -116,16 +118,21 @@ void setup()
 		printlnA("Reading config file failed");
 	}
 
+#if HAS_OTA
 	disp_boot_progress_message("OTA Init");
 	ota_init();
+#endif
 
 #if HAS_MQTT
 	disp_boot_progress_message("MQTT Init");
 	mqtt_init();
 #endif
 
+
+#if HAS_CLI
 	disp_boot_progress_message("CLI Init");
 	cli_init();
+#endif
 
 	disp_boot_progress_message("RTC Init");
 	configTime(GMTOFFSET, DAYLIGHTOFFSET, NTPSERVER);
@@ -196,13 +203,17 @@ unsigned long duration;
 void loop()
 {
 	timer_pool.tick(); // tick the timer
-
+#if HAS_OTA
 	ota_loop();
+#endif
 	display_loop(); // Proceed display touch events
 #if HAS_MQTT
 	mqtt_loop();
 #endif
+
+#if HAS_CLI
 	cli_loop(); // Serial command line input
+#endif
 #if HAS_WEB_SERVER
 	webserver_loop();
 #endif

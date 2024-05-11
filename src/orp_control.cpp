@@ -76,9 +76,13 @@ void orp_control_init(void)
 	printlnA(F("ORP Control Init"));
 	disp_led_pump_cl.setPic(ID_IMAGE_RED);
 	state.orp_control_state = ORP_IDLE;
+#if HAS_ORP_CONTROL
 	orp_enter_mode(state_default.orp_mode);
 	orp_control_update_task = timer_pool.every(ORP_CONTROL_UPDATE_S * 1000, orp_control_update);
 	mqtt_publish_orp_state();
+#else
+	printlnA(F("!! NO ORP Control !!"));
+#endif
 }
 
 void orp_control_stop(void)
@@ -149,7 +153,7 @@ bool orp_auto_correction_possible(void)
 
 bool orp_control_update(void *)
 {
-	printlnA("ORP task update");
+	printlnA(F("ORP task update"));
 	disp_orp_state_to_display();
 	switch (state.orp_control_state)
 	{
@@ -162,7 +166,7 @@ bool orp_control_update(void *)
 				// Ok no correction needed
 				break;
 			case STEP1_CORRECTION:
-				printlnA("ORP Step 1 correction needed");
+				printlnA(F("ORP Step 1 correction needed"));
 				log_append("ORP Step 1 correction needed");
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 20 % injection time
@@ -172,7 +176,7 @@ bool orp_control_update(void *)
 				orp_on();
 				break;
 			case STEP2_CORRECTION:
-				printlnA("ORP Step 2 correction needed");
+				printlnA(F("ORP Step 2 correction needed"));
 				log_append("ORP Step 2 correction needed");
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 50 % injection time
@@ -182,7 +186,7 @@ bool orp_control_update(void *)
 				orp_on();
 				break;
 			case STEP3_CORRECTION:
-				printlnA("ORP Step 3 correction needed");
+				printlnA(F("ORP Step 3 correction needed"));
 				log_append("ORP Step 3 correction needed");
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 75 % injection time
@@ -192,7 +196,7 @@ bool orp_control_update(void *)
 				orp_on();
 				break;
 			case STEP4_CORRECTION:
-				printlnA("ORP Step 4 correction needed");
+				printlnA(F("ORP Step 4 correction needed"));
 				log_append("ORP Step 4 correction needed");
 				state.orp_control_state = ORP_INJECTION_ON;
 				// 100% injection time
@@ -208,20 +212,20 @@ bool orp_control_update(void *)
 		}
 		else
 		{
-			printlnA("ORP correction not possible")
-			if (state.orp_mode != ORP_ON) {
-				printlnA("Inc ORP daily injected (ORP ON)")
+			printlnA(F("ORP correction not possible/needed"))
+			if (state.orp_mode == ORP_ON) {
+				printlnA(F("Inc ORP daily injected (ORP ON)"))
 				// Inc daily ml injected while in force ON mode
 				measures.daily_ml_orp += (float)((double)(parameters.flow_cl / 60.0) * (ORP_CONTROL_UPDATE_S));
 				if (measures.daily_ml_orp > parameters.cl_max_day) {
 					printlnA("Max ORP daily reached, forcing ORP OFF");
 					log_append("Need FORCE ORP OFF (max daily)");
 					orp_enter_mode(ORP_OFF);
-					beep(10);
+					beep(100);
 					delay(10);
-					beep(10);
+					beep(100);
 					delay(10);
-					beep(10);
+					beep(100);
 				}
 			}
 		}
@@ -261,5 +265,6 @@ bool orp_control_update(void *)
 	default:
 		break;
 	}
+	printlnA("ORP control task Done");
 	return true;
 }
