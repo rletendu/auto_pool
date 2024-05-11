@@ -282,11 +282,13 @@ __return:
         dbSerialPrint("recvRetPageId err : ");
     }
     delay(NEXT_DELAY_RETURN);
+    return ret;
 }
 
 bool nexInit()
 {
     nexInit(115000);
+    return true;
 }
 
 bool nexInit(int baud)

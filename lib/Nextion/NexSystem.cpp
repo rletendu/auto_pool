@@ -32,4 +32,5 @@ bool NexSleep(void)
 	recvRetCommandFinished();
 	//sendCommand("sleep=1");
 	//return recvRetCommandFinished();
+	return true;
 }

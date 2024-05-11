@@ -69,6 +69,7 @@ bool NexRtc::write_rtc_time(char *time)
     {
         return false;
     }
+    return true;
 }
 
 bool NexRtc::write_rtc_time(uint32_t *time)
@@ -118,6 +119,7 @@ bool NexRtc::write_rtc_time(uint32_t *time)
      cmd += sec;
      sendCommand(cmd.c_str());
      recvRetCommandFinished();
+     return true;
  
 }
 
