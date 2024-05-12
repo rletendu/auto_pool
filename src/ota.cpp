@@ -26,6 +26,16 @@ void ota_init(void)
 			beep(10);
 			delay(10);
 			beep(10);
+			delay(10);
+			beep(10);
+			delay(10);
+			beep(10);
+			measures_loop_stop();
+			orp_control_stop();
+			ph_control_stop();
+			filter_control_stop();
+			webserver_stop();
+
 		})
 		.onEnd([]() {
 			printlnA(F("End Update"));

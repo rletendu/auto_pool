@@ -114,6 +114,11 @@ void filter_control_init(void)
 	#endif
 }
 
+void filter_control_stop(void)
+{
+	timer_pool.cancel(filter_control_update_task);
+}
+
 bool filter_control_update(void *)
 {
 	static int32_t counter_warm_up = 0;
