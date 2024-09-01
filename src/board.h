@@ -32,7 +32,9 @@
 
 #define PIN_ADC_INTERRUPT 26
 
-#define PIN_RELAY_PUMP_FILTER 27
+//#define PIN_RELAY_PUMP_FILTER 27
+#define PIN_RELAY_PUMP_FILTER PIN_EXT1
+
 #define PIN_RELAY_PUMP_PH_M 32
 
 #ifndef PIN_PUMP_PWR
@@ -63,6 +65,9 @@ void pump_ph_cl_off(void);
 void pump_filtration_on(void);
 void pump_filtration_off(void);
 
+#define PUMP_FILTER_ACTIVE_VALUE true
+#define PUMP_FILTER_INACTIVE_VALUE ~PUMP_FILTER_ACTIVE_VALUE
+
 #define PUMP_ACTIVE_VALUE false
 #define PUMP_INACTIVE_VALUE ~PUMP_ACTIVE_VALUE
 
@@ -81,9 +86,9 @@ inline void led1_off(void) { digitalWrite(PIN_LED1, false); }
 inline void led1_on(void) { digitalWrite(PIN_LED1, true); }
 inline void led1_toggle(void) { digitalWrite(PIN_LED1, !digitalRead(PIN_LED1)); }
 
-inline void pump_filtration_on(void) { digitalWrite(PIN_RELAY_PUMP_FILTER, PUMP_ACTIVE_VALUE); }
-inline void pump_filtration_off(void) { digitalWrite(PIN_RELAY_PUMP_FILTER, PUMP_INACTIVE_VALUE); }
-inline bool pump_filtration_is_on(void) { return digitalRead(PIN_RELAY_PUMP_FILTER) == PUMP_ACTIVE_VALUE ? true : false; }
+inline void pump_filtration_on(void) { digitalWrite(PIN_RELAY_PUMP_FILTER, PUMP_FILTER_ACTIVE_VALUE); }
+inline void pump_filtration_off(void) { digitalWrite(PIN_RELAY_PUMP_FILTER, 0); }
+inline bool pump_filtration_is_on(void) { return digitalRead(PIN_RELAY_PUMP_FILTER) == PUMP_FILTER_ACTIVE_VALUE ? true : false; }
 
 #if HAS_FILTER_PWR_CTRL
 inline void pump_filtration_pwr_full(void) { digitalWrite(PIN_PUMP_PWR, PUMP_PWR_FULL_VALUE); }
@@ -105,9 +110,15 @@ inline void pump_orp_on(void) { digitalWrite(PIN_RELAY_PUMP_CL, PUMP_ACTIVE_VALU
 inline void pump_orp_off(void) { digitalWrite(PIN_RELAY_PUMP_CL, PUMP_INACTIVE_VALUE); }
 inline bool pump_cl_is_on(void) { return digitalRead(PIN_RELAY_PUMP_CL) == PUMP_ACTIVE_VALUE ? true : false; }
 
-inline void debug_pin1_off(void) { digitalWrite(DEBUG_PIN1, false); }
+#ifdef DEBUG_PIN1
+inline void debug_pin1_off(void) {  digitalWrite(DEBUG_PIN1, false); }
 inline void debug_pin1_on(void) { digitalWrite(DEBUG_PIN1, true); }
 inline void debug_pin1_toggle(void) { digitalWrite(DEBUG_PIN1, !digitalRead(DEBUG_PIN1)); }
+#else
+inline void debug_pin1_off(void) {  }
+inline void debug_pin1_on(void) {  }
+inline void debug_pin1_toggle(void) {  }
+#endif
 
 inline void pump_all_off(void)
 {
