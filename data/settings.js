@@ -178,6 +178,16 @@ async function resetDailyCl() {
   }
 }
 
+async function resetBootCount() {
+  if (!confirm("Reset the boot counter?")) return;
+  try {
+    await api.cmd("rst_boot_count");
+    toast("Boot counter reset", "ok");
+  } catch (e) {
+    toast(`Reset failed: ${e.message}`, "err", 4000);
+  }
+}
+
 function copyDailyToTemp() {
   if (!confirm("Copy fixed schedule into every temperature row?")) return;
   let fixed = 0;
@@ -277,6 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#btn-save").addEventListener("click", saveParams);
   $("#btn-reboot").addEventListener("click", rebootDevice);
   $("#btn-reset-cl").addEventListener("click", resetDailyCl);
+  $("#btn-reset-boot").addEventListener("click", resetBootCount);
   $("#btn-copy-fixed").addEventListener("click", copyDailyToTemp);
   $("#btn-load-defaults").addEventListener("click", loadDefaultTempTable);
 

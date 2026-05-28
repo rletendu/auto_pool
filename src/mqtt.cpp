@@ -1,5 +1,7 @@
 #include "autopool.h"
 
+extern int bootCount;
+
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
 
@@ -53,6 +55,11 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	else if (in_topic == "RST_DAILY_ML_ORP")
 	{
 		measures.daily_ml_orp = 0;
+	}
+	else if (in_topic == "RST_BOOT_COUNT")
+	{
+		bootCount = 0;
+		measures.boot_count = 0;
 	}
 	else if (in_topic == "RESET")
 	{
