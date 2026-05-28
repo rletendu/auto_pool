@@ -25,6 +25,8 @@ struct MeasuresStructure
 	float daily_ml_orp;
 	float daily_ml_ph_plus;
 	float daily_ml_ph_minus;
+	uint32_t daily_filter_min;
+	uint32_t total_filter_min;
 	uint32_t boot_count;
 };
 

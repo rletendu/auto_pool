@@ -123,6 +123,8 @@ function renderMeasures(m) {
   $("#m-day-max").textContent     = fmt(m.day_max_water_temperature, 1);
   $("#m-daily-cl").textContent    = fmt(m.daily_ml_orp, 0);
   $("#m-daily-phm").textContent   = fmt(m.daily_ml_ph_minus, 0);
+  $("#m-daily-filter").textContent  = fmt(m.daily_filter_min, 0);
+  $("#m-total-filter").textContent  = m.total_filter_min == null ? "—" : (m.total_filter_min / 60).toFixed(1);
 
   const set = (id, ok) => {
     const el = $(id);

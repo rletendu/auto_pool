@@ -99,6 +99,8 @@ struct StateStructure
 	enum ph_control_state_t ph_control_state;
 	uint32_t ph_plus_time_pump_on;
 	uint32_t ph_plus_time_pump_off;
+
+	uint32_t total_filter_min;
 };
 
 enum correction_need_t

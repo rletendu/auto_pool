@@ -11,6 +11,8 @@ uintptr_t update_graph_task;
 extern float daily_ml_ph_minus_backup;
 extern float daily_ml_ph_plus_backup;
 extern float daily_ml_orp_backup;
+extern uint32_t daily_filter_min_backup;
+extern uint32_t total_filter_min_backup;
 extern int bootCount;
 extern uint32_t boot_key;
 
@@ -27,10 +29,16 @@ void measures_init(void)
 		daily_ml_orp_backup = 0;
 		daily_ml_ph_minus_backup = 0;
 		daily_ml_ph_plus_backup = 0;
+		daily_filter_min_backup = 0;
+		// Cold boot: total runtime is recovered from state.json (already read by state_default_read_file)
+		total_filter_min_backup = state_default.total_filter_min;
 	}
 	measures.daily_ml_orp = daily_ml_orp_backup;
 	measures.daily_ml_ph_minus = daily_ml_ph_minus_backup;
 	measures.daily_ml_ph_plus = daily_ml_ph_plus_backup;
+	measures.daily_filter_min = daily_filter_min_backup;
+	measures.total_filter_min = total_filter_min_backup;
+	state.total_filter_min = total_filter_min_backup;
 	measures.boot_count = bootCount;
 	measures_are_vitual = false;
 	#if HAS_MEASURE_CONTROL
@@ -175,6 +183,8 @@ void measures_to_json_string(void)
 	json["daily_ml_orp"] = measures.daily_ml_orp;
 	json["daily_ml_ph_minus"] = measures.daily_ml_ph_minus;
 	json["daily_ml_ph_plus"] = measures.daily_ml_ph_plus;
+	json["daily_filter_min"] = measures.daily_filter_min;
+	json["total_filter_min"] = measures.total_filter_min;
 	json["boot_count"] = measures.boot_count;
 	json.printTo(measures_json_string, sizeof(measures_json_string));
 }
@@ -200,6 +210,8 @@ bool measures_json_to_measures(char *json_str)
 		measures.daily_ml_orp = json["daily_ml_orp"];
 		measures.daily_ml_ph_minus = json["daily_ml_ph_minus"];
 		measures.daily_ml_ph_plus = json["daily_ml_ph_plus"];
+		if (json.containsKey("daily_filter_min")) measures.daily_filter_min = json["daily_filter_min"];
+		if (json.containsKey("total_filter_min")) measures.total_filter_min = json["total_filter_min"];
 		measures.boot_count = json["boot_count"];
 		return true;
 	}
