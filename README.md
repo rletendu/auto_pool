@@ -156,6 +156,14 @@ pio device monitor
 pio run -t clean
 ```
 
+> **Firmware vs. filesystem are two independent flashes.** `pio run -t upload` writes the application binary (everything compiled from `src/`); `pio run -t uploadfs` writes the SPIFFS image built from `data/` (web UI, `config.json`, `state.json`). They're independent partitions on the ESP32 — flashing one never touches the other. Rules of thumb:
+>
+> - **Edited C/C++ in `src/` or `lib/`** → `pio run -t upload`. No `uploadfs` needed; settings and web assets are untouched.
+> - **Edited anything under `data/`** (web UI, default `config.json`) → `pio run -t uploadfs`. No firmware reflash needed.
+> - **Both** → run them in either order; e.g. `pio run -t upload && pio run -t uploadfs`.
+> - **OTA**: both targets accept `--upload-port <ip>` to flash over Wi-Fi via `espota`, e.g. `pio run -t uploadfs --upload-port 192.168.x.x`.
+> - **Heads up on `uploadfs`**: it overwrites `config.json` with the version in `data/`, wiping any settings the user changed via the web UI / portal / MQTT. Pull the live config back first (`curl http://<ip>/getparameters > data/config.json`) if you want to preserve it.
+
 > **There are no unit tests** wired up. `test/autopool_tester.py` is a host-side helper, not a PlatformIO test runner.
 
 ### First boot

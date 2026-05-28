@@ -1,9 +1,27 @@
 <!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<title>AutoPool TFT Updater</title>
-	</head>
-	<body>
-		TFT Screen Fimware Update successful. AutoPool will restart in 5 seconds... 
-	</body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoPool — Update successful</title>
+  <link rel="stylesheet" href="style.css">
+  <meta http-equiv="refresh" content="5; url=index.html">
+</head>
+<body>
+
+<header class="app-header">
+  <span class="status-dot" data-status="ok"></span>
+  <h1>Display firmware updated</h1>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Success</h2>
+    <p>The Nextion display firmware was uploaded successfully.</p>
+    <p class="muted text-sm">AutoPool will restart in 5 seconds — you'll be sent back to the dashboard automatically.</p>
+    <p><a class="btn" href="index.html">Back to dashboard now</a></p>
+  </section>
+</main>
+
+</body>
 </html>

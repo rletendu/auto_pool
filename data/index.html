@@ -1,143 +1,143 @@
 <!DOCTYPE html>
-<html lang="fr">
-
+<html lang="en">
 <head>
-    <title>AutoPool</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8" />
-    <link rel="stylesheet" type="text/css" href="w3.css">
-    <link rel="stylesheet" type="text/css" href="leds.css">
-    <script type="text/javascript" src="script.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoPool</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
 </head>
+<body>
 
-<body class="w3-animate-opacity">
+<header class="app-header">
+  <span class="status-dot" data-status="idle" title="Connection status"></span>
+  <h1>AutoPool</h1>
+  <a class="header-icon" href="settings.html" title="Settings" aria-label="Settings">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+  </a>
+</header>
 
-    <div class="w3-card w3-blue w3-padding-small w3-center">
-        <h1>AutoPool Web Interface</h1>
+<main>
+
+  <section class="card">
+    <div class="card-header"><h2>Live measurements</h2></div>
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric__label">Water</div>
+        <div><span class="metric__value" id="m-water">—</span><span class="metric__unit">°C</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">pH</div>
+        <div><span class="metric__value" id="m-ph">—</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">ORP</div>
+        <div><span class="metric__value" id="m-orp">—</span><span class="metric__unit">mV</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">Pressure</div>
+        <div><span class="metric__value" id="m-pressure">—</span><span class="metric__unit">bar</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">Air temp</div>
+        <div><span class="metric__value" id="m-air-temp">—</span><span class="metric__unit">°C</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">Air humidity</div>
+        <div><span class="metric__value" id="m-air-hum">—</span><span class="metric__unit">%</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">Day max</div>
+        <div><span class="metric__value" id="m-day-max">—</span><span class="metric__unit">°C</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">Daily Cl</div>
+        <div><span class="metric__value" id="m-daily-cl">—</span><span class="metric__unit">mL</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">Daily pH-</div>
+        <div><span class="metric__value" id="m-daily-phm">—</span><span class="metric__unit">mL</span></div>
+      </div>
     </div>
+  </section>
 
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <a href="settings.html"><img src="settings.png" alt="Settings"/></a>
-        <h3 class="w3-padding">Settings</h3>
-        <br><br>
+  <section class="regulator-grid">
+
+    <article class="card card--accent card--accent-filter">
+      <div class="card-header"><h2>Filter</h2></div>
+      <div class="mode-toggle" id="filter-mode-toggle" role="group" aria-label="Filter mode">
+        <button type="button" data-mode="OFF"  aria-pressed="false">Off</button>
+        <button type="button" data-mode="ON"   aria-pressed="false">On</button>
+        <button type="button" data-mode="AUTO" aria-pressed="false">Auto</button>
+      </div>
+      <div class="mode-toggle mt-3" id="filter-power-toggle" role="group" aria-label="Filter power">
+        <button type="button" data-mode="FULL" aria-pressed="false">Full</button>
+        <button type="button" data-mode="REG"  aria-pressed="false">Reg</button>
+      </div>
+      <div class="regulator__row">
+        <span>Pump</span>
+        <span class="pump-pill" id="filter-pump" data-state="off">Idle</span>
+      </div>
+    </article>
+
+    <article class="card card--accent card--accent-ph">
+      <div class="card-header"><h2>pH</h2></div>
+      <div class="mode-toggle" id="ph-mode-toggle" role="group" aria-label="pH mode">
+        <button type="button" data-mode="OFF"  aria-pressed="false">Off</button>
+        <button type="button" data-mode="ON"   aria-pressed="false">On</button>
+        <button type="button" data-mode="AUTO" aria-pressed="false">Auto</button>
+      </div>
+      <div class="regulator__row">
+        <span>pH- pump</span>
+        <span class="pump-pill" id="ph-pump" data-state="off">Idle</span>
+      </div>
+    </article>
+
+    <article class="card card--accent card--accent-orp">
+      <div class="card-header"><h2>ORP</h2></div>
+      <div class="mode-toggle" id="orp-mode-toggle" role="group" aria-label="ORP mode">
+        <button type="button" data-mode="OFF"  aria-pressed="false">Off</button>
+        <button type="button" data-mode="ON"   aria-pressed="false">On</button>
+        <button type="button" data-mode="AUTO" aria-pressed="false">Auto</button>
+      </div>
+      <div class="regulator__row">
+        <span>Cl pump</span>
+        <span class="pump-pill" id="orp-pump" data-state="off">Idle</span>
+      </div>
+    </article>
+
+  </section>
+
+  <section class="card">
+    <div class="card-header"><h2>Levels</h2></div>
+    <div class="levels">
+      <div class="level" id="lvl-water">
+        <span class="level__label">Pool water</span>
+        <span class="pump-pill" data-state="off">—</span>
+      </div>
+      <div class="level" id="lvl-cl">
+        <span class="level__label">Chlorine tank</span>
+        <span class="pump-pill" data-state="off">—</span>
+      </div>
+      <div class="level" id="lvl-ph-m">
+        <span class="level__label">pH- tank</span>
+        <span class="pump-pill" data-state="off">—</span>
+      </div>
+      <div class="level" id="lvl-ph-p">
+        <span class="level__label">pH+ tank</span>
+        <span class="pump-pill" data-state="off">—</span>
+      </div>
     </div>
+  </section>
 
+</main>
 
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <img src="water_pump.png">
-        <h3 class="w3-padding">Filter Mode: <span id="stateFilter">---</span> </h3>
-        <button onclick="onFilterButton()" class="w3-button w3-green w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">ON</button>
-        <button onclick="offFilterButton()" class="w3-button w3-red w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">OFF</button>
-        <button onclick="autoFilterButton()" class="w3-button w3-blue w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">AUTO</button>
-        <p> Filter Pump :<span id="PumpFilter" class="w3-red">---</span></p>
-        <br><br>
-    </div>
-
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <img src="water_pump_pwr.png">
-        <h3 class="w3-padding">Filter Power: <span id="powerFilter">---</span> </h3>
-        <button onclick="FilterPwrFullButton()" class="w3-button w3-green w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">FULL</button>
-        <button onclick="FilterPwrRegButton()" class="w3-button w3-red w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">REG</button>
-        <br><br>
-    </div>
-
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <img src="peri_pump.png">
-        <h3 class="w3-padding">ORP Mode: <span id="stateOrp">---</span></h3>
-        <button onclick="onOrpButton()" class="w3-button w3-green w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">ON</button>
-        <button onclick="offOrpButton()" class="w3-button w3-red w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">OFF</button>
-        <button onclick="autoOrpButton()" class="w3-button w3-blue w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">AUTO</button>
-        <p> ORP Pump :<span id="PumpOrp" class="w3-red">---</span></p>
-        <br><br>
-    </div>
-
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <img src="peri_pump.png">
-        <h3 class="w3-padding">pH Mode: <span id="statePh">---</span></h3>
-        <button onclick="onPhButton()" class="w3-button w3-green w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">ON</button>
-        <button onclick="offPhButton()" class="w3-button w3-red w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">OFF</button>
-        <button onclick="autoPhButton()" class="w3-button w3-blue w3-xlarge w3-ripple w3-wide"
-            style="width:30%;">AUTO</button>
-        <p> pH Minus Pump :<span id="PumpPh" class="w3-red">---</span></p>
-        <br><br>
-    </div>
-
-    <!--
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <h3 class="w3-padding">Temperature</h3>
-        <p class="w3-xxlarge"><span id="valeurTemperature">0</span>°C</p>
-        <h3 class="w3-padding">Orp</h3>
-        <p class="w3-xxlarge"><span id="valeurOrp">0</span>mV</p>
-        <h3 class="w3-padding">pH</h3>
-        <p class="w3-xxlarge"><span id="valeurPh">0</span></p>
-        <h3 class="w3-padding">Pression</h3>
-        <p class="w3-xxlarge"><span id="valeurPression">0</span>Bar</p>
-        <h3 class="w3-padding">Sys. Temp.</h3>
-        <p class="w3-xxlarge"><span id="valeurSysTemperature">0</span>°C</p>
-        <h3 class="w3-padding">Sys. Hum.</h3>
-        <p class="w3-xxlarge"><span id="valeurSysHumidity">0</span>%</p>
-        <h3 class="w3-padding">Daily CL</h3>
-        <p class="w3-xxlarge"><span id="valeurDailyCl">0</span>ml</p>
-        <h3 class="w3-padding">Daily pH-</h3>
-        <p class="w3-xxlarge"><span id="valeurDailyPhm">0</span>ml</p>
-    </div>
--->
-
-    <table class="w3-card w3-margin w3-center">
-        <tr>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Temperature</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurTemperature">0</span> °C</p>
-            </td>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Orp</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurOrp">0</span> mV</p>
-            </td>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">pH</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurPh">0</span></p>
-            </td>
-
-        </tr>
-        <tr>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Pression</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurPression">0</span> bar</p>
-            </td>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Sys. Temp.</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurSysTemperature">0</span>°C</p>
-            </td>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Sys. Hum.</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurSysHumidity">0</span> %</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Daily Cl</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurDailyCl">0</span> ml</p>
-            </td>
-            <td>
-                <p class="w3-xxlarge w3-center w3-green">Daily pH-</p>
-                <p class="w3-xxlarge w3-center"><span id="valeurDailyPhm">0</span> ml</p>
-            </td>
-            <td></td>
-        </tr>
-    </table>
-    <div class="w3-padding w3-center">
-        <i><a href=https://github.com/rletendu/auto_pool" style="text-decoration: none;">AutoPool 2020</a></i>
-    </div>
+<footer>
+  <a href="https://github.com/rletendu/auto_pool">github.com/rletendu/auto_pool</a>
+</footer>
 
 </body>
-
 </html>
