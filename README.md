@@ -271,6 +271,25 @@ Two paths, pick one.
 
 The companion dashboard at [`homeassistant/dashboards/autopool.yaml`](homeassistant/dashboards/autopool.yaml) is wired entirely to the autodiscovered entity_ids (`<domain>.autopool_<object>`, courtesy of the `obj_id` field in each discovery payload). It uses only stock Lovelace cards — no HACS install required. Drop it under `<HA_config>/dashboards/` and register it via the `lovelace.dashboards` block in [`homeassistant/configuration_snippet.yaml`](homeassistant/configuration_snippet.yaml).
 
+### Multi-device deployment
+
+Two AutoPool controllers can share a single MQTT broker and a single Home Assistant instance. Set `device_suffix` on each one — short, lowercase, `[a-z0-9_]`, max 12 chars (e.g. `north`, `south`, `pool1`). The suffix is spliced into:
+
+| Identifier | Empty suffix | Suffix `north` |
+|---|---|---|
+| MQTT `client_id` | `AUTOPOOL` | `AUTOPOOL_north` |
+| HA `obj_id` (entity_id slug) | `autopool_<object>` | `autopool_north_<object>` |
+| HA device name | `AutoPool` | `AutoPool north` |
+| WiFiManager portal SSID | `AUTOPOOL_CONFIG` | `AUTOPOOL_CONFIG_north` |
+| OTA mDNS hostname | `autopool.local` | `autopool-north.local` |
+
+`mqtt_base_topic` is also auto-rewritten when you set the suffix via `<base>/CMD/SET/DEVICE_SUFFIX` (and only if the topic still has the legacy default `autopool` / empty). Set it manually otherwise via the WiFi portal or web UI to keep the two devices on disjoint topic trees.
+
+Caveats:
+- The very first portal setup of a fresh unit always uses the legacy SSID `AUTOPOOL_CONFIG` (suffix is set inside the portal itself). Configure both units sequentially the first time, not simultaneously.
+- After changing a non-empty suffix, HA's old entities go to *unavailable* until the next HA restart — the controller publishes empty retained payloads to the old discovery topics so they age out cleanly.
+- The supplied dashboard at [`homeassistant/dashboards/autopool.yaml`](homeassistant/dashboards/autopool.yaml) targets a single device with empty suffix. For multi-device dashboards, copy the file and `sed 's/autopool_/autopool_<suffix>_/g'` to retarget.
+
 ### Manual packages (legacy)
 
 If you'd rather not run discovery, the older path still works: copy [`homeassistant/packages/autopool.yaml`](homeassistant/packages/autopool.yaml) and [`homeassistant/custom_templates/autopool.jinja`](homeassistant/custom_templates/autopool.jinja) into your HA config, enable `packages: !include_dir_named packages` in `configuration.yaml`, and **disable** the autodiscovery toggle on the controller — running both at once creates duplicate entities. The header of `packages/autopool.yaml` documents the migration trade-offs.

@@ -69,6 +69,7 @@ const SCALAR_FIELDS = [
   "orp_offset", "ph_offset",
   "periodic_filter_time",
   "ha_discovery_prefix",
+  "device_suffix",
 ];
 
 function paramsToForm(p) {

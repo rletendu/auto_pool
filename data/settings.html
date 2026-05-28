@@ -137,6 +137,12 @@
       <input id="ha_discovery_prefix" type="text" maxlength="31" value="homeassistant">
       <span class="field__hint">Default <code>homeassistant</code> works for stock HA installs.</span>
     </div>
+
+    <div class="field mt-4">
+      <label class="field__label" for="device_suffix">Device suffix (multi-device)</label>
+      <input id="device_suffix" type="text" maxlength="12" pattern="[a-z0-9_]*" placeholder="(empty)">
+      <span class="field__hint">Optional. Lowercase a-z, 0-9, underscore. Set on each controller (e.g. <code>north</code>, <code>south</code>) when sharing one MQTT broker. Changes the MQTT client id, HA entity_ids, OTA hostname, and portal SSID.</span>
+    </div>
   </fieldset>
 
   <fieldset class="fieldset" id="sec-display">

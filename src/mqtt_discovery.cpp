@@ -23,6 +23,7 @@ static void build_node_id(void)
 }
 
 static char dev_sw[16];
+static char dev_name[32];
 
 static void add_device_block(JsonObject &cfg)
 {
@@ -30,10 +31,19 @@ static void add_device_block(JsonObject &cfg)
 	{
 		snprintf(dev_sw, sizeof(dev_sw), "%.1f", AUTOPOOL_VER);
 	}
+	if (parameters.device_suffix[0] != 0)
+	{
+		snprintf(dev_name, sizeof(dev_name), "AutoPool %s", parameters.device_suffix);
+	}
+	else
+	{
+		strncpy(dev_name, "AutoPool", sizeof(dev_name) - 1);
+		dev_name[sizeof(dev_name) - 1] = 0;
+	}
 	JsonObject &dev = cfg.createNestedObject("dev");
 	JsonArray &ids = dev.createNestedArray("ids");
 	ids.add(node_id);
-	dev["name"] = "AutoPool";
+	dev["name"] = dev_name;
 	dev["mf"] = MFR;
 	dev["mdl"] = MDL;
 	dev["sw"] = dev_sw;
@@ -60,8 +70,15 @@ static void publish_cfg(const char *component, const char *object, JsonObject &c
 	char uid[48];
 	snprintf(uid, sizeof(uid), "%s_%s", node_id, object);
 	cfg["uniq_id"] = uid;
-	char oid[48];
-	snprintf(oid, sizeof(oid), "autopool_%s", object);
+	char oid[64];
+	if (parameters.device_suffix[0] != 0)
+	{
+		snprintf(oid, sizeof(oid), "autopool_%s_%s", parameters.device_suffix, object);
+	}
+	else
+	{
+		snprintf(oid, sizeof(oid), "autopool_%s", object);
+	}
 	cfg["obj_id"] = oid;
 	add_device_block(cfg);
 	disc_topic(topic, sizeof(topic), component, object);

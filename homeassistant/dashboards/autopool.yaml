@@ -14,6 +14,13 @@
 #
 # Entity naming: the firmware emits obj_id="autopool_<object>" so HA assigns
 # stable entity_ids of the form <domain>.autopool_<object> (no MAC suffix).
+#
+# Multi-device note: this file targets a SINGLE controller (empty
+# `device_suffix`). If you set `device_suffix=<suffix>` to share one broker
+# between multiple AutoPool units, entity_ids become
+# `<domain>.autopool_<suffix>_<object>`. To produce a per-device dashboard:
+#     sed 's/autopool_/autopool_<suffix>_/g' < autopool.yaml > autopool_<suffix>.yaml
+# Register each variant separately under lovelace.dashboards.
 # =============================================================================
 
 title: AutoPool

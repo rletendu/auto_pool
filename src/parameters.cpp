@@ -74,6 +74,7 @@ bool parameters_write_file(void)
 	json["periodic_filter_time"] = parameters.periodic_filter_time;
 	json["ha_discovery_enabled"] = parameters.ha_discovery_enabled;
 	json["ha_discovery_prefix"] = parameters.ha_discovery_prefix;
+	json["device_suffix"] = parameters.device_suffix;
 	JsonArray &data = json.createNestedArray("timer_prog_temperature");
 	for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 	{
@@ -119,10 +120,42 @@ void parameters_set_default(void)
 	parameters.periodic_filter_time = 0;
 	parameters.ha_discovery_enabled = false;
 	strcpy(parameters.ha_discovery_prefix, PARAM_HA_PREFIX_DEFAULT);
+	strcpy(parameters.device_suffix, PARAM_DEVICE_SUFFIX_DEFAULT);
 	for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 	{
 		parameters.timer_prog_temperature[i] = 0;
 	}
+}
+
+bool device_suffix_is_valid(const char *s)
+{
+	if (s == NULL) return false;
+	size_t n = strlen(s);
+	if (n > PARAM_DEVICE_SUFFIX_MAX) return false;
+	for (size_t i = 0; i < n; i++)
+	{
+		char c = s[i];
+		bool ok = (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_';
+		if (!ok) return false;
+	}
+	return true;
+}
+
+void device_suffix_sanitize(char *dst, const char *src, size_t dst_size)
+{
+	size_t out = 0;
+	if (dst_size == 0) return;
+	if (src != NULL)
+	{
+		for (size_t i = 0; src[i] != 0 && out + 1 < dst_size && out < PARAM_DEVICE_SUFFIX_MAX; i++)
+		{
+			char c = src[i];
+			if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a';
+			bool ok = (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_';
+			if (ok) dst[out++] = c;
+		}
+	}
+	dst[out] = 0;
 }
 
 bool parameters_json_to_param(char *json_str)
@@ -160,6 +193,10 @@ bool parameters_json_to_param(char *json_str)
 		{
 			strncpy(parameters.ha_discovery_prefix, json["ha_discovery_prefix"], PARAM_HA_PREFIX_LEN - 1);
 			parameters.ha_discovery_prefix[PARAM_HA_PREFIX_LEN - 1] = 0;
+		}
+		if (json.containsKey("device_suffix") && json["device_suffix"].as<const char *>() != NULL)
+		{
+			device_suffix_sanitize(parameters.device_suffix, json["device_suffix"], PARAM_DEVICE_SUFFIX_LEN);
 		}
 		for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 		{

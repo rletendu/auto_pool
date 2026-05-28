@@ -66,8 +66,31 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	else if (in_topic == "PARAMETERS")
 	{
 		bool prev_ha = parameters.ha_discovery_enabled;
+		char prev_suffix[PARAM_DEVICE_SUFFIX_LEN];
+		char prev_base[PARAM_MAX_STR];
+		strncpy(prev_suffix, parameters.device_suffix, PARAM_DEVICE_SUFFIX_LEN);
+		prev_suffix[PARAM_DEVICE_SUFFIX_LEN - 1] = 0;
+		strncpy(prev_base, parameters.mqtt_base_topic, PARAM_MAX_STR);
+		prev_base[PARAM_MAX_STR - 1] = 0;
 		if (parameters_json_to_param(payload))
 		{
+			bool suffix_changed = strcmp(prev_suffix, parameters.device_suffix) != 0;
+			// If suffix changed and base_topic is still the legacy default, auto-suffix it.
+			if (suffix_changed &&
+				strcmp(parameters.mqtt_base_topic, prev_base) == 0 &&
+				(parameters.mqtt_base_topic[0] == 0 ||
+				 strcmp(parameters.mqtt_base_topic, "autopool") == 0))
+			{
+				if (parameters.device_suffix[0] != 0)
+				{
+					snprintf(parameters.mqtt_base_topic, PARAM_MAX_STR, "autopool_%s", parameters.device_suffix);
+				}
+				else
+				{
+					strncpy(parameters.mqtt_base_topic, "autopool", PARAM_MAX_STR - 1);
+					parameters.mqtt_base_topic[PARAM_MAX_STR - 1] = 0;
+				}
+			}
 			parameters_write_file();
 			if (prev_ha && !parameters.ha_discovery_enabled)
 			{
@@ -75,6 +98,12 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 			}
 			else if (!prev_ha && parameters.ha_discovery_enabled)
 			{
+				mqtt_discovery_publish_all();
+			}
+			else if (parameters.ha_discovery_enabled && suffix_changed)
+			{
+				// Suffix change rewrites obj_id; clear old then re-publish so HA cleans up
+				mqtt_discovery_clear_all();
 				mqtt_discovery_publish_all();
 			}
 		}
@@ -125,6 +154,39 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 		else if (in_topic == "SET/PH_OFFSET")            parameters.ph_offset = v;
 		else if (in_topic == "SET/ORP_OFFSET")           parameters.orp_offset = v;
 		else if (in_topic == "SET/PERIODIC_FILTER_TIME") parameters.periodic_filter_time = v;
+		else if (in_topic == "SET/DEVICE_SUFFIX")
+		{
+			char clean[PARAM_DEVICE_SUFFIX_LEN];
+			device_suffix_sanitize(clean, payload, PARAM_DEVICE_SUFFIX_LEN);
+			if (strcmp(parameters.device_suffix, clean) != 0)
+			{
+				bool was_default_topic = (parameters.mqtt_base_topic[0] == 0 ||
+					strcmp(parameters.mqtt_base_topic, "autopool") == 0);
+				strncpy(parameters.device_suffix, clean, PARAM_DEVICE_SUFFIX_LEN);
+				parameters.device_suffix[PARAM_DEVICE_SUFFIX_LEN - 1] = 0;
+				if (was_default_topic)
+				{
+					if (clean[0] != 0)
+					{
+						snprintf(parameters.mqtt_base_topic, PARAM_MAX_STR, "autopool_%s", clean);
+					}
+					else
+					{
+						strncpy(parameters.mqtt_base_topic, "autopool", PARAM_MAX_STR - 1);
+						parameters.mqtt_base_topic[PARAM_MAX_STR - 1] = 0;
+					}
+				}
+				if (parameters.ha_discovery_enabled)
+				{
+					mqtt_discovery_clear_all();
+					mqtt_discovery_publish_all();
+				}
+			}
+			else
+			{
+				changed = false;
+			}
+		}
 		else changed = false;
 		if (changed)
 		{
@@ -208,11 +270,21 @@ void mqtt_reconnect()
 {
 	char topic[40];
 	char will_topic[40];
+	char client_id[40];
+	if (parameters.device_suffix[0] != 0 && device_suffix_is_valid(parameters.device_suffix))
+	{
+		snprintf(client_id, sizeof(client_id), "%s_%s", MQTT_CLIENT_NAME, parameters.device_suffix);
+	}
+	else
+	{
+		strncpy(client_id, MQTT_CLIENT_NAME, sizeof(client_id) - 1);
+		client_id[sizeof(client_id) - 1] = 0;
+	}
 	if (!mqtt_client.connected())
 	{
 		strcpy(will_topic, parameters.mqtt_base_topic);
 		strcat(will_topic, "/AVAIL");
-		if (mqtt_client.connect(MQTT_CLIENT_NAME, parameters.mqtt_user, parameters.mqtt_pass,
+		if (mqtt_client.connect(client_id, parameters.mqtt_user, parameters.mqtt_pass,
 								will_topic, 0, true, "offline"))
 		{
 			// Subscribe
