@@ -60,6 +60,9 @@ static void publish_cfg(const char *component, const char *object, JsonObject &c
 	char uid[48];
 	snprintf(uid, sizeof(uid), "%s_%s", node_id, object);
 	cfg["uniq_id"] = uid;
+	char oid[48];
+	snprintf(oid, sizeof(oid), "autopool_%s", object);
+	cfg["obj_id"] = oid;
 	add_device_block(cfg);
 	disc_topic(topic, sizeof(topic), component, object);
 	cfg.printTo(payload, sizeof(payload));
@@ -245,6 +248,10 @@ static const entity_ref ENTITIES[] = {
 	{"binary_sensor", "orp_pump"},
 	{"binary_sensor", "ph_minus_pump"},
 	{"binary_sensor", "ph_plus_pump"},
+	{"binary_sensor", "pressure_warning"},
+	// filter timing diagnostic sensors
+	{"sensor", "filter_time_pump_on"},
+	{"sensor", "filter_time_pump_off"},
 	// selects
 	{"select", "filter_mode"},
 	{"select", "filter_power"},
@@ -315,6 +322,13 @@ void mqtt_discovery_publish_all(void)
 	publish_bsensor("orp_pump", "Chlorine Pump", "STATE_ORP", "orp_pump", "running", "mdi:pump");
 	publish_bsensor("ph_minus_pump", "pH- Pump", "STATE_PH", "ph_minus_pump", "running", "mdi:pump");
 	publish_bsensor("ph_plus_pump", "pH+ Pump", "STATE_PH", "ph_plus_pump", "running", "mdi:pump");
+
+	// Pressure warning (computed in firmware against parameters.pressure_warning)
+	publish_bsensor("pressure_warning", "Pressure Warning", "MEAS", "pressure_warning_active", "problem", "mdi:alert");
+
+	// Filter pump on/off timestamps (millis since boot) - diagnostic
+	publish_sensor("filter_time_pump_on", "Filter Pump-On Timestamp", "STATE_FILTER", "filter_time_pump_on", "ms", NULL, "diagnostic", "mdi:timer-play");
+	publish_sensor("filter_time_pump_off", "Filter Pump-Off Timestamp", "STATE_FILTER", "filter_time_pump_off", "ms", NULL, "diagnostic", "mdi:timer-pause");
 
 	// Selects
 	publish_select_modes("filter_mode", "Filter Mode", "STATE_FILTER", "filter_mode", "SET/FILTER_MODE", "mdi:filter");

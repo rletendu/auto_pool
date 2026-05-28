@@ -1,0 +1,1194 @@
+# =============================================================================
+# AutoPool — Home Assistant entities for the MQTT firmware (no HA discovery)
+# -----------------------------------------------------------------------------
+# LEGACY — superseded by autodiscovery.
+#
+# As of the autodiscovery branch, the controller publishes every entity HA
+# needs via the `homeassistant/...` discovery topics; the dashboard at
+# `dashboards/autopool.yaml` is wired to those autodiscovered entity_ids and
+# does NOT reference this package. Loading both at once produces duplicate
+# entities and broken templates.
+#
+# Use this file ONLY if you have a reason to keep manual MQTT entities (e.g.
+# you need entities not yet covered by discovery, like the per-temperature
+# `timer_prog_temperature[N]` numbers or the log text sink). In that case:
+#   - turn OFF the "Enable autodiscovery" toggle on the controller, AND
+#   - keep `homeassistant: packages: !include_dir_named packages` in
+#     configuration.yaml.
+#
+# Original install instructions (legacy path):
+#   1. Confirm `homeassistant: packages: !include_dir_named packages` is set
+#      in your main configuration.yaml (see configuration_snippet.yaml).
+#   2. Copy this file to <HA_config>/packages/autopool.yaml.
+#   3. Copy custom_templates/autopool.jinja to <HA_config>/custom_templates/.
+#   4. The MQTT base topic is hard-coded as `autopool` throughout — if your
+#      device is configured with a different base (set via the WiFiManager
+#      portal, see parameters.mqtt_base_topic), search/replace `autopool/`
+#      in this file AND in dashboards/autopool.yaml.
+#   5. Restart Home Assistant. Press "Get parameters" and "Get states" once,
+#      or wait for the prime automation (it triggers on the first MEAS).
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# MQTT entities
+# ---------------------------------------------------------------------------
+mqtt:
+
+  # ===== Sensors fed by ${base}/MEAS (every 4 s) ===========================
+  sensor:
+
+    - name: AutoPool water temperature
+      unique_id: autopool_water_temperature
+      object_id: autopool_water_temperature
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.water_temperature }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      suggested_display_precision: 1
+
+    - name: AutoPool water temperature raw
+      unique_id: autopool_water_temperature_raw
+      object_id: autopool_water_temperature_raw
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.water_temperature_raw }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      entity_category: diagnostic
+
+    - name: AutoPool day max water temperature
+      unique_id: autopool_day_max_water_temperature
+      object_id: autopool_day_max_water_temperature
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.day_max_water_temperature }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+
+    - name: AutoPool system temperature
+      unique_id: autopool_system_temperature
+      object_id: autopool_system_temperature
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.system_temperature }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      entity_category: diagnostic
+
+    - name: AutoPool system humidity
+      unique_id: autopool_system_humidity
+      object_id: autopool_system_humidity
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.system_humidity }}"
+      unit_of_measurement: "%"
+      device_class: humidity
+      state_class: measurement
+      entity_category: diagnostic
+
+    - name: AutoPool pump pressure
+      unique_id: autopool_pump_pressure
+      object_id: autopool_pump_pressure
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.pump_pressure }}"
+      unit_of_measurement: "bar"
+      device_class: pressure
+      state_class: measurement
+      suggested_display_precision: 2
+
+    - name: AutoPool pH
+      unique_id: autopool_ph
+      object_id: autopool_ph
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.ph }}"
+      state_class: measurement
+      icon: mdi:ph
+      suggested_display_precision: 2
+
+    - name: AutoPool ORP
+      unique_id: autopool_orp
+      object_id: autopool_orp
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.orp | round(0) }}"
+      unit_of_measurement: "mV"
+      device_class: voltage
+      state_class: measurement
+      icon: mdi:flash
+
+    - name: AutoPool daily ORP dose
+      unique_id: autopool_daily_ml_orp
+      object_id: autopool_daily_ml_orp
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.daily_ml_orp }}"
+      unit_of_measurement: "mL"
+      state_class: total_increasing
+      icon: mdi:beaker-outline
+
+    - name: AutoPool daily pH- dose
+      unique_id: autopool_daily_ml_ph_minus
+      object_id: autopool_daily_ml_ph_minus
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.daily_ml_ph_minus }}"
+      unit_of_measurement: "mL"
+      state_class: total_increasing
+      icon: mdi:beaker-minus-outline
+
+    - name: AutoPool daily pH+ dose
+      unique_id: autopool_daily_ml_ph_plus
+      object_id: autopool_daily_ml_ph_plus
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.daily_ml_ph_plus }}"
+      unit_of_measurement: "mL"
+      state_class: total_increasing
+      icon: mdi:beaker-plus-outline
+
+    - name: AutoPool boot count
+      unique_id: autopool_boot_count
+      object_id: autopool_boot_count
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.boot_count }}"
+      state_class: total_increasing
+      entity_category: diagnostic
+      icon: mdi:restart
+
+    # ===== Sensors fed by ${base}/STATE_FILTER ===============================
+
+    - name: AutoPool filter mode raw
+      unique_id: autopool_filter_mode_raw
+      object_id: autopool_filter_mode_raw
+      state_topic: "autopool/STATE_FILTER"
+      value_template: "{{ value_json.filter_mode }}"
+      entity_category: diagnostic
+
+    - name: AutoPool filter power raw
+      unique_id: autopool_filter_power_raw
+      object_id: autopool_filter_power_raw
+      state_topic: "autopool/STATE_FILTER"
+      value_template: "{{ value_json.filter_power }}"
+      entity_category: diagnostic
+
+    - name: AutoPool filter control state raw
+      unique_id: autopool_filter_control_state_raw
+      object_id: autopool_filter_control_state_raw
+      state_topic: "autopool/STATE_FILTER"
+      value_template: "{{ value_json.filter_control_state }}"
+      entity_category: diagnostic
+
+    - name: AutoPool filter time pump on
+      unique_id: autopool_filter_time_pump_on
+      object_id: autopool_filter_time_pump_on
+      state_topic: "autopool/STATE_FILTER"
+      value_template: "{{ value_json.filter_time_pump_on }}"
+      unit_of_measurement: "s"
+      device_class: duration
+      entity_category: diagnostic
+
+    - name: AutoPool filter time pump off
+      unique_id: autopool_filter_time_pump_off
+      object_id: autopool_filter_time_pump_off
+      state_topic: "autopool/STATE_FILTER"
+      value_template: "{{ value_json.filter_time_pump_off }}"
+      unit_of_measurement: "s"
+      device_class: duration
+      entity_category: diagnostic
+
+    # ===== Sensors fed by ${base}/STATE_PH ===================================
+
+    - name: AutoPool pH minus mode raw
+      unique_id: autopool_ph_minus_mode_raw
+      object_id: autopool_ph_minus_mode_raw
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_minus_mode }}"
+      entity_category: diagnostic
+
+    - name: AutoPool pH plus mode raw
+      unique_id: autopool_ph_plus_mode_raw
+      object_id: autopool_ph_plus_mode_raw
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_plus_mode }}"
+      entity_category: diagnostic
+
+    - name: AutoPool pH control state raw
+      unique_id: autopool_ph_control_state_raw
+      object_id: autopool_ph_control_state_raw
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_control_state }}"
+      entity_category: diagnostic
+
+    - name: AutoPool pH minus time pump on
+      unique_id: autopool_ph_minus_time_pump_on
+      object_id: autopool_ph_minus_time_pump_on
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_minus_time_pump_on }}"
+      unit_of_measurement: "s"
+      device_class: duration
+      entity_category: diagnostic
+
+    - name: AutoPool pH minus time pump off
+      unique_id: autopool_ph_minus_time_pump_off
+      object_id: autopool_ph_minus_time_pump_off
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_minus_time_pump_off }}"
+      unit_of_measurement: "s"
+      device_class: duration
+      entity_category: diagnostic
+
+    - name: AutoPool pH plus time pump on
+      unique_id: autopool_ph_plus_time_pump_on
+      object_id: autopool_ph_plus_time_pump_on
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_plus_time_pump_on }}"
+      unit_of_measurement: "s"
+      device_class: duration
+      entity_category: diagnostic
+
+    - name: AutoPool pH plus time pump off
+      unique_id: autopool_ph_plus_time_pump_off
+      object_id: autopool_ph_plus_time_pump_off
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_plus_time_pump_off }}"
+      unit_of_measurement: "s"
+      device_class: duration
+      entity_category: diagnostic
+
+    # ===== Sensors fed by ${base}/STATE_ORP ==================================
+
+    - name: AutoPool ORP mode raw
+      unique_id: autopool_orp_mode_raw
+      object_id: autopool_orp_mode_raw
+      state_topic: "autopool/STATE_ORP"
+      value_template: "{{ value_json.orp_mode }}"
+      entity_category: diagnostic
+
+    - name: AutoPool ORP control state raw
+      unique_id: autopool_orp_control_state_raw
+      object_id: autopool_orp_control_state_raw
+      state_topic: "autopool/STATE_ORP"
+      value_template: "{{ value_json.orp_control_state }}"
+      entity_category: diagnostic
+
+    # ===== Sensors fed by ${base}/PARAM (filter_auto_mode raw) ===============
+
+    - name: AutoPool filter auto mode raw
+      unique_id: autopool_filter_auto_mode_raw
+      object_id: autopool_filter_auto_mode_raw
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.filter_auto_mode }}"
+      entity_category: diagnostic
+
+    # ===== Hidden mirror of MQTT connection fields (echoed back in =========
+    #       every CMD/PARAMETERS publish; firmware crashes if missing).      =
+
+    - name: AutoPool mqtt_server
+      unique_id: autopool_mqtt_server
+      object_id: autopool_mqtt_server
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.mqtt_server }}"
+      entity_category: diagnostic
+      enabled_by_default: false
+
+    - name: AutoPool mqtt_port
+      unique_id: autopool_mqtt_port
+      object_id: autopool_mqtt_port
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.mqtt_port }}"
+      entity_category: diagnostic
+      enabled_by_default: false
+
+    - name: AutoPool mqtt_user
+      unique_id: autopool_mqtt_user
+      object_id: autopool_mqtt_user
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.mqtt_user }}"
+      entity_category: diagnostic
+      enabled_by_default: false
+
+    - name: AutoPool mqtt_pass
+      unique_id: autopool_mqtt_pass
+      object_id: autopool_mqtt_pass
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.mqtt_pass }}"
+      entity_category: diagnostic
+      enabled_by_default: false
+
+    - name: AutoPool base_topic
+      unique_id: autopool_base_topic
+      object_id: autopool_base_topic
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.base_topic }}"
+      entity_category: diagnostic
+      enabled_by_default: false
+
+  # ===== Binary sensors ====================================================
+  binary_sensor:
+
+    - name: AutoPool filter pump
+      unique_id: autopool_filter_pump
+      object_id: autopool_filter_pump
+      state_topic: "autopool/STATE_FILTER"
+      value_template: "{{ value_json.filter_pump }}"
+      payload_on: "1"
+      payload_off: "0"
+      device_class: running
+
+    - name: AutoPool ORP pump
+      unique_id: autopool_orp_pump
+      object_id: autopool_orp_pump
+      state_topic: "autopool/STATE_ORP"
+      value_template: "{{ value_json.orp_pump }}"
+      payload_on: "1"
+      payload_off: "0"
+      device_class: running
+
+    - name: AutoPool pH minus pump
+      unique_id: autopool_ph_minus_pump
+      object_id: autopool_ph_minus_pump
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_minus_pump }}"
+      payload_on: "1"
+      payload_off: "0"
+      device_class: running
+
+    - name: AutoPool pH plus pump
+      unique_id: autopool_ph_plus_pump
+      object_id: autopool_ph_plus_pump
+      state_topic: "autopool/STATE_PH"
+      value_template: "{{ value_json.ph_plus_pump }}"
+      payload_on: "1"
+      payload_off: "0"
+      device_class: running
+
+    # Levels: firmware emits booleans (true=tank OK, false=low). HA `problem`
+    # device class lights up when state is "on", so invert the mapping.
+    - name: AutoPool water level low
+      unique_id: autopool_level_water
+      object_id: autopool_level_water
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.level_water }}"
+      payload_on: "False"
+      payload_off: "True"
+      device_class: problem
+
+    - name: AutoPool chlorine level low
+      unique_id: autopool_level_cl
+      object_id: autopool_level_cl
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.level_cl }}"
+      payload_on: "False"
+      payload_off: "True"
+      device_class: problem
+
+    - name: AutoPool pH minus level low
+      unique_id: autopool_level_ph_minus
+      object_id: autopool_level_ph_minus
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.level_ph_minus }}"
+      payload_on: "False"
+      payload_off: "True"
+      device_class: problem
+
+    - name: AutoPool pH plus level low
+      unique_id: autopool_level_ph_plus
+      object_id: autopool_level_ph_plus
+      state_topic: "autopool/MEAS"
+      value_template: "{{ value_json.level_ph_plus }}"
+      payload_on: "False"
+      payload_off: "True"
+      device_class: problem
+
+    - name: AutoPool pressure warning
+      unique_id: autopool_pressure_warning_state
+      object_id: autopool_pressure_warning_state
+      state_topic: "autopool/MEAS"
+      value_template: >-
+        {% set p = value_json.pump_pressure | float(0) %}
+        {% set thr = states('number.autopool_pressure_warning') | float(99) %}
+        {{ 'ON' if p > thr else 'OFF' }}
+      payload_on: "ON"
+      payload_off: "OFF"
+      device_class: problem
+
+  # ===== Editable parameter numbers ========================================
+  # Each writes the FULL param struct via the build_param_payload macro.
+  # `availability` ties writes to PARAM presence so we never publish the
+  # macro's "unknown" defaults to the device.
+  number:
+
+    - name: AutoPool target pH
+      unique_id: autopool_target_ph
+      object_id: autopool_target_ph
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.target_ph }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('target_ph', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 6.8
+      max: 8.0
+      step: 0.05
+      mode: box
+      unit_of_measurement: "pH"
+      icon: mdi:target
+
+    - name: AutoPool delta pH
+      unique_id: autopool_delta_ph
+      object_id: autopool_delta_ph
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.delta_ph }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('delta_ph', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0.05
+      max: 1.0
+      step: 0.05
+      mode: box
+      unit_of_measurement: "pH"
+
+    - name: AutoPool target ORP
+      unique_id: autopool_target_orp
+      object_id: autopool_target_orp
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.target_orp }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('target_orp', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 400
+      max: 900
+      step: 10
+      mode: box
+      unit_of_measurement: "mV"
+      icon: mdi:target
+
+    - name: AutoPool delta ORP
+      unique_id: autopool_delta_orp
+      object_id: autopool_delta_orp
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.delta_orp }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('delta_orp', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 10
+      max: 200
+      step: 5
+      mode: box
+      unit_of_measurement: "mV"
+
+    - name: AutoPool flow chlorine
+      unique_id: autopool_flow_cl
+      object_id: autopool_flow_cl
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.flow_cl }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('flow_cl', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 1.0
+      max: 200
+      step: 0.5
+      mode: box
+      unit_of_measurement: "mL/min"
+
+    - name: AutoPool flow pH minus
+      unique_id: autopool_flow_ph_minus
+      object_id: autopool_flow_ph_minus
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.flow_ph_minus }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('flow_ph_minus', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 1.0
+      max: 200
+      step: 0.5
+      mode: box
+      unit_of_measurement: "mL/min"
+
+    - name: AutoPool flow pH plus
+      unique_id: autopool_flow_ph_plus
+      object_id: autopool_flow_ph_plus
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.flow_ph_plus }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('flow_ph_plus', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 1.0
+      max: 200
+      step: 0.5
+      mode: box
+      unit_of_measurement: "mL/min"
+
+    - name: AutoPool pressure warning threshold
+      unique_id: autopool_pressure_warning
+      object_id: autopool_pressure_warning
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.pressure_warning }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('pressure_warning', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0.5
+      max: 5.0
+      step: 0.1
+      mode: box
+      unit_of_measurement: "bar"
+
+    - name: AutoPool max daily chlorine
+      unique_id: autopool_cl_max_day
+      object_id: autopool_cl_max_day
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.cl_max_day }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('cl_max_day', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 100
+      max: 5000
+      step: 50
+      mode: box
+      unit_of_measurement: "mL"
+
+    - name: AutoPool max daily pH minus
+      unique_id: autopool_phm_max_day
+      object_id: autopool_phm_max_day
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.phm_max_day }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('phm_max_day', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 100
+      max: 5000
+      step: 50
+      mode: box
+      unit_of_measurement: "mL"
+
+    - name: AutoPool ORP offset
+      unique_id: autopool_orp_offset
+      object_id: autopool_orp_offset
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.orp_offset }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('orp_offset', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: -200
+      max: 200
+      step: 1
+      mode: box
+      unit_of_measurement: "mV"
+      entity_category: config
+
+    - name: AutoPool pH offset
+      unique_id: autopool_ph_offset
+      object_id: autopool_ph_offset
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.ph_offset }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('ph_offset', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: -2.0
+      max: 2.0
+      step: 0.01
+      mode: box
+      unit_of_measurement: "pH"
+      entity_category: config
+
+    - name: AutoPool periodic filter time
+      unique_id: autopool_periodic_filter_time
+      object_id: autopool_periodic_filter_time
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.periodic_filter_time }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('periodic_filter_time', value | float) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 240
+      step: 5
+      mode: box
+      unit_of_measurement: "min"
+
+    - name: AutoPool timer prog
+      unique_id: autopool_timer_prog
+      object_id: autopool_timer_prog
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {{ build_param_payload('timer_prog', value | int) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    # ----- timer_prog_temperature[11] (one number per temperature band) ----
+    - name: AutoPool timer prog temp 0
+      unique_id: autopool_timer_prog_temp_0
+      object_id: autopool_timer_prog_temp_0
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[0] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          value | int,
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 1
+      unique_id: autopool_timer_prog_temp_1
+      object_id: autopool_timer_prog_temp_1
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[1] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 2
+      unique_id: autopool_timer_prog_temp_2
+      object_id: autopool_timer_prog_temp_2
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[2] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 3
+      unique_id: autopool_timer_prog_temp_3
+      object_id: autopool_timer_prog_temp_3
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[3] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 4
+      unique_id: autopool_timer_prog_temp_4
+      object_id: autopool_timer_prog_temp_4
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[4] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 5
+      unique_id: autopool_timer_prog_temp_5
+      object_id: autopool_timer_prog_temp_5
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[5] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 6
+      unique_id: autopool_timer_prog_temp_6
+      object_id: autopool_timer_prog_temp_6
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[6] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 7
+      unique_id: autopool_timer_prog_temp_7
+      object_id: autopool_timer_prog_temp_7
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[7] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 8
+      unique_id: autopool_timer_prog_temp_8
+      object_id: autopool_timer_prog_temp_8
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[8] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 9
+      unique_id: autopool_timer_prog_temp_9
+      object_id: autopool_timer_prog_temp_9
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[9] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          value | int,
+          states('number.autopool_timer_prog_temp_10') | int(0)
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+    - name: AutoPool timer prog temp 10
+      unique_id: autopool_timer_prog_temp_10
+      object_id: autopool_timer_prog_temp_10
+      state_topic: "autopool/PARAM"
+      value_template: "{{ value_json.timer_prog_temperature[10] }}"
+      command_topic: "autopool/CMD/PARAMETERS"
+      command_template: >-
+        {%- from 'autopool.jinja' import build_param_payload -%}
+        {%- set arr = [
+          states('number.autopool_timer_prog_temp_0') | int(0),
+          states('number.autopool_timer_prog_temp_1') | int(0),
+          states('number.autopool_timer_prog_temp_2') | int(0),
+          states('number.autopool_timer_prog_temp_3') | int(0),
+          states('number.autopool_timer_prog_temp_4') | int(0),
+          states('number.autopool_timer_prog_temp_5') | int(0),
+          states('number.autopool_timer_prog_temp_6') | int(0),
+          states('number.autopool_timer_prog_temp_7') | int(0),
+          states('number.autopool_timer_prog_temp_8') | int(0),
+          states('number.autopool_timer_prog_temp_9') | int(0),
+          value | int
+        ] -%}
+        {{ build_param_payload('timer_prog_temperature', arr) }}
+      availability:
+        - topic: "autopool/PARAM"
+      min: 0
+      max: 16777215
+      step: 1
+      mode: box
+      entity_category: config
+
+  # ===== Command buttons ===================================================
+  button:
+
+    - name: AutoPool get parameters
+      unique_id: autopool_get_parameters
+      object_id: autopool_get_parameters
+      command_topic: "autopool/CMD/GET_PARAMETERS"
+      payload_press: ""
+      icon: mdi:download
+
+    - name: AutoPool get states
+      unique_id: autopool_get_states
+      object_id: autopool_get_states
+      command_topic: "autopool/CMD/GET_STATES"
+      payload_press: ""
+      icon: mdi:download
+
+    - name: AutoPool reset daily ORP
+      unique_id: autopool_rst_daily_ml_orp
+      object_id: autopool_rst_daily_ml_orp
+      command_topic: "autopool/CMD/RST_DAILY_ML_ORP"
+      payload_press: ""
+      icon: mdi:counter
+
+    - name: AutoPool beep
+      unique_id: autopool_beep
+      object_id: autopool_beep
+      command_topic: "autopool/CMD/BEEP"
+      payload_press: ""
+      icon: mdi:volume-high
+
+    - name: AutoPool reboot device
+      unique_id: autopool_reset
+      object_id: autopool_reset
+      command_topic: "autopool/CMD/RESET"
+      payload_press: ""
+      device_class: restart
+      entity_category: diagnostic
+
+  # ===== Last log line =====================================================
+  text:
+    - name: AutoPool log
+      unique_id: autopool_log
+      object_id: autopool_log
+      state_topic: "autopool/LOG"
+      command_topic: "autopool/CMD/LOG"
+      mode: text
+      max: 200
+      entity_category: diagnostic
+
+
+# ---------------------------------------------------------------------------
+# Template entities (decoded enums + dispatch selects)
+# ---------------------------------------------------------------------------
+template:
+
+  # ----- Decoded enum text sensors ----------------------------------------
+  - sensor:
+
+      - name: AutoPool filter control state
+        unique_id: autopool_filter_control_state
+        state: >-
+          {% set m = states('sensor.autopool_filter_control_state_raw') | int(-1) %}
+          {{ {0:'IDLE',1:'WARM_UP',2:'ACTIVE',3:'EXTENDED',4:'PERIODIC'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_filter_control_state_raw') }}"
+        icon: mdi:state-machine
+
+      - name: AutoPool ORP control state
+        unique_id: autopool_orp_control_state
+        state: >-
+          {% set m = states('sensor.autopool_orp_control_state_raw') | int(-1) %}
+          {{ {0:'IDLE',1:'INJECTION_ON',2:'INJECTION_OFF'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_orp_control_state_raw') }}"
+        icon: mdi:state-machine
+
+      - name: AutoPool pH control state
+        unique_id: autopool_ph_control_state
+        state: >-
+          {% set m = states('sensor.autopool_ph_control_state_raw') | int(-1) %}
+          {{ {0:'IDLE',1:'MINUS_ON',2:'PLUS_ON',3:'MINUS_OFF',4:'PLUS_OFF'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_ph_control_state_raw') }}"
+        icon: mdi:state-machine
+
+  # ----- Mode selects (template, dispatch CMD topic per option) -----------
+  - select:
+
+      - name: AutoPool filter mode
+        unique_id: autopool_filter_mode
+        state: >-
+          {% set m = states('sensor.autopool_filter_mode_raw') | int(-1) %}
+          {{ {0:'OFF',1:'ON',2:'AUTO'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_filter_mode_raw') }}"
+        options: ["OFF", "ON", "AUTO"]
+        select_option:
+          - action: mqtt.publish
+            data:
+              topic: "autopool/CMD/FILTER_MODE_{{ option }}"
+              payload: ""
+        icon: mdi:water-pump
+
+      - name: AutoPool filter power
+        unique_id: autopool_filter_power
+        state: >-
+          {% set m = states('sensor.autopool_filter_power_raw') | int(-1) %}
+          {{ {0:'FULL',1:'REG'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_filter_power_raw') }}"
+        options: ["FULL", "REG"]
+        select_option:
+          - action: mqtt.publish
+            data:
+              topic: "autopool/CMD/FILTER_PWR_{{ option }}"
+              payload: ""
+        icon: mdi:speedometer
+
+      - name: AutoPool ORP mode
+        unique_id: autopool_orp_mode
+        state: >-
+          {% set m = states('sensor.autopool_orp_mode_raw') | int(-1) %}
+          {{ {0:'OFF',1:'ON',2:'AUTO'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_orp_mode_raw') }}"
+        options: ["OFF", "ON", "AUTO"]
+        select_option:
+          - action: mqtt.publish
+            data:
+              topic: "autopool/CMD/ORP_MODE_{{ option }}"
+              payload: ""
+        icon: mdi:flash
+
+      # filter_auto_mode lives in PARAM struct → publish CMD/PARAMETERS.
+      - name: AutoPool filter auto mode
+        unique_id: autopool_filter_auto_mode
+        state: >-
+          {% set m = states('sensor.autopool_filter_auto_mode_raw') | int(-1) %}
+          {{ {0:'TIMER_PROG',1:'TIMER_FCT_T'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_filter_auto_mode_raw') }}"
+        options: ["TIMER_PROG", "TIMER_FCT_T"]
+        select_option:
+          - action: mqtt.publish
+            data:
+              topic: "autopool/CMD/PARAMETERS"
+              payload: >-
+                {%- from 'autopool.jinja' import build_param_payload -%}
+                {{ build_param_payload('filter_auto_mode',
+                     0 if option == 'TIMER_PROG' else 1) }}
+
+      # ----- pH mode selects (full PH_STATE rewrite) -----------------------
+      - name: AutoPool pH minus mode
+        unique_id: autopool_ph_minus_mode
+        state: >-
+          {% set m = states('sensor.autopool_ph_minus_mode_raw') | int(-1) %}
+          {{ {0:'OFF',1:'ON',2:'AUTO'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_ph_minus_mode_raw') }}"
+        options: ["OFF", "ON", "AUTO"]
+        select_option:
+          - action: mqtt.publish
+            data:
+              topic: "autopool/CMD/PH_STATE"
+              payload: >-
+                {%- from 'autopool.jinja' import build_ph_state_payload -%}
+                {{ build_ph_state_payload('ph_minus_mode',
+                     {'OFF':0,'ON':1,'AUTO':2}[option]) }}
+        icon: mdi:flask-minus
+
+      - name: AutoPool pH plus mode
+        unique_id: autopool_ph_plus_mode
+        state: >-
+          {% set m = states('sensor.autopool_ph_plus_mode_raw') | int(-1) %}
+          {{ {0:'OFF',1:'ON',2:'AUTO'}.get(m,'unknown') }}
+        availability: "{{ has_value('sensor.autopool_ph_plus_mode_raw') }}"
+        options: ["OFF", "ON", "AUTO"]
+        select_option:
+          - action: mqtt.publish
+            data:
+              topic: "autopool/CMD/PH_STATE"
+              payload: >-
+                {%- from 'autopool.jinja' import build_ph_state_payload -%}
+                {{ build_ph_state_payload('ph_plus_mode',
+                     {'OFF':0,'ON':1,'AUTO':2}[option]) }}
+        icon: mdi:flask-plus
+
+
+# ---------------------------------------------------------------------------
+# Boot priming
+# ---------------------------------------------------------------------------
+automation:
+
+  - alias: AutoPool prime caches at startup
+    id: autopool_prime_caches
+    triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: mqtt
+        topic: "autopool/MEAS"
+    action:
+      - delay: "00:00:03"
+      - action: mqtt.publish
+        data:
+          topic: "autopool/CMD/GET_PARAMETERS"
+          payload: ""
+      - action: mqtt.publish
+        data:
+          topic: "autopool/CMD/GET_STATES"
+          payload: ""
+    mode: single
+    max_exceeded: silent

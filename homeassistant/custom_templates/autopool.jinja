@@ -1,0 +1,74 @@
+{# AutoPool — shared Jinja macros.
+   Drop this file in <HA_config>/custom_templates/. After a HA restart it
+   becomes importable from any template (mqtt entities included) via:
+       {% from 'autopool.jinja' import build_param_payload %}
+#}
+
+{# Build the FULL CMD/PARAMETERS JSON payload.
+   The firmware (parameters.cpp:124) reads every field unconditionally — any
+   missing key crashes the device. So every editable parameter has to echo
+   the OTHER parameters' current values back, only changing the one it owns.
+
+   Args:
+     field  – name of the param being changed (e.g. 'target_ph').
+     value  – the new value (already cast/typed by the caller).
+#}
+{% macro build_param_payload(field, value) %}
+{% set p = {
+  'mqtt_server':           states('sensor.autopool_mqtt_server'),
+  'mqtt_port':             states('sensor.autopool_mqtt_port'),
+  'mqtt_user':             states('sensor.autopool_mqtt_user'),
+  'mqtt_pass':             states('sensor.autopool_mqtt_pass'),
+  'base_topic':            states('sensor.autopool_base_topic'),
+  'target_ph':             states('number.autopool_target_ph')          | float(0),
+  'delta_ph':              states('number.autopool_delta_ph')           | float(0),
+  'target_orp':            states('number.autopool_target_orp')         | float(0),
+  'delta_orp':             states('number.autopool_delta_orp')          | float(0),
+  'flow_cl':               states('number.autopool_flow_cl')            | float(0),
+  'flow_ph_minus':         states('number.autopool_flow_ph_minus')      | float(0),
+  'flow_ph_plus':          states('number.autopool_flow_ph_plus')       | float(0),
+  'timer_prog':            states('number.autopool_timer_prog')         | int(0),
+  'filter_auto_mode':      (0 if states('select.autopool_filter_auto_mode') == 'TIMER_PROG' else 1),
+  'pressure_warning':      states('number.autopool_pressure_warning')   | float(0),
+  'cl_max_day':            states('number.autopool_cl_max_day')         | float(0),
+  'phm_max_day':           states('number.autopool_phm_max_day')        | float(0),
+  'orp_offset':            states('number.autopool_orp_offset')         | float(0),
+  'ph_offset':             states('number.autopool_ph_offset')          | float(0),
+  'periodic_filter_time':  states('number.autopool_periodic_filter_time') | float(0),
+  'timer_prog_temperature': [
+    states('number.autopool_timer_prog_temp_0')  | int(0),
+    states('number.autopool_timer_prog_temp_1')  | int(0),
+    states('number.autopool_timer_prog_temp_2')  | int(0),
+    states('number.autopool_timer_prog_temp_3')  | int(0),
+    states('number.autopool_timer_prog_temp_4')  | int(0),
+    states('number.autopool_timer_prog_temp_5')  | int(0),
+    states('number.autopool_timer_prog_temp_6')  | int(0),
+    states('number.autopool_timer_prog_temp_7')  | int(0),
+    states('number.autopool_timer_prog_temp_8')  | int(0),
+    states('number.autopool_timer_prog_temp_9')  | int(0),
+    states('number.autopool_timer_prog_temp_10') | int(0)
+  ]
+} %}
+{{ dict(p, **{field: value}) | tojson }}
+{% endmacro %}
+
+
+{# Build the FULL CMD/PH_STATE JSON payload.
+   The firmware has no PH_MODE_* CMD topics (mqtt.cpp:25-103); the only way
+   to change pH minus/plus modes is to write the entire StateStructure pH
+   slice (state.cpp:87, state.h:92-101). Echoes the other fields unchanged.
+#}
+{% macro build_ph_state_payload(field, value) %}
+{% set p = {
+  'ph_minus_mode':            states('sensor.autopool_ph_minus_mode_raw')   | int(0),
+  'ph_plus_mode':             states('sensor.autopool_ph_plus_mode_raw')    | int(0),
+  'ph_minus_pump':            (1 if states('binary_sensor.autopool_ph_minus_pump') == 'on' else 0),
+  'ph_plus_pump':             (1 if states('binary_sensor.autopool_ph_plus_pump') == 'on' else 0),
+  'ph_control_state':         states('sensor.autopool_ph_control_state_raw') | int(0),
+  'ph_minus_time_pump_on':    states('sensor.autopool_ph_minus_time_pump_on')  | int(0),
+  'ph_minus_time_pump_off':   states('sensor.autopool_ph_minus_time_pump_off') | int(0),
+  'ph_plus_time_pump_on':     states('sensor.autopool_ph_plus_time_pump_on')   | int(0),
+  'ph_plus_time_pump_off':    states('sensor.autopool_ph_plus_time_pump_off')  | int(0)
+} %}
+{{ dict(p, **{field: value}) | tojson }}
+{% endmacro %}

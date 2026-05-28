@@ -1,0 +1,375 @@
+# =============================================================================
+# AutoPool dashboard — autodiscovery edition
+# -----------------------------------------------------------------------------
+# Built entirely on entities published by the controller's MQTT autodiscovery
+# (see src/mqtt_discovery.cpp). No HACS frontend cards required.
+#
+# Prerequisites:
+#   1. Enable autodiscovery in the AutoPool web UI (Settings → Home Assistant).
+#   2. (Optional) Create the helper used by the collapsible Settings section:
+#        helper -> input_boolean -> "AutoPool: Show Settings"
+#                                   (entity_id will be input_boolean.autopool_show_settings)
+#      See homeassistant/configuration_snippet.yaml for a YAML version.
+#   3. Register this file under lovelace.dashboards in configuration.yaml.
+#
+# Entity naming: the firmware emits obj_id="autopool_<object>" so HA assigns
+# stable entity_ids of the form <domain>.autopool_<object> (no MAC suffix).
+# =============================================================================
+
+title: AutoPool
+views:
+  - title: AutoPool
+    path: autopool
+    type: sections
+    max_columns: 3
+    sections:
+
+      # ===================================================================
+      # 1. OVERVIEW
+      # ===================================================================
+      - type: grid
+        cards:
+          - type: heading
+            heading: Overview
+            icon: mdi:pool
+
+          - type: horizontal-stack
+            cards:
+              - type: gauge
+                name: Water
+                entity: sensor.autopool_water_temperature
+                min: 10
+                max: 35
+                needle: true
+                severity:
+                  green: 22
+                  yellow: 28
+                  red: 32
+              - type: gauge
+                name: pH
+                entity: sensor.autopool_ph
+                min: 6.5
+                max: 8.0
+                needle: true
+                severity:
+                  green: 7.1
+                  yellow: 7.5
+                  red: 7.7
+              - type: gauge
+                name: ORP
+                entity: sensor.autopool_orp
+                unit: mV
+                min: 400
+                max: 850
+                needle: true
+                severity:
+                  red: 400
+                  yellow: 600
+                  green: 680
+
+          - type: tile
+            entity: binary_sensor.autopool_pressure_warning
+            name: Pressure warning
+            color: red
+
+          - type: history-graph
+            title: Water temperature (24 h)
+            hours_to_show: 24
+            entities:
+              - sensor.autopool_water_temperature
+
+      # ===================================================================
+      # 2. FILTER
+      # ===================================================================
+      - type: grid
+        cards:
+          - type: heading
+            heading: Filter
+            icon: mdi:water-pump
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: select.autopool_filter_mode
+                name: Mode
+              - type: tile
+                entity: binary_sensor.autopool_filter_pump
+                name: Pump
+                color: blue
+              - type: tile
+                entity: select.autopool_filter_power
+                name: Power
+
+          - type: tile
+            entity: sensor.autopool_filter_control_state
+            name: Control state
+            icon: mdi:state-machine
+
+          - type: history-graph
+            title: Pump pressure (6 h)
+            hours_to_show: 6
+            entities:
+              - sensor.autopool_pump_pressure
+
+          - type: entities
+            title: Filter pump timing
+            entities:
+              - entity: sensor.autopool_filter_time_pump_on
+                name: Last pump-on (ms since boot)
+              - entity: sensor.autopool_filter_time_pump_off
+                name: Last pump-off (ms since boot)
+
+      # ===================================================================
+      # 3. CHEMISTRY
+      # ===================================================================
+      - type: grid
+        cards:
+          - type: heading
+            heading: Chemistry
+            icon: mdi:test-tube
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: select.autopool_ph_minus_mode
+                name: pH- mode
+              - type: tile
+                entity: select.autopool_ph_plus_mode
+                name: pH+ mode
+              - type: tile
+                entity: select.autopool_orp_mode
+                name: ORP mode
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: binary_sensor.autopool_ph_minus_pump
+                name: pH- pump
+                color: orange
+              - type: tile
+                entity: binary_sensor.autopool_ph_plus_pump
+                name: pH+ pump
+                color: green
+              - type: tile
+                entity: binary_sensor.autopool_orp_pump
+                name: Cl pump
+                color: yellow
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: sensor.autopool_ph_control_state
+                name: pH controller
+              - type: tile
+                entity: sensor.autopool_orp_control_state
+                name: ORP controller
+
+          - type: entities
+            title: Daily doses vs caps
+            entities:
+              - entity: sensor.autopool_daily_ml_orp
+                name: Cl injected today
+              - entity: number.autopool_cl_max_day
+                name: Cl daily cap
+              - entity: sensor.autopool_daily_ml_ph_minus
+                name: pH- injected today
+              - entity: number.autopool_phm_max_day
+                name: pH- daily cap
+              - entity: sensor.autopool_daily_ml_ph_plus
+                name: pH+ injected today
+
+          - type: tile
+            entity: button.autopool_rst_daily_ml_orp
+            name: Reset daily Cl counter
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.autopool_rst_daily_ml_orp
+
+      # ===================================================================
+      # 4. FILTER RUNTIME
+      # ===================================================================
+      - type: grid
+        cards:
+          - type: heading
+            heading: Filter runtime
+            icon: mdi:timer-sand
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: sensor.autopool_daily_filter_min
+                name: Today
+              - type: tile
+                entity: sensor.autopool_total_filter_min
+                name: Lifetime
+
+          - type: history-graph
+            title: Daily filter time (7 d)
+            hours_to_show: 168
+            entities:
+              - sensor.autopool_daily_filter_min
+
+      # ===================================================================
+      # 5. TANKS & LEVELS
+      # ===================================================================
+      - type: grid
+        cards:
+          - type: heading
+            heading: Tanks & Levels
+            icon: mdi:beaker
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: binary_sensor.autopool_level_water
+                name: Pool water
+                color: blue
+              - type: tile
+                entity: binary_sensor.autopool_level_cl
+                name: Chlorine
+                color: yellow
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: binary_sensor.autopool_level_ph_minus
+                name: pH-
+                color: orange
+              - type: tile
+                entity: binary_sensor.autopool_level_ph_plus
+                name: pH+
+                color: green
+
+          - type: markdown
+            content: >
+              **Last refilled** —
+              water: {{ relative_time(states.binary_sensor.autopool_level_water.last_changed) }} ago,
+              Cl: {{ relative_time(states.binary_sensor.autopool_level_cl.last_changed) }} ago,
+              pH-: {{ relative_time(states.binary_sensor.autopool_level_ph_minus.last_changed) }} ago,
+              pH+: {{ relative_time(states.binary_sensor.autopool_level_ph_plus.last_changed) }} ago.
+
+      # ===================================================================
+      # 6. TRENDS
+      # ===================================================================
+      - type: grid
+        cards:
+          - type: heading
+            heading: Trends (24 h)
+            icon: mdi:chart-line
+
+          - type: history-graph
+            title: Water temperature
+            hours_to_show: 24
+            entities:
+              - sensor.autopool_water_temperature
+              - sensor.autopool_day_max_water_temperature
+
+          - type: history-graph
+            title: pH
+            hours_to_show: 24
+            entities:
+              - sensor.autopool_ph
+
+          - type: history-graph
+            title: ORP
+            hours_to_show: 24
+            entities:
+              - sensor.autopool_orp
+
+          - type: history-graph
+            title: Pump pressure
+            hours_to_show: 24
+            entities:
+              - sensor.autopool_pump_pressure
+
+      # ===================================================================
+      # 7. SETTINGS (collapsible — needs input_boolean.autopool_show_settings)
+      # ===================================================================
+      - type: grid
+        cards:
+          - type: heading
+            heading: Settings
+            icon: mdi:cog
+
+          - type: tile
+            entity: input_boolean.autopool_show_settings
+            name: Show settings
+
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: input_boolean.autopool_show_settings
+                state: "on"
+            card:
+              type: vertical-stack
+              cards:
+                - type: entities
+                  title: Setpoints
+                  entities:
+                    - number.autopool_target_ph
+                    - number.autopool_delta_ph
+                    - number.autopool_target_orp
+                    - number.autopool_delta_orp
+
+                - type: entities
+                  title: Sensor calibration
+                  entities:
+                    - number.autopool_ph_offset
+                    - number.autopool_orp_offset
+
+                - type: entities
+                  title: Pump flow rates
+                  entities:
+                    - number.autopool_flow_ph_minus
+                    - number.autopool_flow_ph_plus
+                    - number.autopool_flow_cl
+
+                - type: entities
+                  title: Daily safety caps
+                  entities:
+                    - number.autopool_phm_max_day
+                    - number.autopool_cl_max_day
+
+                - type: entities
+                  title: Filter scheduling
+                  entities:
+                    - number.autopool_periodic_filter_time
+                    - number.autopool_pressure_warning
+
+      # ===================================================================
+      # 8. DIAGNOSTICS & MAINTENANCE
+      # ===================================================================
+      - type: grid
+        cards:
+          - type: heading
+            heading: Diagnostics & Maintenance
+            icon: mdi:wrench
+
+          - type: entities
+            title: System
+            entities:
+              - sensor.autopool_boot_count
+              - sensor.autopool_system_temperature
+              - sensor.autopool_system_humidity
+              - sensor.autopool_day_max_water_temperature
+
+          - type: entities
+            title: Controller states
+            entities:
+              - sensor.autopool_filter_control_state
+              - sensor.autopool_orp_control_state
+              - sensor.autopool_ph_control_state
+
+          - type: tile
+            entity: button.autopool_reset
+            name: Reboot controller
+            color: red
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              confirmation:
+                text: Reboot the AutoPool controller now?
+              target:
+                entity_id: button.autopool_reset

@@ -126,6 +126,9 @@ bool update_measures(void *)
 		}
 		// Pressure value
 		measures.pump_pressure = pump_filtration_get_pressure(false);
+		measures.pressure_warning_active = pump_filtration_is_on() &&
+			(parameters.pressure_warning > 0.0f) &&
+			(measures.pump_pressure > parameters.pressure_warning);
 #if HAS_QUIET_MEASURES
 		if (quiet_measure)
 		{
@@ -180,6 +183,7 @@ void measures_to_json_string(void)
 	json["level_ph_minus"] = measures.level_ph_minus;
 	json["level_ph_plus"] = measures.level_ph_plus;
 	json["level_water"] = measures.level_water;
+	json["pressure_warning_active"] = measures.pressure_warning_active;
 	json["daily_ml_orp"] = measures.daily_ml_orp;
 	json["daily_ml_ph_minus"] = measures.daily_ml_ph_minus;
 	json["daily_ml_ph_plus"] = measures.daily_ml_ph_plus;
@@ -207,6 +211,7 @@ bool measures_json_to_measures(char *json_str)
 		measures.level_ph_minus = json["level_ph_minus"];
 		measures.level_ph_plus = json["level_ph_plus"];
 		measures.level_water = json["level_water"];
+		if (json.containsKey("pressure_warning_active")) measures.pressure_warning_active = json["pressure_warning_active"];
 		measures.daily_ml_orp = json["daily_ml_orp"];
 		measures.daily_ml_ph_minus = json["daily_ml_ph_minus"];
 		measures.daily_ml_ph_plus = json["daily_ml_ph_plus"];

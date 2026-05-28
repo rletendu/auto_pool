@@ -22,6 +22,7 @@ struct MeasuresStructure
 	bool level_cl;
 	bool level_ph_minus;
 	bool level_ph_plus;
+	bool pressure_warning_active;
 	float daily_ml_orp;
 	float daily_ml_ph_plus;
 	float daily_ml_ph_minus;

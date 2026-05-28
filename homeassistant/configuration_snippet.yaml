@@ -1,0 +1,93 @@
+# =============================================================================
+# AutoPool — additions to <HA_config>/configuration.yaml
+# -----------------------------------------------------------------------------
+# This snippet supports the autodiscovery dashboard at
+# `dashboards/autopool.yaml`. The autodiscovery path needs only:
+#
+#   1. The MQTT integration enabled in HA (Settings → Devices → MQTT).
+#   2. The toggle "Enable autodiscovery" turned on in the AutoPool web UI.
+#   3. Optional: the input_boolean helper used by the collapsible Settings
+#      section of the dashboard (defined in this file).
+#   4. The dashboard YAML registered under `lovelace.dashboards`.
+#
+# The legacy manual-MQTT package at `packages/autopool.yaml` is no longer
+# required — it remains in the repo for users who haven't migrated yet, but
+# you should not load both at once or you'll get duplicate entities.
+#
+# Layout assumed in your <HA_config>/:
+#   configuration.yaml                <-- add the lines below
+#   custom_templates/autopool.jinja   <-- optional, used by the legacy package
+#   dashboards/autopool.yaml          <-- copy from this repo
+#   packages/autopool.yaml            <-- legacy / opt-in only
+# =============================================================================
+
+
+# ----- 1. (Legacy only) enable the packages directory -----------------------
+# Skip this block on autodiscovery setups. Only uncomment if you keep loading
+# the manual `packages/autopool.yaml` package — and disable autodiscovery on
+# the controller in that case.
+#
+# homeassistant:
+#   packages: !include_dir_named packages
+
+
+# ----- 2. Helper used by the dashboard --------------------------------------
+# Drives the collapsible "Settings" section. Set initial: false so the
+# settings stay hidden on a fresh load.
+
+input_boolean:
+  autopool_show_settings:
+    name: AutoPool show settings
+    icon: mdi:cog
+    initial: false
+
+
+# ----- 3. Register the dashboard --------------------------------------------
+# Adds the AutoPool dashboard as a sidebar entry. Keep `mode: storage` for the
+# default Lovelace dashboard (the Overview); `mode: yaml` only on this one.
+
+lovelace:
+  mode: storage
+  dashboards:
+    autopool-dashboard:
+      mode: yaml
+      title: AutoPool
+      icon: mdi:pool
+      show_in_sidebar: true
+      filename: dashboards/autopool.yaml
+
+
+# =============================================================================
+# Verification — autodiscovery path
+# =============================================================================
+# 1. Subscribe to the discovery prefix while the controller boots:
+#
+#      mosquitto_sub -h <broker> -t 'homeassistant/+/autopool_+/+/config' -v
+#
+#    Each entity emits one retained config payload. Around 45 should appear.
+#    Every payload must contain `"obj_id":"autopool_<object>"` so HA picks
+#    clean entity_ids without a MAC suffix.
+#
+# 2. Open Settings → Devices & Services → MQTT → AutoPool. The device shows
+#    sensors, binary sensors, selects, numbers, and buttons — all named
+#    `<domain>.autopool_<object>`.
+#
+# 3. Open the dashboard. Walk every section: gauges populate, mode tiles
+#    drive their selects, the Settings collapsible toggles via
+#    input_boolean.autopool_show_settings, the Reboot tile asks for
+#    confirmation. History graphs need a few minutes of recorded data.
+#
+# 4. Smoke-test commands without the device (any field missing from the JSON
+#    falls back to its previous value, so you can publish partial payloads):
+#
+#      mosquitto_pub -h <broker> -t autopool/MEAS -m '{
+#        "water_temperature":24.3,"ph":7.2,"orp":650,"pump_pressure":0.6,
+#        "level_cl":true,"level_ph_minus":true,"level_ph_plus":true,"level_water":true,
+#        "pressure_warning_active":false,
+#        "daily_ml_orp":120,"daily_ml_ph_minus":40,"daily_ml_ph_plus":0,
+#        "daily_filter_min":210,"total_filter_min":54000,"boot_count":7
+#      }'
+#      mosquitto_pub -h <broker> -t autopool/STATE_FILTER -m '{"filter_mode":2,"filter_pump":1,"filter_control_state":2,"filter_power":0,"filter_time_pump_on":3600,"filter_time_pump_off":0}'
+#
+#    Toggling a select in the dashboard should produce a CMD topic on the
+#    broker, e.g. `autopool/CMD/SET/FILTER_MODE` with payload `AUTO`.

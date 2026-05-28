@@ -269,9 +269,11 @@ Two paths, pick one.
    - Diagnostic sensors — internal state of the three regulators
 4. To remove the device: untick the checkbox; the controller publishes empty retained payloads to clear every discovery topic.
 
-### Manual packages
+The companion dashboard at [`homeassistant/dashboards/autopool.yaml`](homeassistant/dashboards/autopool.yaml) is wired entirely to the autodiscovered entity_ids (`<domain>.autopool_<object>`, courtesy of the `obj_id` field in each discovery payload). It uses only stock Lovelace cards — no HACS install required. Drop it under `<HA_config>/dashboards/` and register it via the `lovelace.dashboards` block in [`homeassistant/configuration_snippet.yaml`](homeassistant/configuration_snippet.yaml).
 
-If you'd rather not run discovery, copy the assets in [`homeassistant/`](homeassistant/) into your HA config and follow [`homeassistant/configuration_snippet.yaml`](homeassistant/configuration_snippet.yaml). It includes a ready-made package, dashboard, and Jinja templates plus mosquitto-based smoke-test commands.
+### Manual packages (legacy)
+
+If you'd rather not run discovery, the older path still works: copy [`homeassistant/packages/autopool.yaml`](homeassistant/packages/autopool.yaml) and [`homeassistant/custom_templates/autopool.jinja`](homeassistant/custom_templates/autopool.jinja) into your HA config, enable `packages: !include_dir_named packages` in `configuration.yaml`, and **disable** the autodiscovery toggle on the controller — running both at once creates duplicate entities. The header of `packages/autopool.yaml` documents the migration trade-offs.
 
 ---
 
