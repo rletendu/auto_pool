@@ -72,6 +72,8 @@ bool parameters_write_file(void)
 	json["orp_offset"] = parameters.orp_offset;
 	json["ph_offset"] = parameters.ph_offset;
 	json["periodic_filter_time"] = parameters.periodic_filter_time;
+	json["ha_discovery_enabled"] = parameters.ha_discovery_enabled;
+	json["ha_discovery_prefix"] = parameters.ha_discovery_prefix;
 	JsonArray &data = json.createNestedArray("timer_prog_temperature");
 	for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 	{
@@ -115,6 +117,8 @@ void parameters_set_default(void)
 	parameters.orp_offset = 0.0;
 	parameters.ph_offset = 0.0;
 	parameters.periodic_filter_time = 0;
+	parameters.ha_discovery_enabled = false;
+	strcpy(parameters.ha_discovery_prefix, PARAM_HA_PREFIX_DEFAULT);
 	for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 	{
 		parameters.timer_prog_temperature[i] = 0;
@@ -148,6 +152,15 @@ bool parameters_json_to_param(char *json_str)
 		parameters.orp_offset = json["orp_offset"];
 		parameters.ph_offset = json["ph_offset"];
 		parameters.periodic_filter_time = json["periodic_filter_time"];
+		if (json.containsKey("ha_discovery_enabled"))
+		{
+			parameters.ha_discovery_enabled = json["ha_discovery_enabled"];
+		}
+		if (json.containsKey("ha_discovery_prefix") && json["ha_discovery_prefix"].as<const char *>() != NULL)
+		{
+			strncpy(parameters.ha_discovery_prefix, json["ha_discovery_prefix"], PARAM_HA_PREFIX_LEN - 1);
+			parameters.ha_discovery_prefix[PARAM_HA_PREFIX_LEN - 1] = 0;
+		}
 		for (i = 0; i < PARAM_NB_TEMP_TIMER_PROG; i++)
 		{
 			parameters.timer_prog_temperature[i] = json["timer_prog_temperature"][i];

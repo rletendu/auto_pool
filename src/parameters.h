@@ -8,6 +8,8 @@
 #define PARAM_NB_TEMP_TIMER_PROG 11
 #define PARAM_FIRST_TEMP_TIMER_PROG 10
 #define PARAM_STEP_TEMP_TIMER_PROG 2
+#define PARAM_HA_PREFIX_LEN 32
+#define PARAM_HA_PREFIX_DEFAULT "homeassistant"
 
 enum filter_auto_mode_t
 {
@@ -38,6 +40,8 @@ struct ParametersStruture
 	float ph_offset;
 	uint32_t timer_prog_temperature[PARAM_NB_TEMP_TIMER_PROG];
 	float periodic_filter_time;
+	bool ha_discovery_enabled;
+	char ha_discovery_prefix[PARAM_HA_PREFIX_LEN];
 };
 
 extern struct ParametersStruture parameters;

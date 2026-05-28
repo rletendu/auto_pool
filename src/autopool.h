@@ -21,6 +21,7 @@
 #include "measures.h"
 #include "parameters.h"
 #include "mqtt.h"
+#include "mqtt_discovery.h"
 #include "time.h"
 #include "display_logger.h"
 #include "logger.h"

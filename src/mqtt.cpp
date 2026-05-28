@@ -65,9 +65,71 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	}
 	else if (in_topic == "PARAMETERS")
 	{
+		bool prev_ha = parameters.ha_discovery_enabled;
 		if (parameters_json_to_param(payload))
 		{
 			parameters_write_file();
+			if (prev_ha && !parameters.ha_discovery_enabled)
+			{
+				mqtt_discovery_clear_all();
+			}
+			else if (!prev_ha && parameters.ha_discovery_enabled)
+			{
+				mqtt_discovery_publish_all();
+			}
+		}
+	}
+	else if (in_topic == "SET/FILTER_MODE")
+	{
+		if (strcmp(payload, "AUTO") == 0) filter_enter_mode(FILTER_AUTO);
+		else if (strcmp(payload, "ON") == 0) filter_enter_mode(FILTER_ON);
+		else if (strcmp(payload, "OFF") == 0) filter_enter_mode(FILTER_OFF);
+	}
+	else if (in_topic == "SET/FILTER_POWER")
+	{
+		if (strcmp(payload, "FULL") == 0) filter_enter_power_mode(FILTER_POWER_FULL);
+		else if (strcmp(payload, "REG") == 0) filter_enter_power_mode(FILTER_POWER_REG);
+	}
+	else if (in_topic == "SET/ORP_MODE")
+	{
+		if (strcmp(payload, "AUTO") == 0) orp_enter_mode(ORP_AUTO);
+		else if (strcmp(payload, "ON") == 0) orp_enter_mode(ORP_ON);
+		else if (strcmp(payload, "OFF") == 0) orp_enter_mode(ORP_OFF);
+	}
+	else if (in_topic == "SET/PH_MINUS_MODE")
+	{
+		if (strcmp(payload, "AUTO") == 0) ph_minus_enter_mode(PH_MINUS_AUTO);
+		else if (strcmp(payload, "ON") == 0) ph_minus_enter_mode(PH_MINUS_ON);
+		else if (strcmp(payload, "OFF") == 0) ph_minus_enter_mode(PH_MINUS_OFF);
+	}
+	else if (in_topic == "SET/PH_PLUS_MODE")
+	{
+		if (strcmp(payload, "AUTO") == 0) ph_plus_enter_mode(PH_PLUS_AUTO);
+		else if (strcmp(payload, "ON") == 0) ph_plus_enter_mode(PH_PLUS_ON);
+		else if (strcmp(payload, "OFF") == 0) ph_plus_enter_mode(PH_PLUS_OFF);
+	}
+	else if (in_topic.startsWith("SET/"))
+	{
+		bool changed = true;
+		float v = atof(payload);
+		if      (in_topic == "SET/TARGET_PH")            parameters.target_ph = v;
+		else if (in_topic == "SET/DELTA_PH")             parameters.delta_ph = v;
+		else if (in_topic == "SET/TARGET_ORP")           parameters.target_orp = v;
+		else if (in_topic == "SET/DELTA_ORP")            parameters.delta_orp = v;
+		else if (in_topic == "SET/FLOW_CL")              parameters.flow_cl = v;
+		else if (in_topic == "SET/FLOW_PH_MINUS")        parameters.flow_ph_minus = v;
+		else if (in_topic == "SET/FLOW_PH_PLUS")         parameters.flow_ph_plus = v;
+		else if (in_topic == "SET/CL_MAX_DAY")           parameters.cl_max_day = v;
+		else if (in_topic == "SET/PHM_MAX_DAY")          parameters.phm_max_day = v;
+		else if (in_topic == "SET/PRESSURE_WARNING")     parameters.pressure_warning = v;
+		else if (in_topic == "SET/PH_OFFSET")            parameters.ph_offset = v;
+		else if (in_topic == "SET/ORP_OFFSET")           parameters.orp_offset = v;
+		else if (in_topic == "SET/PERIODIC_FILTER_TIME") parameters.periodic_filter_time = v;
+		else changed = false;
+		if (changed)
+		{
+			parameters_write_file();
+			mqtt_publish_parameters();
 		}
 	}
 	else if (in_topic == "FILTER_STATE")
@@ -131,18 +193,38 @@ void mqtt_init(void)
 	mqtt_client.setCallback(mqtt_callback);
 }
 
+void mqtt_publish_availability(const char *status)
+{
+	char topic[40];
+	strcpy(topic, parameters.mqtt_base_topic);
+	strcat(topic, "/AVAIL");
+	if (mqtt_client.connected())
+	{
+		mqtt_client.publish(topic, status, true);
+	}
+}
+
 void mqtt_reconnect()
 {
 	char topic[40];
+	char will_topic[40];
 	if (!mqtt_client.connected())
 	{
-		if (mqtt_client.connect(MQTT_CLIENT_NAME, parameters.mqtt_user, parameters.mqtt_pass))
+		strcpy(will_topic, parameters.mqtt_base_topic);
+		strcat(will_topic, "/AVAIL");
+		if (mqtt_client.connect(MQTT_CLIENT_NAME, parameters.mqtt_user, parameters.mqtt_pass,
+								will_topic, 0, true, "offline"))
 		{
 			// Subscribe
 			strcpy(topic, parameters.mqtt_base_topic);
 			strcat(topic, "/CMD/#");
 			mqtt_client.subscribe(topic);
+			mqtt_publish_availability("online");
 			mqtt_publish_log("AUTOPOOL (Re)connected");
+			if (parameters.ha_discovery_enabled)
+			{
+				mqtt_discovery_publish_all();
+			}
 		}
 		else
 		{

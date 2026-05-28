@@ -45,6 +45,8 @@ function json_param_2_page() {
 	document.getElementById("orp_offset").value = json_param.orp_offset;
 	document.getElementById("ph_offset").value = json_param.ph_offset;
 	document.getElementById("periodic_filter_time").value = json_param.periodic_filter_time
+	document.getElementById("ha_discovery_enabled").checked = !!json_param.ha_discovery_enabled;
+	document.getElementById("ha_discovery_prefix").value = json_param.ha_discovery_prefix || "homeassistant";
 	var i = 0;
 	for (i = 0; i < 24; i++) {
 		var s = new String('h') + String(i);
@@ -78,6 +80,8 @@ function page_2_json_param() {
 	json_param.orp_offset = document.getElementById("orp_offset").value;
 	json_param.ph_offset = document.getElementById("ph_offset").value;
 	json_param.periodic_filter_time = document.getElementById("periodic_filter_time").value
+	json_param.ha_discovery_enabled = document.getElementById("ha_discovery_enabled").checked;
+	json_param.ha_discovery_prefix = document.getElementById("ha_discovery_prefix").value;
 	var i = 0;
 	json_param.timer_prog = 0;
 	for (i = 0; i < 24; i++) {
