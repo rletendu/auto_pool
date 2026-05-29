@@ -39,6 +39,18 @@ function buildHourAxis(container) {
 function buildTempTimerTable(container) {
   // grid: temp label | 24 checkboxes
   const frag = document.createDocumentFragment();
+
+  const emptyLabel = document.createElement("div");
+  frag.appendChild(emptyLabel);
+  const axis = document.createElement("div");
+  axis.className = "timer-axis";
+  for (let h = 0; h < 24; h++) {
+    const s = document.createElement("span");
+    if (h % 6 === 0) { s.dataset.major = "true"; s.textContent = h; }
+    axis.appendChild(s);
+  }
+  frag.appendChild(axis);
+
   for (let t = 10; t <= 30; t += 2) {
     const label = document.createElement("div");
     label.className = "temp-label";
