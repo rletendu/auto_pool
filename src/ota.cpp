@@ -2,6 +2,18 @@
 
 void ota_init(void)
 {
+	char ota_hostname[40];
+	if (parameters.device_suffix[0] != 0 && device_suffix_is_valid(parameters.device_suffix))
+	{
+		snprintf(ota_hostname, sizeof(ota_hostname), "autopool-%s", parameters.device_suffix);
+	}
+	else
+	{
+		strncpy(ota_hostname, "autopool", sizeof(ota_hostname) - 1);
+		ota_hostname[sizeof(ota_hostname) - 1] = 0;
+	}
+	ArduinoOTA.setHostname(ota_hostname);
+
 	ArduinoOTA
 		.onStart([]() {
 			String type;
@@ -26,6 +38,16 @@ void ota_init(void)
 			beep(10);
 			delay(10);
 			beep(10);
+			delay(10);
+			beep(10);
+			delay(10);
+			beep(10);
+			measures_loop_stop();
+			orp_control_stop();
+			ph_control_stop();
+			filter_control_stop();
+			webserver_stop();
+
 		})
 		.onEnd([]() {
 			printlnA(F("End Update"));

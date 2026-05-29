@@ -1,24 +1,34 @@
 <!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<title>AutoPool TFT Updater</title>
-		<script>
-			function getUrlVars() {
-				var vars = {};
-				var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-				vars[key] = value;
-				});
-				return vars;
-			}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoPool — Update failed</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const reason = params.get("reason");
+      const el = document.getElementById("reason");
+      if (el) el.textContent = reason ? decodeURIComponent(reason) : "Unknown error.";
+    });
+  </script>
+</head>
+<body>
 
-			function setReason() {
-				var reason = getUrlVars()["reason"];
-				document.getElementById("reason").innerHTML = decodeURIComponent(reason);
-			}
-		</script>
-	</head>
-	<body onLoad="setReason()">
-		<h2>Update failed</h2>
-		Reason: <strong><span id="reason"></span></strong>
-	</body>
+<header class="app-header">
+  <span class="status-dot" data-status="err"></span>
+  <h1>Display firmware update failed</h1>
+</header>
+
+<main>
+  <section class="card">
+    <h2>The upload did not complete</h2>
+    <p>Reason: <strong id="reason">Unknown error.</strong></p>
+    <p class="muted text-sm">Check the Nextion display for any on-screen message, then try again. The controller is still running its previous firmware.</p>
+    <p><a class="btn" href="settings.html">Back to settings</a></p>
+  </section>
+</main>
+
+</body>
 </html>

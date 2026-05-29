@@ -7,6 +7,8 @@ int bootCount RTC_NOINIT_ATTR;
 RTC_NOINIT_ATTR float daily_ml_ph_minus_backup;
 RTC_NOINIT_ATTR float daily_ml_ph_plus_backup;
 RTC_NOINIT_ATTR float daily_ml_orp_backup;
+RTC_NOINIT_ATTR uint32_t daily_filter_min_backup;
+RTC_NOINIT_ATTR uint32_t total_filter_min_backup;
 uint32_t boot_key RTC_NOINIT_ATTR;
 
 void time_update_stop(void)
@@ -17,22 +19,38 @@ void time_update_stop(void)
 bool time_update(void *)
 {
 	char msg[20];
+	printlnA(F("Time Update..."));
 	sprintf(msg, "%02u/%02u/%02u %02u:%02u", rtc_get_day(), rtc_get_month(), rtc_get_year(), rtc_get_hour(), rtc_get_minute());
 	dis_sys_hour.setText(msg);
+
+	// Per-minute filter runtime accumulation
+	if (pump_filtration_is_on())
+	{
+		measures.daily_filter_min++;
+		measures.total_filter_min++;
+	}
+
 	if (rtc_get_hour() == 0 && rtc_get_minute() == 0)
 	{
 		measures.daily_ml_ph_minus = 0;
 		measures.daily_ml_ph_plus = 0;
 		measures.daily_ml_orp = 0;
+		measures.daily_filter_min = 0;
 		mqtt_publish_log("Reset injecion counters and max water temperature");
 		measures.day_max_water_temperature = measures.water_temperature_raw;
+		// Persist total_filter_min so it survives full power loss
+		state.total_filter_min = measures.total_filter_min;
+		state_default_write_file();
 	}
 	// Backup injection counters in RTC memory
 	daily_ml_ph_minus_backup = measures.daily_ml_ph_minus;
 	daily_ml_ph_plus_backup = measures.daily_ml_ph_plus;
 	daily_ml_orp_backup = measures.daily_ml_orp;
+	daily_filter_min_backup = measures.daily_filter_min;
+	total_filter_min_backup = measures.total_filter_min;
 
 	disp_progress_hour.setValue((uint8_t)map(rtc_get_hour()*60+rtc_get_minute(), 0, 24*60, 0, 100));
+	printlnA(F("Time Update Done"));
 	return true; // repeat? true
 }
 
@@ -116,16 +134,21 @@ void setup()
 		printlnA("Reading config file failed");
 	}
 
+#if HAS_OTA
 	disp_boot_progress_message("OTA Init");
 	ota_init();
+#endif
 
 #if HAS_MQTT
 	disp_boot_progress_message("MQTT Init");
 	mqtt_init();
 #endif
 
+
+#if HAS_CLI
 	disp_boot_progress_message("CLI Init");
 	cli_init();
+#endif
 
 	disp_boot_progress_message("RTC Init");
 	configTime(GMTOFFSET, DAYLIGHTOFFSET, NTPSERVER);
@@ -196,13 +219,17 @@ unsigned long duration;
 void loop()
 {
 	timer_pool.tick(); // tick the timer
-
+#if HAS_OTA
 	ota_loop();
+#endif
 	display_loop(); // Proceed display touch events
 #if HAS_MQTT
 	mqtt_loop();
 #endif
+
+#if HAS_CLI
 	cli_loop(); // Serial command line input
+#endif
 #if HAS_WEB_SERVER
 	webserver_loop();
 #endif

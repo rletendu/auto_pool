@@ -118,6 +118,7 @@ bool state_default_write_file(void)
 	json["filter_mode"] = (int)state.filter_mode;
 	json["orp_mode"] = (int)state.orp_mode;
 	json["filter_power"] = (int)state.filter_power;
+	json["total_filter_min"] = state.total_filter_min;
 
 	File stateFile = SPIFFS.open(STATE_FILENAME, "w");
 	if (!stateFile)
@@ -154,6 +155,7 @@ bool state_default_read_file(void)
 					state_default.ph_minus_mode = (ph_minus_mode_t)(int)json["ph_minus_mode"];
 					state_default.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
 					state_default.filter_power = (filter_power_t)(int)json["filter_power"];
+					state_default.total_filter_min = json.containsKey("total_filter_min") ? (uint32_t)json["total_filter_min"] : 0;
 					return true;
 				}
 				else

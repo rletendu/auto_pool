@@ -8,6 +8,11 @@
 #define PARAM_NB_TEMP_TIMER_PROG 11
 #define PARAM_FIRST_TEMP_TIMER_PROG 10
 #define PARAM_STEP_TEMP_TIMER_PROG 2
+#define PARAM_HA_PREFIX_LEN 32
+#define PARAM_HA_PREFIX_DEFAULT "homeassistant"
+#define PARAM_DEVICE_SUFFIX_LEN 16
+#define PARAM_DEVICE_SUFFIX_MAX 12
+#define PARAM_DEVICE_SUFFIX_DEFAULT ""
 
 enum filter_auto_mode_t
 {
@@ -38,6 +43,9 @@ struct ParametersStruture
 	float ph_offset;
 	uint32_t timer_prog_temperature[PARAM_NB_TEMP_TIMER_PROG];
 	float periodic_filter_time;
+	bool ha_discovery_enabled;
+	char ha_discovery_prefix[PARAM_HA_PREFIX_LEN];
+	char device_suffix[PARAM_DEVICE_SUFFIX_LEN];
 };
 
 extern struct ParametersStruture parameters;
@@ -48,4 +56,6 @@ bool parameters_write_file(void);
 void parameters_format(void);
 bool parameters_json_to_param(char *json_str);
 void parameters_set_default(void);
+bool device_suffix_is_valid(const char *s);
+void device_suffix_sanitize(char *dst, const char *src, size_t dst_size);
 #endif

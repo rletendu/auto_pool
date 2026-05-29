@@ -11,6 +11,8 @@ uintptr_t update_graph_task;
 extern float daily_ml_ph_minus_backup;
 extern float daily_ml_ph_plus_backup;
 extern float daily_ml_orp_backup;
+extern uint32_t daily_filter_min_backup;
+extern uint32_t total_filter_min_backup;
 extern int bootCount;
 extern uint32_t boot_key;
 
@@ -27,15 +29,26 @@ void measures_init(void)
 		daily_ml_orp_backup = 0;
 		daily_ml_ph_minus_backup = 0;
 		daily_ml_ph_plus_backup = 0;
+		daily_filter_min_backup = 0;
+		// Cold boot: total runtime is recovered from state.json (already read by state_default_read_file)
+		total_filter_min_backup = state_default.total_filter_min;
 	}
 	measures.daily_ml_orp = daily_ml_orp_backup;
 	measures.daily_ml_ph_minus = daily_ml_ph_minus_backup;
 	measures.daily_ml_ph_plus = daily_ml_ph_plus_backup;
+	measures.daily_filter_min = daily_filter_min_backup;
+	measures.total_filter_min = total_filter_min_backup;
+	state.total_filter_min = total_filter_min_backup;
 	measures.boot_count = bootCount;
 	measures_are_vitual = false;
+	#if HAS_MEASURE_CONTROL
 	update_measures_task = timer_pool.every(MEASURES_UPDATE_S * 1000, update_measures);
 	update_graph_task = timer_pool.every(GRAPH_UPDATE_S * 1000, update_graph);
 	update_measures(NULL);
+	#else
+	printlnA(F("!!! No Measure control !!!"));
+	#endif
+	
 }
 
 void measures_loop_stop(void)
@@ -97,6 +110,7 @@ bool update_measures(void *)
 		measures.water_temperature_raw = water_get_temperature();
 
 		// Make real measure only if pump is ON for on time > FILTER_PUMP_ON_MIN_TIME_S
+		// or within first minute after reset to avoid 0°
 		if ((pump_filtration_is_on()) && ((abs((int)(millis() - state.filter_time_pump_on)) / 1000) >= FILTER_PUMP_ON_MIN_TIME_S))
 		{
 			measures.water_temperature = measures.water_temperature_raw;
@@ -106,9 +120,15 @@ bool update_measures(void *)
 				printA("New day_max_water_temperature :");
 				printlnA(measures.day_max_water_temperature);
 			}
+		} else if ((millis() < 60000) && (measures.water_temperature ==0) ) {
+			printlnA(F("Force temperature assignement during first minute "));
+			measures.water_temperature = measures.water_temperature_raw;
 		}
 		// Pressure value
 		measures.pump_pressure = pump_filtration_get_pressure(false);
+		measures.pressure_warning_active = pump_filtration_is_on() &&
+			(parameters.pressure_warning > 0.0f) &&
+			(measures.pump_pressure > parameters.pressure_warning);
 #if HAS_QUIET_MEASURES
 		if (quiet_measure)
 		{
@@ -163,9 +183,12 @@ void measures_to_json_string(void)
 	json["level_ph_minus"] = measures.level_ph_minus;
 	json["level_ph_plus"] = measures.level_ph_plus;
 	json["level_water"] = measures.level_water;
+	json["pressure_warning_active"] = measures.pressure_warning_active;
 	json["daily_ml_orp"] = measures.daily_ml_orp;
 	json["daily_ml_ph_minus"] = measures.daily_ml_ph_minus;
 	json["daily_ml_ph_plus"] = measures.daily_ml_ph_plus;
+	json["daily_filter_min"] = measures.daily_filter_min;
+	json["total_filter_min"] = measures.total_filter_min;
 	json["boot_count"] = measures.boot_count;
 	json.printTo(measures_json_string, sizeof(measures_json_string));
 }
@@ -188,9 +211,12 @@ bool measures_json_to_measures(char *json_str)
 		measures.level_ph_minus = json["level_ph_minus"];
 		measures.level_ph_plus = json["level_ph_plus"];
 		measures.level_water = json["level_water"];
+		if (json.containsKey("pressure_warning_active")) measures.pressure_warning_active = json["pressure_warning_active"];
 		measures.daily_ml_orp = json["daily_ml_orp"];
 		measures.daily_ml_ph_minus = json["daily_ml_ph_minus"];
 		measures.daily_ml_ph_plus = json["daily_ml_ph_plus"];
+		if (json.containsKey("daily_filter_min")) measures.daily_filter_min = json["daily_filter_min"];
+		if (json.containsKey("total_filter_min")) measures.total_filter_min = json["total_filter_min"];
 		measures.boot_count = json["boot_count"];
 		return true;
 	}

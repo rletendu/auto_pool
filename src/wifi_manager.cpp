@@ -4,12 +4,28 @@
 WiFiManager wifiManager;
 
 static bool shouldSaveConfig = false;
+static char portal_ssid[40] = PORTAL_NAME;
 WiFiManagerParameter custom_mqtt_server("server", "mqtt server", parameters.mqtt_server, 40);
 WiFiManagerParameter custom_mqtt_port("port", "mqtt port", parameters.mqtt_port, 6);
 WiFiManagerParameter custom_mqtt_user("user", "mqtt user", parameters.mqtt_user, 20);
 WiFiManagerParameter custom_mqtt_pass("pass", "mqtt pass", parameters.mqtt_pass, 20);
 WiFiManagerParameter custom_mqtt_base_topic("topic", "mqtt topic", parameters.mqtt_base_topic, 20);
+WiFiManagerParameter custom_device_suffix("suffix", "device suffix (multi-device, optional)", parameters.device_suffix, PARAM_DEVICE_SUFFIX_MAX);
 WiFiManagerParameter custom_text("</p>MQTT Server configuration");
+
+static const char *portal_name(void)
+{
+	if (parameters.device_suffix[0] != 0 && device_suffix_is_valid(parameters.device_suffix))
+	{
+		snprintf(portal_ssid, sizeof(portal_ssid), "%s_%s", PORTAL_NAME, parameters.device_suffix);
+	}
+	else
+	{
+		strncpy(portal_ssid, PORTAL_NAME, sizeof(portal_ssid) - 1);
+		portal_ssid[sizeof(portal_ssid) - 1] = 0;
+	}
+	return portal_ssid;
+}
 
 void saveConfigCallback()
 {
@@ -22,7 +38,7 @@ void enterApCallback(WiFiManager *wm)
 	printlnA("Entered AP configCallback");
 	char msg[80];
 	uint8_t page;
-	sprintf(msg, "Wifi Portal Started @192.168.4.1 on %s", PORTAL_NAME);
+	sprintf(msg, "Wifi Portal Started @192.168.4.1 on %s", portal_name());
 	/*
 	GetPageId(&page);
 	if (page == PID_BOOT)
@@ -63,6 +79,7 @@ void wifimanager_init(void)
 	wifiManager.addParameter(&custom_mqtt_user);
 	wifiManager.addParameter(&custom_mqtt_pass);
 	wifiManager.addParameter(&custom_mqtt_base_topic);
+	wifiManager.addParameter(&custom_device_suffix);
 	if (parameters_read_file())
 	{
 		printlnA(F("Wifi manager got default parameters from config file"));
@@ -71,6 +88,7 @@ void wifimanager_init(void)
 		custom_mqtt_user.setValue(parameters.mqtt_user);
 		custom_mqtt_pass.setValue(parameters.mqtt_pass);
 		custom_mqtt_base_topic.setValue(parameters.mqtt_base_topic);
+		custom_device_suffix.setValue(parameters.device_suffix);
 	}
 	else
 	{
@@ -87,7 +105,7 @@ void reset_wifimanager(void)
 bool wifimanager_autoconnect(void)
 {
 	bool ret;
-	ret = wifiManager.autoConnect(PORTAL_NAME);
+	ret = wifiManager.autoConnect(portal_name());
 	if (ret)
 	{
 		printlnA(F("Wifi Connected !"));
@@ -106,6 +124,7 @@ bool wifimanager_autoconnect(void)
 		strcpy(parameters.mqtt_user, custom_mqtt_user.getValue());
 		strcpy(parameters.mqtt_pass, custom_mqtt_pass.getValue());
 		strcpy(parameters.mqtt_base_topic, custom_mqtt_base_topic.getValue());
+		device_suffix_sanitize(parameters.device_suffix, custom_device_suffix.getValue(), PARAM_DEVICE_SUFFIX_LEN);
 		parameters_write_file();
 	}
 	return ret;
@@ -115,7 +134,7 @@ bool wifimanager_start_portal(void)
 {
 	bool ret;
 	printlnA(F("Portal request"));
-	ret = wifiManager.startConfigPortal(PORTAL_NAME);
+	ret = wifiManager.startConfigPortal(portal_name());
 	strcpy(parameters.mqtt_server, custom_mqtt_server.getValue());
 	strcpy(parameters.mqtt_port, custom_mqtt_port.getValue());
 	strcpy(parameters.mqtt_user, custom_mqtt_user.getValue());

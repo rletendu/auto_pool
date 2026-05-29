@@ -104,10 +104,19 @@ void filter_control_init(void)
 {
 	printlnA(F("Filter Control Init"));
 	disp_led_pump_water.setPic(ID_IMAGE_RED);
+	#if HAS_FILTER_CONTROL
 	filter_enter_mode(state_default.filter_mode);
 	filter_enter_power_mode(state_default.filter_power);
 	filter_control_update_task = timer_pool.every(FILTER_CONTROL_UPDATE_S * 1000, filter_control_update);
 	mqtt_publish_filter_state();
+	#else
+	printlnA(F("!! Not Filter Control !!"));
+	#endif
+}
+
+void filter_control_stop(void)
+{
+	timer_pool.cancel(filter_control_update_task);
 }
 
 bool filter_control_update(void *)
@@ -122,6 +131,7 @@ bool filter_control_update(void *)
 	uint8_t i, current_hour, current_minute;
 	uint32_t done_filter_time, daily_fiter_time;
 
+	printlnA("Filter control task Update");
 
 	// In filter AUTO mode , get the hours when filtering will be activated
 	if (state.filter_mode == FILTER_AUTO)
@@ -269,6 +279,7 @@ bool filter_control_update(void *)
 	else
 	{
 	}
+	printlnA("Filter control task Done");
 	return true;
 }
 

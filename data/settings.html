@@ -1,182 +1,180 @@
 <!DOCTYPE html>
-<html lang="fr">
-
+<html lang="en">
 <head>
-    <title>AutoPool Settings</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8" />
-    <link rel="stylesheet" type="text/css" href="w3.css">
-    <link rel="stylesheet" type="text/css" href="leds.css">
-    <script type="text/javascript" src="script_settings.js"></script>
-    <!--    <script type="text/javascript" src="script.js"></script> -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoPool — Settings</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+  <script src="settings.js" defer></script>
 </head>
+<body>
 
-<body class="w3-animate-opacity">
+<header class="app-header">
+  <a class="header-icon" href="index.html" title="Back" aria-label="Back to dashboard">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+  </a>
+  <h1>Settings</h1>
+</header>
 
-    <div class="w3-card w3-blue w3-padding-small w3-center">
-        <h1>AutoPool Settings Interface</h1>
+<main>
+
+  <nav class="section-nav" aria-label="Sections">
+    <a href="#sec-timer">Filter timer</a>
+    <a href="#sec-setpoints">Setpoints</a>
+    <a href="#sec-calibration">Calibration</a>
+    <a href="#sec-ha">Home Assistant</a>
+    <a href="#sec-display">Display update</a>
+    <a href="#sec-maintenance">Maintenance</a>
+  </nav>
+
+  <fieldset class="fieldset" id="sec-timer">
+    <legend>Filter timer</legend>
+
+    <div class="field">
+      <span class="field__label">Mode</span>
+      <div class="radio-group">
+        <label><input type="radio" id="FilterTimerFixed" name="TimerMode" value="Fixed"> Fixed schedule</label>
+        <label><input type="radio" id="FilterTimerTemperature" name="TimerMode" value="F(T)"> By temperature</label>
+      </div>
     </div>
 
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <a href="index.html"><img src="swimming_pool.png" alt="Monitor" /></a>
-        <h3 class="w3-padding">Monitor Page</h3>
-        <br><br>
+    <div class="field mt-4">
+      <label class="field__label" for="periodic_filter_time">Periodic filter time (s)</label>
+      <input id="periodic_filter_time" type="number" step="10" min="0" max="600" value="0">
+      <span class="field__hint">Anti-stagnation cycle outside the timer window. 0 disables.</span>
     </div>
 
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <h3>TFT Display Firmware update</h3>
-        <img src="update.png">
-        <h3>Select .tft file to upload</h3>
-        <form method="post" enctype="multipart/form-data">
-            <input type="file" name="name" onchange="valSize(this)">
-            <input id="button" type="submit" value="Upload & Update" disabled>
-        </form>
-        <script>
-            function valSize(file) {
-                // get the selected file size and send it to the ESP
-                var fs = file.files[0].size;
-                var xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
-                        // ESP received fileSize enable the submit button
-                        document.getElementById("button").disabled = false;
-                    }
-                };
-                xhttp.open("POST", "/fs", true);
-                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.send("fileSize=" + fs);
-            }
-        </script>
-        <p>Updating might take a while if you have complex .tft file. Check Nextion display for progress.</p>
-        <br><br>
+    <h3 class="mt-4">Fixed schedule</h3>
+    <div class="timer-axis" id="hour-axis"></div>
+    <div class="timer-grid" id="hour-grid"></div>
+
+    <h3 class="mt-4">Per-temperature schedule</h3>
+    <div class="temp-timer-table" id="temp-timer-table"></div>
+
+    <div class="btn-row mt-4">
+      <button type="button" class="btn" id="btn-copy-fixed">Copy fixed → all temps</button>
+      <button type="button" class="btn" id="btn-load-defaults">Load defaults</button>
+    </div>
+  </fieldset>
+
+  <fieldset class="fieldset" id="sec-setpoints">
+    <legend>Setpoints</legend>
+    <div class="field-grid">
+      <div class="field">
+        <label class="field__label" for="target_ph">Target pH</label>
+        <input id="target_ph" type="number" step="0.05" min="6" max="8">
+      </div>
+      <div class="field">
+        <label class="field__label" for="delta_ph">pH delta</label>
+        <input id="delta_ph" type="number" step="0.05" min="0" max="1">
+      </div>
+      <div class="field">
+        <label class="field__label" for="target_orp">Target ORP (mV)</label>
+        <input id="target_orp" type="number" step="10" min="400" max="900">
+      </div>
+      <div class="field">
+        <label class="field__label" for="delta_orp">ORP delta (mV)</label>
+        <input id="delta_orp" type="number" step="10" min="0" max="200">
+      </div>
+      <div class="field">
+        <label class="field__label" for="flow_cl">Cl pump flow (mL/min)</label>
+        <input id="flow_cl" type="number" step="0.1" min="1" max="100">
+      </div>
+      <div class="field">
+        <label class="field__label" for="flow_ph_minus">pH- pump flow (mL/min)</label>
+        <input id="flow_ph_minus" type="number" step="0.1" min="1" max="100">
+      </div>
+      <div class="field">
+        <label class="field__label" for="flow_ph_plus">pH+ pump flow (mL/min)</label>
+        <input id="flow_ph_plus" type="number" step="0.1" min="1" max="100">
+      </div>
+      <div class="field">
+        <label class="field__label" for="cl_max_day">Daily Cl cap (mL)</label>
+        <input id="cl_max_day" type="number" step="50" min="0" max="5000">
+      </div>
+      <div class="field">
+        <label class="field__label" for="phm_max_day">Daily pH- cap (mL)</label>
+        <input id="phm_max_day" type="number" step="50" min="0" max="5000">
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="fieldset" id="sec-calibration">
+    <legend>Calibration & alarms</legend>
+    <div class="field-grid">
+      <div class="field">
+        <label class="field__label" for="ph_offset">pH offset</label>
+        <input id="ph_offset" type="number" step="0.01" min="-2" max="2">
+      </div>
+      <div class="field">
+        <label class="field__label" for="orp_offset">ORP offset (mV)</label>
+        <input id="orp_offset" type="number" step="1" min="-200" max="200">
+      </div>
+      <div class="field">
+        <label class="field__label" for="pressure_warning">Pressure warning (bar)</label>
+        <input id="pressure_warning" type="number" step="0.1" min="0" max="3">
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="fieldset" id="sec-ha">
+    <legend>Home Assistant MQTT discovery</legend>
+
+    <label class="field field--inline">
+      <span class="field__label" for="ha_discovery_enabled">Enable autodiscovery</span>
+      <span class="switch">
+        <input id="ha_discovery_enabled" type="checkbox">
+        <span class="switch__slider"></span>
+      </span>
+    </label>
+
+    <div class="field mt-4">
+      <label class="field__label" for="ha_discovery_prefix">Discovery prefix</label>
+      <input id="ha_discovery_prefix" type="text" maxlength="31" value="homeassistant">
+      <span class="field__hint">Default <code>homeassistant</code> works for stock HA installs.</span>
     </div>
 
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <h2 class="w3-padding">Filter Pump Timer Configurations</h3>
-            <hr>
-            <h3 class="w3-padding">Timer Mode</h3>
-            <input type="radio" id="FilterTimerFixed" name="TimerMode" value="Fixed" class="w3-check">
-            <label for="FilterTimerFixed">Fixed</label>
-            <input type="radio" id="FilterTimerTemperature" name="TimerMode" value="F(T°)" class="w3-check">
-            <label for=" FilterTimerTemperature">F(T)</label>
-            <br>
-            <h3 class="w3-padding w3-center">Periodic Filter</h3>
-            <input id="periodic_filter_time" type="number" step="10" value=0 min=0 max=300>
-            <br><br>
-            <hr>
-            <h3>Filter Timer Prog. - Fixed mode</h3>
-            <br>
-            00
-            <input id="h0" class="w3-check" type="checkbox">
-            <input id="h1" class="w3-check" type="checkbox">
-            <input id="h2" class="w3-check" type="checkbox">
-            <input id="h3" class="w3-check" type="checkbox">
-            <input id="h4" class="w3-check" type="checkbox">
-            <input id="h5" class="w3-check" type="checkbox">
-            06
-            <input id="h6" class="w3-check" type="checkbox">
-            <input id="h7" class="w3-check" type="checkbox">
-            <input id="h8" class="w3-check" type="checkbox">
-            <input id="h9" class="w3-check" type="checkbox">
-            <input id="h10" class="w3-check" type="checkbox">
-            <input id="h11" class="w3-check" type="checkbox">
-            <br>
-            12
-            <input id="h12" class="w3-check" type="checkbox">
-            <input id="h13" class="w3-check" type="checkbox">
-            <input id="h14" class="w3-check" type="checkbox">
-            <input id="h15" class="w3-check" type="checkbox">
-            <input id="h16" class="w3-check" type="checkbox">
-            <input id="h17" class="w3-check" type="checkbox">
-            18
-            <input id="h18" class="w3-check" type="checkbox">
-            <input id="h19" class="w3-check" type="checkbox">
-            <input id="h20" class="w3-check" type="checkbox">
-            <input id="h21" class="w3-check" type="checkbox">
-            <input id="h22" class="w3-check" type="checkbox">
-            <input id="h23" class="w3-check" type="checkbox">
-            <br><br>
-            <hr>
-            <h3>Filter Timer Prog. - F(T°) mode</h3>
-            <br>
-            <span id="table_prog_temperature_id">---</span>
-            <br>
-            <button onclick="copy_daily2temp()" class="w3-button w3-green w3-ripple w3-wide w3-center">Copy from
-                fixed</button>
-            <button onclick="load_defaults_timer_prog()" class="w3-button w3-green w3-ripple w3-wide w3-center">Load
-                default table</button>
+    <div class="field mt-4">
+      <label class="field__label" for="device_suffix">Device suffix (multi-device)</label>
+      <input id="device_suffix" type="text" maxlength="12" pattern="[a-z0-9_]*" placeholder="(empty)">
+      <span class="field__hint">Optional. Lowercase a-z, 0-9, underscore. Set on each controller (e.g. <code>north</code>, <code>south</code>) when sharing one MQTT broker. Changes the MQTT client id, HA entity_ids, OTA hostname, and portal SSID.</span>
     </div>
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <table class="w3-margin w3-center">
-            <tr>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Target pH</p>
-                    <input id="target_ph" type="number" step="0.1" value=12.1 min=6 max=8>
-                </td>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Delta pH</p>
-                    <input id="delta_ph" type="number" step="0.1" value=2 min=0 max=800>
-                </td>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Target Orp</p>
-                    <input id="target_orp" type="number" step="10" value=650 min=500 max=800>mV
-                </td>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Delta Orp</p>
-                    <input id="delta_orp" type="number" step="10" value=300 min=0 max=800>mV
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Flow ORP</p>
-                    <input id="flow_cl" type="number" step="0.1" value=20 min=10 max=30>ml/min
-                </td>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Flow pH-</p>
-                    <input id="flow_ph_minus" type="number" step="0.1" value=20 min=10 max=30>ml/min
-                </td>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Press. Warning</p>
-                    <input id="pressure_warning" type="number" step="0.1" value=1 min=1 max=3>bar
-                </td>
-                <td>
+  </fieldset>
 
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Max Cl/day</p>
-                    <input id="cl_max_day" type="number" step="100" value=2000 min=100 max=3000>ml
-                </td>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">Max pH-/day</p>
-                    <input id="phm_max_day" type="number" step="100" value=2000 min=100 max=3000>ml
-                </td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">ORP Offset</p>
-                    <input id="orp_offset" type="number" step="10" value=0 min=-200 max=200>mV
-                </td>
-                <td>
-                    <p class="w3-xxlarge w3-center w3-green">pH Offset</p>
-                    <input id="ph_offset" type="number" step="0.1" value=0 min=-2 max=2>
-                </td>
-                <td></td>
-            </tr>
-        </table>
-    </div>
+  <fieldset class="fieldset" id="sec-display">
+    <legend>Display firmware update</legend>
+    <p class="muted text-sm">Upload a Nextion <code>.tft</code> file. Updating may take a few minutes — watch the display for progress.</p>
+    <form id="tft-form">
+      <div class="btn-row">
+        <input type="file" id="tft-file" name="name" accept=".tft">
+        <button type="submit" id="tft-submit" class="btn btn--primary" disabled>Upload &amp; update</button>
+      </div>
+      <div class="mt-4" id="tft-progress" hidden>
+        <div class="progress"><div class="progress__bar" id="tft-progress-bar"></div></div>
+        <div class="text-sm muted mt-3" id="tft-progress-text">Waiting…</div>
+      </div>
+    </form>
+  </fieldset>
 
-    <div class="w3-margin w3-center w3-card w3-padding-24">
-        <button onclick="validate_param()" class="w3-button w3-green w3-xlarge w3-ripple w3-wide w3-center"
-            style="width:30%;">Submit</button>
-        <button onclick="reboot()" class="w3-button w3-green w3-xlarge w3-ripple w3-wide w3-center"
-            style="width:30%;">Reboot</button>
+  <fieldset class="fieldset" id="sec-maintenance">
+    <legend>Maintenance</legend>
+    <div class="btn-row">
+      <button type="button" class="btn btn--primary btn--lg" id="btn-save">Save settings</button>
+      <button type="button" class="btn" id="btn-reset-cl">Reset daily Cl counter</button>
+      <button type="button" class="btn" id="btn-reset-boot">Reset boot counter</button>
+      <button type="button" class="btn btn--danger" id="btn-reboot">Reboot controller</button>
     </div>
-    <div class="w3-padding w3-center">
-        <i><a href=https://github.com/rletendu/auto_pool" style="text-decoration: none;">AutoPool 2020</a></i>
-    </div>
+  </fieldset>
+
+</main>
+
+<footer>
+  <a href="https://github.com/rletendu/auto_pool">github.com/rletendu/auto_pool</a>
+</footer>
 
 </body>
-
 </html>
