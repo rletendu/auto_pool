@@ -49,6 +49,8 @@ void board_init()
 
 	dht.begin(60);
 	ds18b20.begin();
+	ds18b20.setResolution(12);             // ensure 750ms conversion time
+	ds18b20.setCheckForConversion(false);  // fixed delay, not polling — polling can give false positives on ESP32 with WiFi active
 	ads.begin();
 	ads.setGain(GAIN_ONE); // 1x gain   +/- 4.096V  1 bit =  0.125mV
 	pump_filtration_get_pressure(true);

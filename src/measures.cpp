@@ -67,7 +67,10 @@ bool update_measures(void *)
 	printA("Updating measures : ");
 	float dht;
 	static int quiet_measure_cnt = 0;
+	static bool first_temp_set = false;
 	bool quiet_measure = false;
+	static struct MeasuresStructure last_published;
+	static unsigned long last_mqtt_ms = 0;
 
 	debug_pin1_on();
 	led0_on();
@@ -108,21 +111,29 @@ bool update_measures(void *)
 		}
 		// Raw measure value
 		measures.water_temperature_raw = water_get_temperature();
+		// Valid: above 1°C (pool can't be ice) and below 100°C (255 = sensor error)
+		bool raw_is_valid = (measures.water_temperature_raw > 1.0f && measures.water_temperature_raw < 100.0f);
 
-		// Make real measure only if pump is ON for on time > FILTER_PUMP_ON_MIN_TIME_S
-		// or within first minute after reset to avoid 0°
-		if ((pump_filtration_is_on()) && ((abs((int)(millis() - state.filter_time_pump_on)) / 1000) >= FILTER_PUMP_ON_MIN_TIME_S))
+		// Update water_temperature only when pump has circulated long enough for an
+		// accurate reading, or on the first valid reading after boot (no time limit).
+		if (pump_filtration_is_on() &&
+		    (abs((int)(millis() - state.filter_time_pump_on)) / 1000) >= FILTER_PUMP_ON_MIN_TIME_S &&
+		    raw_is_valid)
 		{
 			measures.water_temperature = measures.water_temperature_raw;
+			first_temp_set = true;
 			if (measures.water_temperature_raw > measures.day_max_water_temperature)
 			{
 				measures.day_max_water_temperature = measures.water_temperature_raw;
 				printA("New day_max_water_temperature :");
 				printlnA(measures.day_max_water_temperature);
 			}
-		} else if ((millis() < 60000) && (measures.water_temperature ==0) ) {
-			printlnA(F("Force temperature assignement during first minute "));
+		}
+		else if (!first_temp_set && raw_is_valid)
+		{
+			printlnA(F("Force temperature assignment - first valid reading"));
 			measures.water_temperature = measures.water_temperature_raw;
+			first_temp_set = true;
 		}
 		// Pressure value
 		measures.pump_pressure = pump_filtration_get_pressure(false);
@@ -148,7 +159,20 @@ bool update_measures(void *)
 	}
 	measures_to_json_string();
 	disp_measures_to_display();
-	mqtt_publish_measures();
+	{
+		struct MeasuresStructure cmp_new = measures;
+		struct MeasuresStructure cmp_old = last_published;
+		cmp_new.index = 0;
+		cmp_old.index = 0;
+		bool changed = memcmp(&cmp_new, &cmp_old, sizeof(cmp_new)) != 0;
+		bool heartbeat = (millis() - last_mqtt_ms) >= (MQTT_HEARTBEAT_S * 1000UL);
+		if (changed || heartbeat)
+		{
+			last_published = measures;
+			last_mqtt_ms = millis();
+			mqtt_publish_measures();
+		}
+	}
 	debug_pin1_off();
 	led0_off();
 
