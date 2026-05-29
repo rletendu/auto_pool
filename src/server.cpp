@@ -5,6 +5,8 @@
 
 const char *host = "autopool";
 
+static char info_json_string[64];
+
 WebServer server(80);
 ota_tft nextion(115200);
 extern SoftTimer timer_pool;
@@ -282,6 +284,8 @@ bool handleTftFileUpload()
 
 void webserver_init(void)
 {
+	snprintf(info_json_string, sizeof(info_json_string),
+	         "{\"ver\":\"%.1f\",\"date\":\"%s %s\"}", AUTOPOOL_VER, __DATE__, __TIME__);
 	printlnA(F("Init Webserver")) if (!SPIFFS.begin())
 	{
 		return;
@@ -366,6 +370,10 @@ void webserver_init(void)
 
 	server.on("/getphstate", HTTP_GET, []() {
 		server.send(200, F("text/plain"), state_ph_json_string);
+	});
+
+	server.on("/getinfo", HTTP_GET, []() {
+		server.send(200, F("text/plain"), info_json_string);
 	});
 
 	server.on("/filter_auto", HTTP_GET, []() {

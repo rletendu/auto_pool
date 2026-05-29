@@ -190,6 +190,11 @@ document.addEventListener("DOMContentLoaded", () => {
   bindModeToggle($("#orp-mode-toggle"),     "orp",    "ORP");
   bindModeToggle($("#ph-mode-toggle"),      "ph",     "pH");
 
+  api.get("getinfo").then(info => {
+    const el = $("#fw-version");
+    if (el) el.textContent = `v${info.ver} (${info.date})`;
+  }).catch(() => {});
+
   refreshAll();
   setInterval(refreshAll, 4000);
 
