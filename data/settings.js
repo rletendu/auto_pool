@@ -37,14 +37,16 @@ function buildHourAxis(container) {
 }
 
 function buildTempTimerTable(container) {
-  // grid: temp label | 24 checkboxes
+  // grid: temp label | 24 checkboxes | hour count
   const frag = document.createDocumentFragment();
   for (let t = 10; t <= 30; t += 2) {
     const label = document.createElement("div");
     label.className = "temp-label";
+    label.dataset.temp = t;
     label.textContent = `${t}°C`;
     const grid = document.createElement("div");
     grid.className = "timer-grid";
+    grid.dataset.temp = t;
     for (let h = 0; h < 24; h++) {
       const cb = document.createElement("input");
       cb.type = "checkbox";
@@ -52,10 +54,15 @@ function buildTempTimerTable(container) {
       cb.title = `${t}°C @ ${String(h).padStart(2, "0")}:00`;
       grid.appendChild(cb);
     }
+    const count = document.createElement("span");
+    count.className = "temp-hour-count";
+    count.id = `tc${t}`;
     frag.appendChild(label);
     frag.appendChild(grid);
+    frag.appendChild(count);
   }
   container.appendChild(frag);
+  container.addEventListener("change", updateTempCounts);
 }
 
 // --------------- Param ↔ DOM ---------------
@@ -136,12 +143,54 @@ function formToParams() {
   return out;
 }
 
+// --------------- Temperature hour counts ---------------
+
+function updateTempCounts() {
+  for (let t = 10; t <= 30; t += 2) {
+    let n = 0;
+    for (let h = 0; h < 24; h++) {
+      if ($(`#t${t}_h${h}`)?.checked) n++;
+    }
+    const el = $(`#tc${t}`);
+    if (el) el.textContent = n ? `${n}h` : "—";
+  }
+}
+
+// --------------- Live state highlighting ---------------
+
+async function highlightCurrentState() {
+  // Current hour — outline the matching checkbox in every grid
+  const hour = new Date().getHours();
+  $$(".timer-grid input.current-hour").forEach((el) =>
+    el.classList.remove("current-hour")
+  );
+  $(`#h${hour}`)?.classList.add("current-hour");
+  for (let t = 10; t <= 30; t += 2)
+    $(`#t${t}_h${hour}`)?.classList.add("current-hour");
+
+  // Current temp row — only relevant in temperature mode
+  $$("[data-temp]").forEach((el) => el.classList.remove("current-temp-row"));
+  if (params?.filter_auto_mode === 1) {
+    try {
+      const m = await api.get("getmeasures");
+      const raw = m.day_max_water_temperature ?? 0;
+      const idx = Math.min(10, Math.max(0, Math.floor((raw - 10) / 2)));
+      const activeTemp = 10 + idx * 2;
+      $$(`[data-temp="${activeTemp}"]`).forEach((el) =>
+        el.classList.add("current-temp-row")
+      );
+    } catch (_) {}
+  }
+}
+
 // --------------- Actions ---------------
 
 async function loadParams() {
   try {
     params = await api.get("getparameters");
     paramsToForm(params);
+    updateTempCounts();
+    highlightCurrentState();
   } catch (e) {
     toast("Failed to load parameters", "err", 4000);
   }
@@ -189,6 +238,7 @@ function copyDailyToTemp() {
       $(`#t${t}_h${h}`).checked = !!((fixed >> h) & 1);
     }
   }
+  updateTempCounts();
 }
 
 function loadDefaultTempTable() {
@@ -200,6 +250,7 @@ function loadDefaultTempTable() {
       $(`#t${t}_h${h}`).checked = !!((val >> h) & 1);
     }
   }
+  updateTempCounts();
 }
 
 // --------------- TFT upload ---------------
@@ -282,4 +333,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   bindTftUpload();
   loadParams();
+  setInterval(highlightCurrentState, 60_000);
 });

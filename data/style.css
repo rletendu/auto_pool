@@ -510,7 +510,7 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:foc
 /* compact temp timer table */
 .temp-timer-table {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
   gap: var(--s-2);
   align-items: center;
   font-size: var(--fs-sm);
@@ -522,6 +522,31 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:foc
 }
 .temp-timer-table .timer-grid {
   margin-bottom: 0;
+}
+.temp-hour-count {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 2rem;
+  align-self: center;
+}
+.temp-label.current-temp-row {
+  color: var(--warn);
+  border-left: 3px solid var(--warn);
+  padding-left: var(--s-1);
+}
+.temp-timer-table .timer-grid.current-temp-row {
+  background: var(--warn-bg);
+  border-radius: var(--r-1);
+  padding: 2px;
+}
+.timer-grid input.current-hour {
+  outline: 2px solid var(--warn);
+  outline-offset: 1px;
+}
+.timer-grid input.current-hour:not(:checked) {
+  background: var(--warn-bg);
 }
 
 /* ---------- Section nav ---------- */
