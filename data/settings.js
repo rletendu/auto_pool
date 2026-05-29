@@ -39,6 +39,18 @@ function buildHourAxis(container) {
 function buildTempTimerTable(container) {
   // grid: temp label | 24 checkboxes | hour count
   const frag = document.createDocumentFragment();
+
+  const emptyLabel = document.createElement("div");
+  frag.appendChild(emptyLabel);
+  const axis = document.createElement("div");
+  axis.className = "timer-axis";
+  for (let h = 0; h < 24; h++) {
+    const s = document.createElement("span");
+    if (h % 6 === 0) { s.dataset.major = "true"; s.textContent = h; }
+    axis.appendChild(s);
+  }
+  frag.appendChild(axis);
+
   for (let t = 10; t <= 30; t += 2) {
     const label = document.createElement("div");
     label.className = "temp-label";
@@ -227,6 +239,16 @@ async function resetDailyCl() {
   }
 }
 
+async function resetBootCount() {
+  if (!confirm("Reset the boot counter?")) return;
+  try {
+    await api.cmd("rst_boot_count");
+    toast("Boot counter reset", "ok");
+  } catch (e) {
+    toast(`Reset failed: ${e.message}`, "err", 4000);
+  }
+}
+
 function copyDailyToTemp() {
   if (!confirm("Copy fixed schedule into every temperature row?")) return;
   let fixed = 0;
@@ -328,6 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#btn-save").addEventListener("click", saveParams);
   $("#btn-reboot").addEventListener("click", rebootDevice);
   $("#btn-reset-cl").addEventListener("click", resetDailyCl);
+  $("#btn-reset-boot").addEventListener("click", resetBootCount);
   $("#btn-copy-fixed").addEventListener("click", copyDailyToTemp);
   $("#btn-load-defaults").addEventListener("click", loadDefaultTempTable);
 

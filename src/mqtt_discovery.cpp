@@ -292,6 +292,7 @@ static const entity_ref ENTITIES[] = {
 	// buttons
 	{"button", "reset"},
 	{"button", "rst_daily_ml_orp"},
+	{"button", "rst_boot_count"},
 };
 
 // ---------- public API ----------
@@ -372,6 +373,7 @@ void mqtt_discovery_publish_all(void)
 	// Buttons
 	publish_button("reset", "Reset Controller", "RESET", "mdi:restart");
 	publish_button("rst_daily_ml_orp", "Reset Daily Chlorine Counter", "RST_DAILY_ML_ORP", "mdi:counter");
+	publish_button("rst_boot_count", "Reset Boot Counter", "RST_BOOT_COUNT", "mdi:counter");
 }
 
 void mqtt_discovery_clear_all(void)

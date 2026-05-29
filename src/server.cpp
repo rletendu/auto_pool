@@ -384,6 +384,13 @@ void webserver_init(void)
 		server.send(200, F("text/plain"), "Ok reset daily_ml_orp");
 	});
 
+	server.on("/rst_boot_count", HTTP_GET, []() {
+		extern int bootCount;
+		bootCount = 0;
+		measures.boot_count = 0;
+		server.send(200, F("text/plain"), "Ok reset boot_count");
+	});
+
 	server.on("/filter_off", HTTP_GET, []() {
 		filter_enter_mode(FILTER_OFF);
 		state_default_write_file();
