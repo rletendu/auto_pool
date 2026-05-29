@@ -113,29 +113,34 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 		if (strcmp(payload, "AUTO") == 0) filter_enter_mode(FILTER_AUTO);
 		else if (strcmp(payload, "ON") == 0) filter_enter_mode(FILTER_ON);
 		else if (strcmp(payload, "OFF") == 0) filter_enter_mode(FILTER_OFF);
+		state_default_write_file();
 	}
 	else if (in_topic == "SET/FILTER_POWER")
 	{
 		if (strcmp(payload, "FULL") == 0) filter_enter_power_mode(FILTER_POWER_FULL);
 		else if (strcmp(payload, "REG") == 0) filter_enter_power_mode(FILTER_POWER_REG);
+		state_default_write_file();
 	}
 	else if (in_topic == "SET/ORP_MODE")
 	{
 		if (strcmp(payload, "AUTO") == 0) orp_enter_mode(ORP_AUTO);
 		else if (strcmp(payload, "ON") == 0) orp_enter_mode(ORP_ON);
 		else if (strcmp(payload, "OFF") == 0) orp_enter_mode(ORP_OFF);
+		state_default_write_file();
 	}
 	else if (in_topic == "SET/PH_MINUS_MODE")
 	{
 		if (strcmp(payload, "AUTO") == 0) ph_minus_enter_mode(PH_MINUS_AUTO);
 		else if (strcmp(payload, "ON") == 0) ph_minus_enter_mode(PH_MINUS_ON);
 		else if (strcmp(payload, "OFF") == 0) ph_minus_enter_mode(PH_MINUS_OFF);
+		state_default_write_file();
 	}
 	else if (in_topic == "SET/PH_PLUS_MODE")
 	{
 		if (strcmp(payload, "AUTO") == 0) ph_plus_enter_mode(PH_PLUS_AUTO);
 		else if (strcmp(payload, "ON") == 0) ph_plus_enter_mode(PH_PLUS_ON);
 		else if (strcmp(payload, "OFF") == 0) ph_plus_enter_mode(PH_PLUS_OFF);
+		state_default_write_file();
 	}
 	else if (in_topic.startsWith("SET/"))
 	{

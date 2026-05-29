@@ -370,6 +370,7 @@ void webserver_init(void)
 
 	server.on("/filter_auto", HTTP_GET, []() {
 		filter_enter_mode(FILTER_AUTO);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
@@ -385,51 +386,61 @@ void webserver_init(void)
 
 	server.on("/filter_off", HTTP_GET, []() {
 		filter_enter_mode(FILTER_OFF);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/filter_on", HTTP_GET, []() {
 		filter_enter_mode(FILTER_ON);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/filter_pwr_full", HTTP_GET, []() {
 		filter_enter_power_mode(FILTER_POWER_FULL);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/filter_pwr_reg", HTTP_GET, []() {
 		filter_enter_power_mode(FILTER_POWER_REG);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/orp_auto", HTTP_GET, []() {
 		orp_enter_mode(ORP_AUTO);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/orp_off", HTTP_GET, []() {
 		orp_enter_mode(ORP_OFF);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/orp_on", HTTP_GET, []() {
 		orp_enter_mode(ORP_ON);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/ph_auto", HTTP_GET, []() {
 		ph_minus_enter_mode(PH_MINUS_AUTO);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/ph_off", HTTP_GET, []() {
 		ph_minus_enter_mode(PH_MINUS_OFF);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 
 	server.on("/ph_on", HTTP_GET, []() {
 		ph_minus_enter_mode(PH_MINUS_ON);
+		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
 	});
 	// called when the url is not defined here
