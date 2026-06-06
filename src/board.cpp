@@ -194,7 +194,7 @@ float ds18_get_temperature(uint8_t index)
 	}
 	else
 	{
-		return t;
+		return round(t * 10.0f) / 10.0f;
 	}
 }
 

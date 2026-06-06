@@ -1,5 +1,21 @@
 #include "autopool.h"
 
+uint32_t filter_get_effective_timer_prog(void)
+{
+	if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
+	{
+		int idx;
+		if (measures.day_max_water_temperature <= PARAM_FIRST_TEMP_TIMER_PROG)
+			idx = 0;
+		else if (measures.day_max_water_temperature >= (PARAM_FIRST_TEMP_TIMER_PROG + (PARAM_NB_TEMP_TIMER_PROG - 1) * PARAM_STEP_TEMP_TIMER_PROG))
+			idx = PARAM_NB_TEMP_TIMER_PROG - 1;
+		else
+			idx = (int)((measures.day_max_water_temperature - PARAM_FIRST_TEMP_TIMER_PROG) / PARAM_STEP_TEMP_TIMER_PROG);
+		return parameters.timer_prog_temperature[idx];
+	}
+	return parameters.timer_prog;
+}
+
 extern SoftTimer timer_pool;
 uintptr_t filter_control_update_task;
 bool filter_control_update(void *);

@@ -316,6 +316,7 @@ void mqtt_discovery_publish_all(void)
 	publish_sensor("daily_ml_ph_plus", "Daily pH+ Injected", "MEAS", "daily_ml_ph_plus", "mL", NULL, NULL, "mdi:water-pump");
 	publish_sensor("daily_filter_min", "Daily Filter Time", "MEAS", "daily_filter_min", "min", "duration", NULL, "mdi:timer-sand");
 	publish_sensor("total_filter_min", "Total Filter Time", "MEAS", "total_filter_min", "min", "duration", "diagnostic", "mdi:timer");
+	publish_sensor("filter_prog_today", "Filter Program Today", "MEAS", "filter_prog_today", NULL, NULL, NULL, "mdi:calendar-clock");
 	publish_sensor("boot_count", "Boot Count", "MEAS", "boot_count", NULL, NULL, "diagnostic", "mdi:counter");
 
 	// Diagnostic state sensors

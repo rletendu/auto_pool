@@ -157,6 +157,7 @@ bool update_measures(void *)
 		measures.level_ph_plus = level_ph_plus_is_ok();
 		measures.level_water = level_water_is_ok();
 	}
+	measures.filter_prog_today = filter_get_effective_timer_prog();
 	measures_to_json_string();
 	disp_measures_to_display();
 	{
@@ -213,6 +214,7 @@ void measures_to_json_string(void)
 	json["daily_ml_ph_plus"] = measures.daily_ml_ph_plus;
 	json["daily_filter_min"] = measures.daily_filter_min;
 	json["total_filter_min"] = measures.total_filter_min;
+	json["filter_prog_today"] = measures.filter_prog_today;
 	json["boot_count"] = measures.boot_count;
 	json.printTo(measures_json_string, sizeof(measures_json_string));
 }
