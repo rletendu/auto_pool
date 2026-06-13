@@ -95,19 +95,15 @@ bool update_measures(void *)
 	else
 	{
 		dht = dht_get_temperature();
-		if (dht <= 100)
-		{
-			measures.system_temperature = dht;
-		}
-		else
-		{ // Get alternative system temp from RTC ...
-			measures.system_temperature = rtc_get_temperature();
-		}
+		float new_sys_temp = (dht <= 100) ? dht : rtc_get_temperature();
+		if (fabsf(new_sys_temp - measures.system_temperature) >= SYS_TEMP_MIN_DELTA)
+			measures.system_temperature = new_sys_temp;
 
 		dht = dht_get_humidity();
 		if (dht <= 100)
 		{
-			measures.system_humidity = dht;
+			if (fabsf(dht - measures.system_humidity) >= SYS_HUMIDITY_MIN_DELTA)
+				measures.system_humidity = dht;
 		}
 		// Raw measure value
 		measures.water_temperature_raw = water_get_temperature();
@@ -136,7 +132,9 @@ bool update_measures(void *)
 			first_temp_set = true;
 		}
 		// Pressure value
-		measures.pump_pressure = pump_filtration_get_pressure(false);
+		float new_pressure = pump_filtration_get_pressure(false);
+		if (fabsf(new_pressure - measures.pump_pressure) >= PRESSURE_MIN_DELTA)
+			measures.pump_pressure = new_pressure;
 		measures.pressure_warning_active = pump_filtration_is_on() &&
 			(parameters.pressure_warning > 0.0f) &&
 			(measures.pump_pressure > parameters.pressure_warning);
@@ -150,8 +148,10 @@ bool update_measures(void *)
 		measures.ph_raw = water_get_ph();
 		measures.orp_raw = water_get_orp();
 #endif
-		measures.ph = measures.ph_raw + parameters.ph_offset;
-		measures.orp = measures.orp_raw + parameters.orp_offset;
+		float new_ph  = measures.ph_raw  + parameters.ph_offset;
+		float new_orp = measures.orp_raw + parameters.orp_offset;
+		if (fabsf(new_ph  - measures.ph)  >= PH_MIN_DELTA)  measures.ph  = new_ph;
+		if (fabsf(new_orp - measures.orp) >= ORP_MIN_DELTA)  measures.orp = new_orp;
 		measures.level_cl = level_cl_is_ok();
 		measures.level_ph_minus = level_ph_minus_is_ok();
 		measures.level_ph_plus = level_ph_plus_is_ok();
@@ -167,7 +167,8 @@ bool update_measures(void *)
 		cmp_old.index = 0;
 		bool changed = memcmp(&cmp_new, &cmp_old, sizeof(cmp_new)) != 0;
 		bool heartbeat = (millis() - last_mqtt_ms) >= (MQTT_HEARTBEAT_S * 1000UL);
-		if (changed || heartbeat)
+		bool throttle = (millis() - last_mqtt_ms) >= (MQTT_MIN_INTERVAL_S * 1000UL);
+		if ((changed && throttle) || heartbeat)
 		{
 			last_published = measures;
 			last_mqtt_ms = millis();
@@ -212,8 +213,8 @@ void measures_to_json_string(void)
 	json["daily_ml_orp"] = measures.daily_ml_orp;
 	json["daily_ml_ph_minus"] = measures.daily_ml_ph_minus;
 	json["daily_ml_ph_plus"] = measures.daily_ml_ph_plus;
-	json["daily_filter_min"] = measures.daily_filter_min;
-	json["total_filter_min"] = measures.total_filter_min;
+	json["daily_filter_h"].set(measures.daily_filter_min / 60.0f, 1);
+	json["total_filter_h"].set(measures.total_filter_min / 60.0f, 1);
 	json["filter_prog_today"] = measures.filter_prog_today;
 	json["boot_count"] = measures.boot_count;
 	json.printTo(measures_json_string, sizeof(measures_json_string));
@@ -241,8 +242,8 @@ bool measures_json_to_measures(char *json_str)
 		measures.daily_ml_orp = json["daily_ml_orp"];
 		measures.daily_ml_ph_minus = json["daily_ml_ph_minus"];
 		measures.daily_ml_ph_plus = json["daily_ml_ph_plus"];
-		if (json.containsKey("daily_filter_min")) measures.daily_filter_min = json["daily_filter_min"];
-		if (json.containsKey("total_filter_min")) measures.total_filter_min = json["total_filter_min"];
+		if (json.containsKey("daily_filter_h")) measures.daily_filter_min = (uint32_t)(json["daily_filter_h"].as<float>() * 60);
+		if (json.containsKey("total_filter_h")) measures.total_filter_min = (uint32_t)(json["total_filter_h"].as<float>() * 60);
 		measures.boot_count = json["boot_count"];
 		return true;
 	}

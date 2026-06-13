@@ -249,8 +249,8 @@ static const entity_ref ENTITIES[] = {
 	{"sensor", "daily_ml_orp"},
 	{"sensor", "daily_ml_ph_minus"},
 	{"sensor", "daily_ml_ph_plus"},
-	{"sensor", "daily_filter_min"},
-	{"sensor", "total_filter_min"},
+	{"sensor", "daily_filter_h"},
+	{"sensor", "total_filter_h"},
 	{"sensor", "boot_count"},
 	// diagnostic state sensors
 	{"sensor", "filter_control_state"},
@@ -314,8 +314,8 @@ void mqtt_discovery_publish_all(void)
 	publish_sensor("daily_ml_orp", "Daily Chlorine Injected", "MEAS", "daily_ml_orp", "mL", NULL, NULL, "mdi:water-pump");
 	publish_sensor("daily_ml_ph_minus", "Daily pH- Injected", "MEAS", "daily_ml_ph_minus", "mL", NULL, NULL, "mdi:water-pump");
 	publish_sensor("daily_ml_ph_plus", "Daily pH+ Injected", "MEAS", "daily_ml_ph_plus", "mL", NULL, NULL, "mdi:water-pump");
-	publish_sensor("daily_filter_min", "Daily Filter Time", "MEAS", "daily_filter_min", "min", "duration", NULL, "mdi:timer-sand");
-	publish_sensor("total_filter_min", "Total Filter Time", "MEAS", "total_filter_min", "min", "duration", "diagnostic", "mdi:timer");
+	publish_sensor("daily_filter_h", "Daily Filter Time", "MEAS", "daily_filter_h", "h", "duration", NULL, "mdi:timer-sand");
+	publish_sensor("total_filter_h", "Total Filter Time", "MEAS", "total_filter_h", "h", "duration", "diagnostic", "mdi:timer");
 	publish_sensor("filter_prog_today", "Filter Program Today", "MEAS", "filter_prog_today", NULL, NULL, NULL, "mdi:calendar-clock");
 	publish_sensor("boot_count", "Boot Count", "MEAS", "boot_count", NULL, NULL, "diagnostic", "mdi:counter");
 
