@@ -130,6 +130,8 @@ bool update_measures(void *)
 			printlnA(F("Force temperature assignment - first valid reading"));
 			measures.water_temperature = measures.water_temperature_raw;
 			first_temp_set = true;
+			if (measures.water_temperature > measures.day_max_water_temperature)
+				measures.day_max_water_temperature = measures.water_temperature;
 		}
 		// Pressure value
 		float new_pressure = pump_filtration_get_pressure(false);
@@ -199,9 +201,14 @@ void measures_to_json_string(void)
 	json["index"] = measures.index;
 	json["system_temperature"] = measures.system_temperature;
 	json["system_humidity"] = measures.system_humidity;
-	json["water_temperature"] = measures.water_temperature;
+	// water_temperature is only ever assigned from a valid raw reading (> 1°C):
+	// omit it until then so consumers don't record a bogus 0°C after boot
+	if (measures.water_temperature > 1.0f)
+	{
+		json["water_temperature"] = measures.water_temperature;
+		json["day_max_water_temperature"] = measures.day_max_water_temperature;
+	}
 	json["water_temperature_raw"] = measures.water_temperature_raw;
-	json["day_max_water_temperature"] = measures.day_max_water_temperature;
 	json["pump_pressure"] = measures.pump_pressure;
 	json["ph"] = measures.ph;
 	json["orp"] = measures.orp;

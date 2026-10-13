@@ -2,7 +2,7 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
-#define AUTOPOOL_VER 2.2
+#define AUTOPOOL_VER 2.3
 #define PORTAL_NAME "AUTOPOOL_CONFIG"
 #define PORTAL_CONFIG_TIMEOUT_S 60
 #define PORTAL_CONFIG_PROGRESS_S 5

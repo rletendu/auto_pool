@@ -100,14 +100,16 @@ static void publish_sensor(const char *object, const char *name,
 						   const char *unit, const char *dev_cla,
 						   const char *ent_cat, const char *icon)
 {
-	StaticJsonBuffer<512> buf;
+	StaticJsonBuffer<1024> buf;
 	JsonObject &cfg = buf.createObject();
 	char st[48];
 	snprintf(st, sizeof(st), "%s/%s", parameters.mqtt_base_topic, state_suffix);
 	cfg["name"] = name;
 	cfg["stat_t"] = st;
-	char tpl[64];
-	snprintf(tpl, sizeof(tpl), "{{ value_json.%s }}", json_field);
+	char tpl[80];
+	// default(''): HA ignores an empty value, so a field omitted from MEAS
+	// (e.g. water temperature before the first valid reading) keeps the last state
+	snprintf(tpl, sizeof(tpl), "{{ value_json.%s | default('') }}", json_field);
 	cfg["val_tpl"] = tpl;
 	if (unit) cfg["unit_of_meas"] = unit;
 	if (dev_cla) cfg["dev_cla"] = dev_cla;
@@ -120,7 +122,7 @@ static void publish_sensor_tpl(const char *object, const char *name,
 							   const char *state_suffix, const char *value_template,
 							   const char *ent_cat, const char *icon)
 {
-	StaticJsonBuffer<512> buf;
+	StaticJsonBuffer<1024> buf;
 	JsonObject &cfg = buf.createObject();
 	char st[48];
 	snprintf(st, sizeof(st), "%s/%s", parameters.mqtt_base_topic, state_suffix);
@@ -136,7 +138,7 @@ static void publish_bsensor(const char *object, const char *name,
 							const char *state_suffix, const char *json_field,
 							const char *dev_cla, const char *icon)
 {
-	StaticJsonBuffer<512> buf;
+	StaticJsonBuffer<1024> buf;
 	JsonObject &cfg = buf.createObject();
 	char st[48];
 	snprintf(st, sizeof(st), "%s/%s", parameters.mqtt_base_topic, state_suffix);
@@ -156,7 +158,7 @@ static void publish_select_modes(const char *object, const char *name,
 								 const char *state_suffix, const char *json_field,
 								 const char *cmd_suffix, const char *icon)
 {
-	StaticJsonBuffer<512> buf;
+	StaticJsonBuffer<1024> buf;
 	JsonObject &cfg = buf.createObject();
 	char st[48], cmd[48], tpl[96];
 	snprintf(st, sizeof(st), "%s/%s", parameters.mqtt_base_topic, state_suffix);
@@ -177,7 +179,7 @@ static void publish_select_modes(const char *object, const char *name,
 
 static void publish_select_filter_power(void)
 {
-	StaticJsonBuffer<512> buf;
+	StaticJsonBuffer<1024> buf;
 	JsonObject &cfg = buf.createObject();
 	char st[48], cmd[48];
 	snprintf(st, sizeof(st), "%s/STATE_FILTER", parameters.mqtt_base_topic);
@@ -198,7 +200,7 @@ static void publish_number(const char *object, const char *name,
 						   float vmin, float vmax, float step,
 						   const char *unit, const char *icon)
 {
-	StaticJsonBuffer<512> buf;
+	StaticJsonBuffer<1024> buf;
 	JsonObject &cfg = buf.createObject();
 	char st[48], cmd[48], tpl[64];
 	snprintf(st, sizeof(st), "%s/PARAM", parameters.mqtt_base_topic);
@@ -221,7 +223,7 @@ static void publish_number(const char *object, const char *name,
 static void publish_button(const char *object, const char *name,
 						   const char *cmd_suffix, const char *icon)
 {
-	StaticJsonBuffer<512> buf;
+	StaticJsonBuffer<1024> buf;
 	JsonObject &cfg = buf.createObject();
 	char cmd[48];
 	snprintf(cmd, sizeof(cmd), "%s/CMD/%s", parameters.mqtt_base_topic, cmd_suffix);
@@ -251,6 +253,7 @@ static const entity_ref ENTITIES[] = {
 	{"sensor", "daily_ml_ph_plus"},
 	{"sensor", "daily_filter_h"},
 	{"sensor", "total_filter_h"},
+	{"sensor", "filter_prog_today"},
 	{"sensor", "boot_count"},
 	// diagnostic state sensors
 	{"sensor", "filter_control_state"},
@@ -295,6 +298,13 @@ static const entity_ref ENTITIES[] = {
 	{"button", "rst_boot_count"},
 };
 
+// Objects published by older firmware versions; their retained configs are
+// cleared on every publish so HA drops the stale entities.
+static const entity_ref LEGACY_ENTITIES[] = {
+	{"sensor", "daily_filter_min"},
+	{"sensor", "total_filter_min"},
+};
+
 // ---------- public API ----------
 
 void mqtt_discovery_publish_all(void)
@@ -302,6 +312,11 @@ void mqtt_discovery_publish_all(void)
 	if (!mqtt_client.connected()) return;
 	build_node_id();
 	printlnA("MQTT HA discovery: publishing");
+
+	for (size_t i = 0; i < sizeof(LEGACY_ENTITIES) / sizeof(LEGACY_ENTITIES[0]); ++i)
+	{
+		clear_cfg(LEGACY_ENTITIES[i].component, LEGACY_ENTITIES[i].object);
+	}
 
 	// Sensors from MEAS
 	publish_sensor("water_temperature", "Water Temperature", "MEAS", "water_temperature", "°C", "temperature", NULL, NULL);

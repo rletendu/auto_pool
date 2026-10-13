@@ -5,6 +5,10 @@ extern int bootCount;
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
 
+// MQTT connects early in setup(), before states and measures are initialized.
+// Until mqtt_set_ready() is called, publishing them would send zeroed values.
+static bool mqtt_ready = false;
+
 void mqtt_callback(char *topic, byte *message, unsigned int length)
 {
 
@@ -369,6 +373,7 @@ void mqtt_publish_parameters()
 void mqtt_publish_measures()
 {
 	char topic[40];
+	if (!mqtt_ready) return;
 	measures_to_json_string();
 	strcpy(topic, parameters.mqtt_base_topic);
 	strcat(topic, "/MEAS");
@@ -378,8 +383,15 @@ void mqtt_publish_measures()
 	}
 }
 
+void mqtt_set_ready(void)
+{
+	mqtt_ready = true;
+	mqtt_publish_all();
+}
+
 void mqtt_publish_all()
 {
+	if (!mqtt_ready) return;
 	mqtt_publish_parameters();
 	mqtt_publish_states();
 	mqtt_publish_measures();
@@ -395,6 +407,7 @@ void mqtt_publish_states()
 void mqtt_publish_filter_state()
 {
 	char topic[40];
+	if (!mqtt_ready) return;
 	filter_state_to_json_string();
 	strcpy(topic, parameters.mqtt_base_topic);
 	strcat(topic, "/STATE_FILTER");
@@ -407,6 +420,7 @@ void mqtt_publish_filter_state()
 void mqtt_publish_ph_state()
 {
 	char topic[40];
+	if (!mqtt_ready) return;
 	ph_state_to_json_string();
 	strcpy(topic, parameters.mqtt_base_topic);
 	strcat(topic, "/STATE_PH");
@@ -419,6 +433,7 @@ void mqtt_publish_ph_state()
 void mqtt_publish_orp_state()
 {
 	char topic[40];
+	if (!mqtt_ready) return;
 	orp_state_to_json_string();
 	strcpy(topic, parameters.mqtt_base_topic);
 	strcat(topic, "/STATE_ORP");

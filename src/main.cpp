@@ -37,7 +37,7 @@ bool time_update(void *)
 		measures.daily_ml_orp = 0;
 		measures.daily_filter_min = 0;
 		mqtt_publish_log("Reset injecion counters and max water temperature");
-		measures.day_max_water_temperature = measures.water_temperature_raw;
+		measures.day_max_water_temperature = measures.water_temperature;
 		// Persist total_filter_min so it survives full power loss
 		state.total_filter_min = measures.total_filter_min;
 		state_default_write_file();
@@ -181,6 +181,10 @@ void setup()
 
 	disp_boot_progress_message("Measure Init");
 	measures_init();
+
+#if HAS_MQTT
+	mqtt_set_ready();
+#endif
 
 #if HAS_WEB_SERVER
 	disp_boot_progress_message("Web Server Init");

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 void mqtt_init(void);
+void mqtt_set_ready(void);
 void mqtt_loop(void);
 void mqtt_reconnect();
 void mqtt_publish_debug(const char *message);
