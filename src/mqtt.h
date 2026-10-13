@@ -12,6 +12,7 @@ void mqtt_publish_availability(const char *status);
 void mqtt_publish_parameters(void);
 void mqtt_publish_measures(void);
 void mqtt_publish_states();
+void mqtt_publish_all();
 void mqtt_publish_filter_state();
 void mqtt_publish_ph_state();
 void mqtt_publish_orp_state();

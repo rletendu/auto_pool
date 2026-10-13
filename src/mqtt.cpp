@@ -9,7 +9,8 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 {
 
 	int i;
-	char basetopic[20];
+	char basetopic[PARAM_MAX_STR + 8];
+	char ha_status_topic[PARAM_HA_PREFIX_LEN + 8];
 	char payload[MQTT_MAX_PACKET_SIZE];
 	strcpy(basetopic, parameters.mqtt_base_topic);
 	strcat(basetopic, "/CMD/");
@@ -17,12 +18,24 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 	in_topic.replace(basetopic, "");
 
 	String payload_buff;
-	for (i = 0; i < length; i++)
+	for (i = 0; i < length && i < MQTT_MAX_PACKET_SIZE - 1; i++)
 	{
 		payload_buff = payload_buff + String((char)message[i]);
 		payload[i] = message[i];
 	}
 	payload[i] = 0;
+
+	// HA birth message: HA restarted and lost entity states, resend everything
+	snprintf(ha_status_topic, sizeof(ha_status_topic), "%s/status", parameters.ha_discovery_prefix);
+	if (strcmp(topic, ha_status_topic) == 0)
+	{
+		if (parameters.ha_discovery_enabled && strcmp(payload, "online") == 0)
+		{
+			mqtt_discovery_publish_all();
+			mqtt_publish_all();
+		}
+		return;
+	}
 
 	if (in_topic == "FILTER_PUMP")
 	{
@@ -307,8 +320,12 @@ void mqtt_reconnect()
 			mqtt_publish_log("AUTOPOOL (Re)connected");
 			if (parameters.ha_discovery_enabled)
 			{
+				snprintf(topic, sizeof(topic), "%s/status", parameters.ha_discovery_prefix);
+				mqtt_client.subscribe(topic);
 				mqtt_discovery_publish_all();
 			}
+			// States are not retained: push them so subscribers don't stay "unknown"
+			mqtt_publish_all();
 		}
 		else
 		{
@@ -359,6 +376,13 @@ void mqtt_publish_measures()
 	{
 		mqtt_client.publish(topic, measures_json_string);
 	}
+}
+
+void mqtt_publish_all()
+{
+	mqtt_publish_parameters();
+	mqtt_publish_states();
+	mqtt_publish_measures();
 }
 
 void mqtt_publish_states()
