@@ -139,6 +139,24 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 		else if (strcmp(payload, "OFF") == 0) filter_enter_mode(FILTER_OFF);
 		state_default_write_file();
 	}
+	else if (in_topic == "SET/WINTER_MODE")
+	{
+		// Handled before the generic SET/ branch: persisted in state.json, not config.json
+		if (strcmp(payload, "ON") == 0) winter_mode_set(true);
+		else if (strcmp(payload, "OFF") == 0) winter_mode_set(false);
+	}
+	else if (in_topic == "OUTDOOR_TEMP")
+	{
+		// Pushed periodically by HA; volatile, never persisted
+		char *end;
+		float v = strtof(payload, &end);
+		if (end != payload && v > -50.0f && v < 70.0f)
+		{
+			measures.outdoor_temperature = v;
+			measures.outdoor_temperature_ms = millis();
+			if (measures.outdoor_temperature_ms == 0) measures.outdoor_temperature_ms = 1;
+		}
+	}
 	else if (in_topic == "SET/FILTER_POWER")
 	{
 		if (strcmp(payload, "FULL") == 0) filter_enter_power_mode(FILTER_POWER_FULL);
@@ -183,6 +201,9 @@ void mqtt_callback(char *topic, byte *message, unsigned int length)
 		else if (in_topic == "SET/PH_OFFSET")            parameters.ph_offset = v;
 		else if (in_topic == "SET/ORP_OFFSET")           parameters.orp_offset = v;
 		else if (in_topic == "SET/PERIODIC_FILTER_TIME") parameters.periodic_filter_time = v;
+		else if (in_topic == "SET/WINTER_START_HOUR")    parameters.winter_start_hour = (uint8_t)((int)v % 24);
+		else if (in_topic == "SET/WINTER_DURATION_H")    parameters.winter_duration_h = (uint8_t)constrain((int)v, 0, 24);
+		else if (in_topic == "SET/FROST_THRESHOLD")      parameters.frost_threshold = v;
 		else if (in_topic == "SET/DEVICE_SUFFIX")
 		{
 			char clean[PARAM_DEVICE_SUFFIX_LEN];

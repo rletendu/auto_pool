@@ -27,6 +27,8 @@
   --accent-ph-bg: #ccfbf1;
   --accent-orp: #d97706;
   --accent-orp-bg: #fef3c7;
+  --accent-winter: #0891b2;
+  --accent-winter-bg: #cffafe;
 
   --s-1: 0.25rem;
   --s-2: 0.5rem;
@@ -69,6 +71,7 @@
     --accent-filter-bg: rgba(37, 99, 235, .15);
     --accent-ph-bg: rgba(13, 148, 136, .15);
     --accent-orp-bg: rgba(217, 119, 6, .15);
+    --accent-winter-bg: rgba(8, 145, 178, .15);
   }
 }
 
@@ -171,6 +174,12 @@ footer {
 .card--accent-filter { border-left-color: var(--accent-filter); }
 .card--accent-ph     { border-left-color: var(--accent-ph); }
 .card--accent-orp    { border-left-color: var(--accent-orp); }
+.card--accent-winter { border-left-color: var(--accent-winter); }
+
+/* Regulator locked by winter mode */
+.card[aria-disabled="true"] { opacity: .55; }
+.card[aria-disabled="true"] .mode-toggle { pointer-events: none; }
+.card__note { font-size: .8rem; color: var(--accent-winter); font-weight: 600; }
 
 .card-header {
   display: flex;
@@ -267,6 +276,7 @@ footer {
 .card--accent-filter .mode-toggle button[aria-pressed="true"] { color: var(--accent-filter); }
 .card--accent-ph     .mode-toggle button[aria-pressed="true"] { color: var(--accent-ph); }
 .card--accent-orp    .mode-toggle button[aria-pressed="true"] { color: var(--accent-orp); }
+.card--accent-winter .mode-toggle button[aria-pressed="true"] { color: var(--accent-winter); }
 
 /* ---------- Pump pill ---------- */
 

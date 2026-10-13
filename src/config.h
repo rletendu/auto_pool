@@ -2,7 +2,7 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
-#define AUTOPOOL_VER 2.3
+#define AUTOPOOL_VER 3.0
 #define PORTAL_NAME "AUTOPOOL_CONFIG"
 #define PORTAL_CONFIG_TIMEOUT_S 60
 #define PORTAL_CONFIG_PROGRESS_S 5
@@ -16,7 +16,7 @@
 #define PARAMETER_FILENAME "/config.json"
 #define STATE_FILENAME "/state.json"
 #define PARAMETERS_JSON_MESSAGE_LEN 768
-#define MEASURES_JSON_MESSAGE_LEN 512
+#define MEASURES_JSON_MESSAGE_LEN 768
 #define STATE_FILTER_CTRL_JSON_MESSAGE_LEN 300
 #define STATE_ORP_CTRL_JSON_MESSAGE_LEN 300
 #define STATE_PH_CTRL_JSON_MESSAGE_LEN 300
@@ -35,6 +35,12 @@
 #define FILTER_CONTROL_WARM_UP_S 30
 #define FILTER_CONTROL_PERIODIC_DURATION_S 60
 #define FILTER_PUMP_ON_MIN_TIME_S 30
+// Winter mode frost protection: outdoor temperature (pushed by HA) is preferred,
+// water temperature is the fallback when it is missing or stale
+#define FROST_HYSTERESIS_C 1.5f
+#define FROST_WATER_ON_C 4.0f
+#define FROST_WATER_OFF_C 5.0f
+#define OUTDOOR_TEMP_MAX_AGE_S 30 * 60
 #define ORP_CONTROL_UPDATE_S 10
 #define ORP_REGULATION_CYCLE_S 10 * 60
 #define PH_CONTROL_UPDATE_S 10

@@ -63,7 +63,7 @@
       </div>
       <div class="metric">
         <div class="metric__label">Daily filter</div>
-        <div><span class="metric__value" id="m-daily-filter">—</span><span class="metric__unit">min</span></div>
+        <div><span class="metric__value" id="m-daily-filter">—</span><span class="metric__unit">h</span></div>
       </div>
       <div class="metric">
         <div class="metric__label">Total filter</div>
@@ -91,8 +91,8 @@
       </div>
     </article>
 
-    <article class="card card--accent card--accent-ph">
-      <div class="card-header"><h2>pH</h2></div>
+    <article class="card card--accent card--accent-ph" id="ph-card">
+      <div class="card-header"><h2>pH</h2><span class="card__note" data-winter-note hidden>Winter</span></div>
       <div class="mode-toggle" id="ph-mode-toggle" role="group" aria-label="pH mode">
         <button type="button" data-mode="OFF"  aria-pressed="false">Off</button>
         <button type="button" data-mode="ON"   aria-pressed="false">On</button>
@@ -104,8 +104,8 @@
       </div>
     </article>
 
-    <article class="card card--accent card--accent-orp">
-      <div class="card-header"><h2>ORP</h2></div>
+    <article class="card card--accent card--accent-orp" id="orp-card">
+      <div class="card-header"><h2>ORP</h2><span class="card__note" data-winter-note hidden>Winter</span></div>
       <div class="mode-toggle" id="orp-mode-toggle" role="group" aria-label="ORP mode">
         <button type="button" data-mode="OFF"  aria-pressed="false">Off</button>
         <button type="button" data-mode="ON"   aria-pressed="false">On</button>
@@ -117,6 +117,22 @@
       </div>
     </article>
 
+  </section>
+
+  <section class="card card--accent card--accent-winter">
+    <div class="card-header"><h2>Winter</h2></div>
+    <div class="mode-toggle" id="winter-mode-toggle" role="group" aria-label="Winter mode">
+      <button type="button" data-mode="OFF" aria-pressed="false">Off</button>
+      <button type="button" data-mode="ON"  aria-pressed="false">On</button>
+    </div>
+    <div class="regulator__row">
+      <span>Frost protection</span>
+      <span class="pump-pill" id="frost-pill" data-state="off">Idle</span>
+    </div>
+    <div class="regulator__row">
+      <span>Outdoor</span>
+      <span><span id="m-outdoor">—</span> °C</span>
+    </div>
   </section>
 
   <section class="card">

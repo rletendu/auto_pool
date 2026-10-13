@@ -24,6 +24,7 @@
 
   <nav class="section-nav" aria-label="Sections">
     <a href="#sec-timer">Filter timer</a>
+    <a href="#sec-winter">Winter</a>
     <a href="#sec-setpoints">Setpoints</a>
     <a href="#sec-calibration">Calibration</a>
     <a href="#sec-ha">Home Assistant</a>
@@ -43,7 +44,7 @@
     </div>
 
     <div class="field mt-4">
-      <label class="field__label" for="periodic_filter_time">Periodic filter time (s)</label>
+      <label class="field__label" for="periodic_filter_time">Periodic filter time (min)</label>
       <input id="periodic_filter_time" type="number" step="10" min="0" max="600" value="0">
       <span class="field__hint">Anti-stagnation cycle outside the timer window. 0 disables.</span>
     </div>
@@ -58,6 +59,26 @@
     <div class="btn-row mt-4">
       <button type="button" class="btn" id="btn-copy-fixed">Copy fixed → all temps</button>
       <button type="button" class="btn" id="btn-load-defaults">Load defaults</button>
+    </div>
+  </fieldset>
+
+  <fieldset class="fieldset" id="sec-winter">
+    <legend>Winter mode</legend>
+    <p class="muted text-sm">Used only while winter mode is on (toggle on the dashboard). Chemistry is locked OFF and restored when winter mode ends.</p>
+    <div class="field-grid">
+      <div class="field">
+        <label class="field__label" for="winter_start_hour">Filter start hour</label>
+        <input id="winter_start_hour" type="number" step="1" min="0" max="23">
+      </div>
+      <div class="field">
+        <label class="field__label" for="winter_duration_h">Filter duration (h)</label>
+        <input id="winter_duration_h" type="number" step="1" min="0" max="24">
+      </div>
+      <div class="field">
+        <label class="field__label" for="frost_threshold">Frost threshold (°C)</label>
+        <input id="frost_threshold" type="number" step="0.5" min="-5" max="5">
+        <span class="field__hint">Pump runs continuously when the outdoor temperature drops to this value (stops 1.5 °C above).</span>
+      </div>
     </div>
   </fieldset>
 

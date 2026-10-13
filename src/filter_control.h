@@ -12,5 +12,6 @@ uint32_t filter_get_effective_timer_prog(void);
 
 void filter_enter_mode(enum filter_mode_t filter_mode);
 void filter_enter_power_mode(enum filter_power_t filter_power);
+void winter_mode_set(bool on);
 
 #endif

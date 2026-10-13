@@ -340,7 +340,7 @@ void webserver_init(void)
 
 	server.on("/setparameters", HTTP_POST, []() {
 		char buf[PARAMETERS_JSON_MESSAGE_LEN];
-		sprintf(buf, "%s", server.arg("plain").c_str());
+		snprintf(buf, sizeof(buf), "%s", server.arg("plain").c_str());
 		if (parameters_json_to_param(buf))
 		{
 			if (parameters_write_file())
@@ -380,6 +380,16 @@ void webserver_init(void)
 		filter_enter_mode(FILTER_AUTO);
 		state_default_write_file();
 		server.send(200, F("text/plain"), measures_json_string);
+	});
+
+	server.on("/winter_on", HTTP_GET, []() {
+		winter_mode_set(true);
+		server.send(200, F("text/plain"), state_filter_json_string);
+	});
+
+	server.on("/winter_off", HTTP_GET, []() {
+		winter_mode_set(false);
+		server.send(200, F("text/plain"), state_filter_json_string);
 	});
 
 	server.on("/reboot", HTTP_GET, []() {

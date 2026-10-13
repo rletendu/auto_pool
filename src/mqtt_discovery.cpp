@@ -177,6 +177,26 @@ static void publish_select_modes(const char *object, const char *name,
 	publish_cfg("select", object, cfg);
 }
 
+static void publish_switch(const char *object, const char *name,
+						   const char *state_suffix, const char *json_field,
+						   const char *cmd_suffix, const char *icon)
+{
+	StaticJsonBuffer<1024> buf;
+	JsonObject &cfg = buf.createObject();
+	char st[48], cmd[48], tpl[80];
+	snprintf(st, sizeof(st), "%s/%s", parameters.mqtt_base_topic, state_suffix);
+	snprintf(cmd, sizeof(cmd), "%s/CMD/%s", parameters.mqtt_base_topic, cmd_suffix);
+	snprintf(tpl, sizeof(tpl), "{{ 'ON' if value_json.%s else 'OFF' }}", json_field);
+	cfg["name"] = name;
+	cfg["stat_t"] = st;
+	cfg["cmd_t"] = cmd;
+	cfg["val_tpl"] = tpl;
+	cfg["pl_on"] = "ON";
+	cfg["pl_off"] = "OFF";
+	if (icon) cfg["ic"] = icon;
+	publish_cfg("switch", object, cfg);
+}
+
 static void publish_select_filter_power(void)
 {
 	StaticJsonBuffer<1024> buf;
@@ -255,6 +275,7 @@ static const entity_ref ENTITIES[] = {
 	{"sensor", "total_filter_h"},
 	{"sensor", "filter_prog_today"},
 	{"sensor", "boot_count"},
+	{"sensor", "outdoor_temperature"},
 	// diagnostic state sensors
 	{"sensor", "filter_control_state"},
 	{"sensor", "orp_control_state"},
@@ -269,6 +290,10 @@ static const entity_ref ENTITIES[] = {
 	{"binary_sensor", "ph_minus_pump"},
 	{"binary_sensor", "ph_plus_pump"},
 	{"binary_sensor", "pressure_warning"},
+	{"binary_sensor", "frost_protection"},
+	{"binary_sensor", "frost_alert"},
+	// winter mode
+	{"switch", "winter_mode"},
 	// filter timing diagnostic sensors
 	{"sensor", "filter_time_pump_on"},
 	{"sensor", "filter_time_pump_off"},
@@ -292,6 +317,9 @@ static const entity_ref ENTITIES[] = {
 	{"number", "ph_offset"},
 	{"number", "orp_offset"},
 	{"number", "periodic_filter_time"},
+	{"number", "winter_start_hour"},
+	{"number", "winter_duration_h"},
+	{"number", "frost_threshold"},
 	// buttons
 	{"button", "reset"},
 	{"button", "rst_daily_ml_orp"},
@@ -333,10 +361,11 @@ void mqtt_discovery_publish_all(void)
 	publish_sensor("total_filter_h", "Total Filter Time", "MEAS", "total_filter_h", "h", "duration", "diagnostic", "mdi:timer");
 	publish_sensor("filter_prog_today", "Filter Program Today", "MEAS", "filter_prog_today", NULL, NULL, NULL, "mdi:calendar-clock");
 	publish_sensor("boot_count", "Boot Count", "MEAS", "boot_count", NULL, NULL, "diagnostic", "mdi:counter");
+	publish_sensor("outdoor_temperature", "Outdoor Temperature", "MEAS", "outdoor_temperature", "°C", "temperature", "diagnostic", NULL);
 
 	// Diagnostic state sensors
 	publish_sensor_tpl("filter_control_state", "Filter Control State", "STATE_FILTER",
-		"{{ {0:'IDLE',1:'WARM_UP',2:'ACTIVE',3:'EXTENDED',4:'PERIODIC'}.get(value_json.filter_control_state|int) }}",
+		"{{ {0:'IDLE',1:'WARM_UP',2:'ACTIVE',3:'EXTENDED',4:'PERIODIC',5:'FROST'}.get(value_json.filter_control_state|int) }}",
 		"diagnostic", "mdi:state-machine");
 	publish_sensor_tpl("orp_control_state", "ORP Control State", "STATE_ORP",
 		"{{ {0:'IDLE',1:'INJECTION_ON',2:'INJECTION_OFF'}.get(value_json.orp_control_state|int) }}",
@@ -359,6 +388,11 @@ void mqtt_discovery_publish_all(void)
 
 	// Pressure warning (computed in firmware against parameters.pressure_warning)
 	publish_bsensor("pressure_warning", "Pressure Warning", "MEAS", "pressure_warning_active", "problem", "mdi:alert");
+
+	// Winter mode + frost protection
+	publish_switch("winter_mode", "Winter Mode", "STATE_FILTER", "winter_mode", "SET/WINTER_MODE", "mdi:snowflake");
+	publish_bsensor("frost_protection", "Frost Protection", "STATE_FILTER", "frost_active", "running", "mdi:snowflake-thermometer");
+	publish_bsensor("frost_alert", "Frost Alert", "STATE_FILTER", "frost_alert", "problem", "mdi:snowflake-alert");
 
 	// Filter pump on/off timestamps (millis since boot) - diagnostic
 	publish_sensor("filter_time_pump_on", "Filter Pump-On Timestamp", "STATE_FILTER", "filter_time_pump_on", "ms", NULL, "diagnostic", "mdi:timer-play");
@@ -385,6 +419,9 @@ void mqtt_discovery_publish_all(void)
 	publish_number("ph_offset", "pH Calibration Offset", "ph_offset", "SET/PH_OFFSET", -2, 2, 0.05, "pH", "mdi:tune");
 	publish_number("orp_offset", "ORP Calibration Offset", "orp_offset", "SET/ORP_OFFSET", -200, 200, 10, "mV", "mdi:tune");
 	publish_number("periodic_filter_time", "Periodic Filter Time", "periodic_filter_time", "SET/PERIODIC_FILTER_TIME", 0, 600, 5, "min", "mdi:timer");
+	publish_number("winter_start_hour", "Winter Filter Start Hour", "winter_start_hour", "SET/WINTER_START_HOUR", 0, 23, 1, "h", "mdi:clock-start");
+	publish_number("winter_duration_h", "Winter Filter Duration", "winter_duration_h", "SET/WINTER_DURATION_H", 0, 24, 1, "h", "mdi:timer-sand");
+	publish_number("frost_threshold", "Frost Threshold", "frost_threshold", "SET/FROST_THRESHOLD", -5, 5, 0.5, "°C", "mdi:snowflake-thermometer");
 
 	// Buttons
 	publish_button("reset", "Reset Controller", "RESET", "mdi:restart");

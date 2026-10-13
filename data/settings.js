@@ -75,6 +75,7 @@ const SCALAR_FIELDS = [
   "cl_max_day", "phm_max_day",
   "orp_offset", "ph_offset",
   "periodic_filter_time",
+  "winter_start_hour", "winter_duration_h", "frost_threshold",
   "ha_discovery_prefix",
   "device_suffix",
 ];

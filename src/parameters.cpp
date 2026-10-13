@@ -46,12 +46,9 @@ bool parameters_read_file(void)
 	return false;
 }
 
-bool parameters_write_file(void)
+static void parameters_build_json(JsonObject &json)
 {
 	uint8_t i;
-	printlnA(F("Saving parameters to file"));
-	DynamicJsonBuffer jsonBuffer;
-	JsonObject &json = jsonBuffer.createObject();
 	json["mqtt_server"] = parameters.mqtt_server;
 	json["mqtt_port"] = parameters.mqtt_port;
 	json["mqtt_user"] = parameters.mqtt_user;
@@ -80,6 +77,27 @@ bool parameters_write_file(void)
 	{
 		data.add(parameters.timer_prog_temperature[i]);
 	}
+	json["winter_start_hour"] = parameters.winter_start_hour;
+	json["winter_duration_h"] = parameters.winter_duration_h;
+	json["frost_threshold"] = parameters.frost_threshold;
+}
+
+// Rebuild parameters_json_string from the struct so it always carries every key,
+// even when config.json predates some of them
+void parameters_to_json_string(void)
+{
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.createObject();
+	parameters_build_json(json);
+	json.printTo(parameters_json_string, sizeof(parameters_json_string));
+}
+
+bool parameters_write_file(void)
+{
+	printlnA(F("Saving parameters to file"));
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.createObject();
+	parameters_build_json(json);
 	File configFile = SPIFFS.open(PARAMETER_FILENAME, "w");
 	if (!configFile)
 	{
@@ -87,7 +105,7 @@ bool parameters_write_file(void)
 		return false;
 	}
 	json.printTo(configFile);
-	json.printTo(parameters_json_string);
+	json.printTo(parameters_json_string, sizeof(parameters_json_string));
 	configFile.close();
 	printlnA("Parameter Json:");
 	printlnA(parameters_json_string);
@@ -125,6 +143,9 @@ void parameters_set_default(void)
 	{
 		parameters.timer_prog_temperature[i] = 0;
 	}
+	parameters.winter_start_hour = 4;
+	parameters.winter_duration_h = 3;
+	parameters.frost_threshold = 1.0;
 }
 
 bool device_suffix_is_valid(const char *s)
@@ -202,7 +223,10 @@ bool parameters_json_to_param(char *json_str)
 		{
 			parameters.timer_prog_temperature[i] = json["timer_prog_temperature"][i];
 		}
-		json.printTo(parameters_json_string);
+		if (json.containsKey("winter_start_hour")) parameters.winter_start_hour = (uint8_t)((int)json["winter_start_hour"] % 24);
+		if (json.containsKey("winter_duration_h")) parameters.winter_duration_h = (uint8_t)constrain((int)json["winter_duration_h"], 0, 24);
+		if (json.containsKey("frost_threshold")) parameters.frost_threshold = json["frost_threshold"];
+		parameters_to_json_string();
 		return true;
 	}
 	else

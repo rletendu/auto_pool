@@ -40,6 +40,7 @@ enum filter_control_state_t
 	FILTER_AUTO_ACTIVE,
 	FILTER_AUTO_ACTIVE_EXTENDED,
 	FILTER_AUTO_ACTIVE_PERIODIC,
+	FILTER_AUTO_ACTIVE_FROST,
 };
 
 enum orp_control_state_t
@@ -101,6 +102,13 @@ struct StateStructure
 	uint32_t ph_plus_time_pump_off;
 
 	uint32_t total_filter_min;
+
+	bool winter_mode;
+	bool frost_active; // frost protection is running the filter pump
+	bool frost_alert;  // frost risk while the filter is forced OFF
+	enum orp_mode_t pre_winter_orp_mode;
+	enum ph_minus_mode_t pre_winter_ph_minus_mode;
+	enum ph_plus_mode_t pre_winter_ph_plus_mode;
 };
 
 enum correction_need_t

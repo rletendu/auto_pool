@@ -17,6 +17,9 @@ void filter_state_to_json_string(void)
 	json["filter_power"] = (int)state.filter_power;
 	json["filter_time_pump_on"] = state.filter_time_pump_on;
 	json["filter_time_pump_off"] = state.filter_time_pump_off;
+	json["winter_mode"] = state.winter_mode;
+	json["frost_active"] = state.frost_active;
+	json["frost_alert"] = state.frost_alert;
 	json.printTo(state_filter_json_string, sizeof(state_filter_json_string));
 	printA("Filter Json:");
 	printlnA(state_filter_json_string);
@@ -119,6 +122,10 @@ bool state_default_write_file(void)
 	json["orp_mode"] = (int)state.orp_mode;
 	json["filter_power"] = (int)state.filter_power;
 	json["total_filter_min"] = state.total_filter_min;
+	json["winter_mode"] = state.winter_mode;
+	json["pre_winter_orp_mode"] = (int)state.pre_winter_orp_mode;
+	json["pre_winter_ph_minus_mode"] = (int)state.pre_winter_ph_minus_mode;
+	json["pre_winter_ph_plus_mode"] = (int)state.pre_winter_ph_plus_mode;
 
 	File stateFile = SPIFFS.open(STATE_FILENAME, "w");
 	if (!stateFile)
@@ -156,6 +163,10 @@ bool state_default_read_file(void)
 					state_default.ph_plus_mode = (ph_plus_mode_t)(int)json["ph_plus_mode"];
 					state_default.filter_power = (filter_power_t)(int)json["filter_power"];
 					state_default.total_filter_min = json.containsKey("total_filter_min") ? (uint32_t)json["total_filter_min"] : 0;
+					state_default.winter_mode = json.containsKey("winter_mode") ? (bool)json["winter_mode"] : false;
+					state_default.pre_winter_orp_mode = json.containsKey("pre_winter_orp_mode") ? (orp_mode_t)(int)json["pre_winter_orp_mode"] : ORP_OFF;
+					state_default.pre_winter_ph_minus_mode = json.containsKey("pre_winter_ph_minus_mode") ? (ph_minus_mode_t)(int)json["pre_winter_ph_minus_mode"] : PH_MINUS_OFF;
+					state_default.pre_winter_ph_plus_mode = json.containsKey("pre_winter_ph_plus_mode") ? (ph_plus_mode_t)(int)json["pre_winter_ph_plus_mode"] : PH_PLUS_OFF;
 					return true;
 				}
 				else

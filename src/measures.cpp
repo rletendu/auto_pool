@@ -194,6 +194,12 @@ bool update_graph(void *)
 	return true;
 }
 
+bool measures_outdoor_temperature_is_fresh(void)
+{
+	return measures.outdoor_temperature_ms != 0 &&
+		(millis() - measures.outdoor_temperature_ms) < (OUTDOOR_TEMP_MAX_AGE_S * 1000UL);
+}
+
 void measures_to_json_string(void)
 {
 	DynamicJsonBuffer jsonBuffer;
@@ -224,6 +230,10 @@ void measures_to_json_string(void)
 	json["total_filter_h"].set(measures.total_filter_min / 60.0f, 1);
 	json["filter_prog_today"] = measures.filter_prog_today;
 	json["boot_count"] = measures.boot_count;
+	if (measures_outdoor_temperature_is_fresh())
+	{
+		json["outdoor_temperature"] = measures.outdoor_temperature;
+	}
 	json.printTo(measures_json_string, sizeof(measures_json_string));
 }
 

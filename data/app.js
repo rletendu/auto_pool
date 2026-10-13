@@ -123,8 +123,9 @@ function renderMeasures(m) {
   $("#m-day-max").textContent     = fmt(m.day_max_water_temperature, 1);
   $("#m-daily-cl").textContent    = fmt(m.daily_ml_orp, 0);
   $("#m-daily-phm").textContent   = fmt(m.daily_ml_ph_minus, 0);
-  $("#m-daily-filter").textContent  = fmt(m.daily_filter_min, 0);
-  $("#m-total-filter").textContent  = m.total_filter_min == null ? "—" : (m.total_filter_min / 60).toFixed(1);
+  $("#m-daily-filter").textContent  = fmt(m.daily_filter_h, 1);
+  $("#m-total-filter").textContent  = fmt(m.total_filter_h, 1);
+  $("#m-outdoor").textContent       = fmt(m.outdoor_temperature, 1);
 
   const set = (id, ok) => {
     const el = $(id);
@@ -142,6 +143,31 @@ function renderFilter(s) {
   setMode($("#filter-mode-toggle"), mode);
   setMode($("#filter-power-toggle"), pwr);
   setPump($("#filter-pump"), !!s.filter_pump);
+  renderWinter(s);
+}
+
+function renderWinter(s) {
+  const winter = !!s.winter_mode;
+  setMode($("#winter-mode-toggle"), winter ? "ON" : "OFF");
+  const pill = $("#frost-pill");
+  if (s.frost_alert) {
+    pill.dataset.state = "warn";
+    pill.textContent = "Frost risk, filter OFF";
+  } else if (s.frost_active) {
+    pill.dataset.state = "on";
+    pill.textContent = "Running";
+  } else {
+    pill.dataset.state = "off";
+    pill.textContent = winter ? "Standby" : "Idle";
+  }
+  // Chemistry is locked OFF by the firmware in winter
+  for (const id of ["#ph-card", "#orp-card"]) {
+    const card = $(id);
+    if (!card) continue;
+    card.setAttribute("aria-disabled", winter ? "true" : "false");
+    const note = $("[data-winter-note]", card);
+    if (note) note.hidden = !winter;
+  }
 }
 
 function renderOrp(s) {
@@ -161,6 +187,7 @@ const CMD_MAP = {
   fpower: { FULL: "filter_pwr_full", REG: "filter_pwr_reg" },
   orp:    { OFF: "orp_off", ON: "orp_on", AUTO: "orp_auto" },
   ph:     { OFF: "ph_off", ON: "ph_on", AUTO: "ph_auto" },
+  winter: { OFF: "winter_off", ON: "winter_on" },
 };
 
 function bindModeToggle(toggleEl, group, label) {
@@ -189,6 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindModeToggle($("#filter-power-toggle"), "fpower", "Filter power");
   bindModeToggle($("#orp-mode-toggle"),     "orp",    "ORP");
   bindModeToggle($("#ph-mode-toggle"),      "ph",     "pH");
+  bindModeToggle($("#winter-mode-toggle"),  "winter", "Winter mode");
 
   api.get("getinfo").then(info => {
     const el = $("#fw-version");

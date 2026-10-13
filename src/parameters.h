@@ -46,6 +46,9 @@ struct ParametersStruture
 	bool ha_discovery_enabled;
 	char ha_discovery_prefix[PARAM_HA_PREFIX_LEN];
 	char device_suffix[PARAM_DEVICE_SUFFIX_LEN];
+	uint8_t winter_start_hour;
+	uint8_t winter_duration_h;
+	float frost_threshold;
 };
 
 extern struct ParametersStruture parameters;
@@ -55,6 +58,7 @@ bool parameters_read_file(void);
 bool parameters_write_file(void);
 void parameters_format(void);
 bool parameters_json_to_param(char *json_str);
+void parameters_to_json_string(void);
 void parameters_set_default(void);
 bool device_suffix_is_valid(const char *s);
 void device_suffix_sanitize(char *dst, const char *src, size_t dst_size);

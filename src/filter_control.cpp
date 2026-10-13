@@ -1,7 +1,23 @@
 #include "autopool.h"
 
+// Winter program: winter_duration_h consecutive hours from winter_start_hour, wrapping past midnight
+static uint32_t winter_timer_prog(void)
+{
+	uint32_t prog = 0;
+	uint8_t duration = parameters.winter_duration_h > 24 ? 24 : parameters.winter_duration_h;
+	for (uint8_t i = 0; i < duration; i++)
+	{
+		prog |= (uint32_t)1 << ((parameters.winter_start_hour + i) % 24);
+	}
+	return prog;
+}
+
 uint32_t filter_get_effective_timer_prog(void)
 {
+	if (state.winter_mode)
+	{
+		return winter_timer_prog();
+	}
 	if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
 	{
 		int idx;
@@ -116,10 +132,82 @@ void filter_enter_power_mode(enum filter_power_t filter_power)
 #endif
 }
 
+// Frost risk with hysteresis, only evaluated in winter mode. Outdoor temperature
+// (pushed by HA) is used while fresh, water temperature otherwise.
+static bool frost_risk_update(void)
+{
+	static bool risk = false;
+	if (!state.winter_mode)
+	{
+		risk = false;
+		return false;
+	}
+	if (measures_outdoor_temperature_is_fresh())
+	{
+		if (measures.outdoor_temperature <= parameters.frost_threshold)
+			risk = true;
+		else if (measures.outdoor_temperature >= parameters.frost_threshold + FROST_HYSTERESIS_C)
+			risk = false;
+	}
+	else if (measures.water_temperature > 0.0f)
+	{
+		if (measures.water_temperature <= FROST_WATER_ON_C)
+			risk = true;
+		else if (measures.water_temperature >= FROST_WATER_OFF_C)
+			risk = false;
+	}
+	return risk;
+}
+
+void winter_mode_set(bool on)
+{
+	if (on == state.winter_mode) return;
+	if (on)
+	{
+		// Remember the chemistry modes, then force them OFF (enter_mode refuses
+		// anything else while winter_mode is set)
+		state.pre_winter_orp_mode = state.orp_mode;
+		state.pre_winter_ph_minus_mode = state.ph_minus_mode;
+		state.pre_winter_ph_plus_mode = state.ph_plus_mode;
+		state.winter_mode = true;
+		orp_enter_mode(ORP_OFF);
+		ph_minus_enter_mode(PH_MINUS_OFF);
+#if HAS_PH_PLUS_PUMP
+		ph_plus_enter_mode(PH_PLUS_OFF);
+#endif
+		filter_enter_mode(FILTER_AUTO);
+		log_append("Hivernage ON");
+	}
+	else
+	{
+		state.winter_mode = false;
+		if (state.filter_control_state == FILTER_AUTO_ACTIVE_FROST)
+		{
+			state.filter_control_state = FILTER_IDLE;
+			filter_off();
+		}
+		state.frost_active = false;
+		state.frost_alert = false;
+		orp_enter_mode(state.pre_winter_orp_mode);
+		ph_minus_enter_mode(state.pre_winter_ph_minus_mode);
+#if HAS_PH_PLUS_PUMP
+		ph_plus_enter_mode(state.pre_winter_ph_plus_mode);
+#endif
+		log_append("Hivernage OFF");
+	}
+	state_default_write_file();
+	mqtt_publish_filter_state();
+}
+
 void filter_control_init(void)
 {
 	printlnA(F("Filter Control Init"));
 	disp_led_pump_water.setPic(ID_IMAGE_RED);
+	// Must be restored before the pH / ORP inits, which refuse non-OFF modes in winter
+	state.winter_mode = state_default.winter_mode;
+	state.pre_winter_orp_mode = state_default.pre_winter_orp_mode;
+	state.pre_winter_ph_minus_mode = state_default.pre_winter_ph_minus_mode;
+	state.pre_winter_ph_plus_mode = state_default.pre_winter_ph_plus_mode;
 	#if HAS_FILTER_CONTROL
 	filter_enter_mode(state_default.filter_mode);
 	filter_enter_power_mode(state_default.filter_power);
@@ -140,7 +228,6 @@ bool filter_control_update(void *)
 	static int32_t counter_warm_up = 0;
 	static int32_t counter_active_periodic = 0;
 	uint32_t timer_prog_ok;
-	uint8_t temperature_index;
 	static unsigned long last_periodic_filter_time = 0;
 	static uint32_t last_timer_prog;
 	uint32_t timer_prog;
@@ -149,35 +236,20 @@ bool filter_control_update(void *)
 
 	printlnA("Filter control task Update");
 
+	bool frost_risk = frost_risk_update();
+	// A manual OFF wins over frost protection (maintenance): only raise an alert
+	bool frost_alert = frost_risk && state.filter_mode == FILTER_OFF;
+	if (frost_alert != state.frost_alert)
+	{
+		state.frost_alert = frost_alert;
+		log_append(frost_alert ? "Risque de gel, filtre OFF" : "Fin risque de gel");
+		mqtt_publish_filter_state();
+	}
+
 	// In filter AUTO mode , get the hours when filtering will be activated
 	if (state.filter_mode == FILTER_AUTO)
 	{
-		// Fixed dayly timer mode
-		if (parameters.filter_auto_mode == AUTO_TIMER_PROG)
-		{
-			timer_prog = parameters.timer_prog;
-		}
-		// Temperature dependant timer prog
-		else if (parameters.filter_auto_mode == AUTO_TIMER_FCT_T)
-		{
-			if (measures.day_max_water_temperature <= PARAM_FIRST_TEMP_TIMER_PROG)
-			{
-				temperature_index = 0;
-			}
-			else if ((measures.day_max_water_temperature >= (PARAM_FIRST_TEMP_TIMER_PROG + (PARAM_NB_TEMP_TIMER_PROG - 1) * PARAM_STEP_TEMP_TIMER_PROG)))
-			{
-				temperature_index = PARAM_NB_TEMP_TIMER_PROG - 1;
-			}
-			else
-			{
-				temperature_index = (measures.day_max_water_temperature - PARAM_FIRST_TEMP_TIMER_PROG) / PARAM_STEP_TEMP_TIMER_PROG;
-			}
-			timer_prog = parameters.timer_prog_temperature[temperature_index];
-		}
-		else
-		{
-			timer_prog = parameters.timer_prog;
-		}
+		timer_prog = filter_get_effective_timer_prog();
 
 		// Timer prog OK ?
 		timer_prog_ok = timer_prog & uint32_t(1 << rtc_get_hour());
@@ -208,8 +280,36 @@ bool filter_control_update(void *)
 			}
 		}
 		disp_progress_filter.setValue((uint8_t)map(done_filter_time, 0, daily_fiter_time, 0, 100));
+
+		if (frost_risk && state.filter_control_state != FILTER_AUTO_ACTIVE_FROST)
+		{
+			filter_on();
+			state.filter_control_state = FILTER_AUTO_ACTIVE_FROST;
+			state.frost_active = true;
+			log_append("Hors-gel ON");
+			mqtt_publish_filter_state();
+		}
 		switch (state.filter_control_state)
 		{
+		case FILTER_AUTO_ACTIVE_FROST:
+			if (!frost_risk)
+			{
+				state.frost_active = false;
+				if (timer_prog_ok)
+				{
+					// Programmed hour: keep the pump running
+					state.filter_control_state = FILTER_AUTO_ACTIVE;
+				}
+				else
+				{
+					state.filter_control_state = FILTER_IDLE;
+					filter_off();
+				}
+				log_append("Hors-gel OFF");
+				mqtt_publish_filter_state();
+			}
+			break;
+
 		case FILTER_IDLE:
 			if (timer_prog_ok)
 			{
@@ -292,8 +392,12 @@ bool filter_control_update(void *)
 			break;
 		}
 	}
-	else
+	else if (state.filter_control_state == FILTER_AUTO_ACTIVE_FROST)
 	{
+		// Left AUTO while frost protection was running: the manual mode now owns the pump
+		state.filter_control_state = FILTER_IDLE;
+		state.frost_active = false;
+		mqtt_publish_filter_state();
 	}
 	printlnA("Filter control task Done");
 	return true;

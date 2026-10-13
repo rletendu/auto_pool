@@ -34,6 +34,11 @@ static void orp_off(void)
 
 void orp_enter_mode(enum orp_mode_t orp_mode)
 {
+	if (state.winter_mode && orp_mode != ORP_OFF)
+	{
+		log_append("Chlore refuse : hivernage");
+		orp_mode = ORP_OFF;
+	}
 	switch (orp_mode)
 	{
 	case ORP_AUTO:
@@ -120,6 +125,10 @@ bool orp_auto_correction_possible(void)
 {
 	bool is_possible = true;
 
+	if (state.winter_mode)
+	{
+		is_possible = false;
+	}
 	if (state.ph_control_state != PH_IDLE)
 	{
 		is_possible = false;

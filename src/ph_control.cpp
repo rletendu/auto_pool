@@ -80,6 +80,11 @@ static void ph_plus_off(void)
 
 void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
 {
+	if (state.winter_mode && ph_plus_mode != PH_PLUS_OFF)
+	{
+		log_append("pH+ refuse : hivernage");
+		ph_plus_mode = PH_PLUS_OFF;
+	}
 	switch (ph_plus_mode)
 	{
 	case PH_PLUS_AUTO:
@@ -119,6 +124,11 @@ void ph_plus_enter_mode(enum ph_plus_mode_t ph_plus_mode)
 
 void ph_minus_enter_mode(enum ph_minus_mode_t ph_minus_mode)
 {
+	if (state.winter_mode && ph_minus_mode != PH_MINUS_OFF)
+	{
+		log_append("pH- refuse : hivernage");
+		ph_minus_mode = PH_MINUS_OFF;
+	}
 	switch (ph_minus_mode)
 	{
 	case PH_PLUS_AUTO:
@@ -159,6 +169,10 @@ bool ph_minus_auto_correction_possible(void)
 {
 	bool is_possible = true;
 
+	if (state.winter_mode)
+	{
+		is_possible = false;
+	}
 	if (state.orp_control_state != ORP_IDLE)
 	{
 		is_possible = false;
@@ -190,6 +204,10 @@ bool ph_plus_auto_correction_possible(void)
 {
 #if HAS_PH_PLUS_PUMP
 	bool is_possible = true;
+	if (state.winter_mode)
+	{
+		is_possible = false;
+	}
 	if (state.orp_control_state != ORP_IDLE)
 	{
 		is_possible = false;

@@ -30,6 +30,8 @@ struct MeasuresStructure
 	uint32_t total_filter_min;
 	uint32_t filter_prog_today;
 	uint32_t boot_count;
+	float outdoor_temperature;      // pushed by HA over MQTT (OUTDOOR_TEMP)
+	uint32_t outdoor_temperature_ms; // millis() at reception, 0 = never received
 };
 
 extern struct MeasuresStructure measures;
@@ -39,5 +41,6 @@ bool measures_json_to_measures(char *json_str);
 void measures_init(void);
 void measures_set_virtual(bool state);
 void measures_loop_stop(void);
+bool measures_outdoor_temperature_is_fresh(void);
 
 #endif
