@@ -15,6 +15,7 @@ AutoPool runs unattended on the side of the pool: it schedules the filter pump, 
 - [Architecture](#architecture)
 - [Build, flash and first boot](#build-flash-and-first-boot)
 - [Configuration](#configuration)
+- [Winter mode](#winter-mode)
 - [MQTT](#mqtt)
 - [Home Assistant integration](#home-assistant-integration)
 - [Web UI and Nextion display](#web-ui-and-nextion-display)
@@ -31,6 +32,7 @@ AutoPool runs unattended on the side of the pool: it schedules the filter pump, 
 - Filter pump scheduling — 24-hour fixed bitmap or per-temperature program (selected by `filter_auto_mode`)
 - Filter speed control (FULL / REG) on a variable-speed pump
 - Periodic short-cycle filter run for stagnation prevention
+- **Winter mode** — short winter filter program, frost protection driven by an outdoor temperature pushed by Home Assistant, chemistry locked OFF (see [Winter mode](#winter-mode))
 - pH minus (and optional pH plus) dosing on a fixed regulation cycle, proportional to deviation from target
 - ORP / chlorine dosing on a fixed regulation cycle with daily mL caps
 - Daily injection counters with automatic midnight reset (preserved across soft resets via RTC slow memory)
@@ -121,12 +123,12 @@ The full schematic and PCB live in [`hardware/`](hardware/):
 
 - **Cooperative scheduling** — every subsystem registers periodic work on a [`SoftTimer`](src/soft_timer.h) instance; no `delay()` in the main loop.
 - **Three regulators** with explicit state machines defined in [`src/state.h`](src/state.h):
-  - `filter_control_state_t` — IDLE → WARM_UP → ACTIVE → EXTENDED → PERIODIC
+  - `filter_control_state_t` — IDLE → WARM_UP → ACTIVE → EXTENDED → PERIODIC, plus FROST (winter-mode frost protection)
   - `ph_control_state_t` — IDLE / MINUS_INJECTION_{ON,OFF} / PLUS_INJECTION_{ON,OFF}
   - `orp_control_state_t` — IDLE / INJECTION_{ON,OFF}
 - **Persistence** — two SPIFFS JSON files in [`data/`](data/):
   - `/config.json` ↔ `ParametersStruture` ([`src/parameters.h`](src/parameters.h))
-  - `/state.json` ↔ last-known mode of each regulator (so a reboot does not reset operator intent)
+  - `/state.json` ↔ last-known mode of each regulator, winter mode and the pre-winter chemistry modes (so a reboot does not reset operator intent)
 - **Compile-time feature gates** in [`src/config.h`](src/config.h): `HAS_PH_CONTROL`, `HAS_ORP_CONTROL`, `HAS_FILTER_CONTROL`, `HAS_FILTER_PWR_CTRL`, `HAS_PH_PLUS_PUMP`, `HAS_MQTT`, `HAS_OTA`, `HAS_WEB_SERVER`, `HAS_CLI`, `HAS_TELNET_SERVER`, `HAS_QUIET_MEASURES`, `HAS_CUSTOM_MAC`.
 
 ---
@@ -162,7 +164,13 @@ pio run -t clean
 > - **Edited anything under `data/`** (web UI, default `config.json`) → `pio run -t uploadfs`. No firmware reflash needed.
 > - **Both** → run them in either order; e.g. `pio run -t upload && pio run -t uploadfs`.
 > - **OTA**: both targets accept `--upload-port <ip>` to flash over Wi-Fi via `espota`, e.g. `pio run -t uploadfs --upload-port 192.168.x.x`.
-> - **Heads up on `uploadfs`**: it overwrites `config.json` with the version in `data/`, wiping any settings the user changed via the web UI / portal / MQTT. Pull the live config back first (`curl http://<ip>/getparameters > data/config.json`) if you want to preserve it.
+> - **Heads up on `uploadfs`**: it rewrites the whole SPIFFS partition, including `config.json` **and** `state.json`. Settings changed via the web UI / portal / MQTT are lost, and the default `data/state.json` puts pH / ORP back in AUTO, drops winter mode and resets the total filter runtime. Pull the live config back first (`curl http://<ip>/getparameters > data/config.json`) if you want to preserve it.
+> - **Updating only the web UI** on a running controller: skip `uploadfs` and push the changed files through the built-in file upload endpoint, which leaves `config.json` / `state.json` alone:
+>   ```bash
+>   for f in index.html app.js settings.html settings.js style.css; do
+>     curl -F "file=@data/$f;filename=/$f" http://<ip>/edit
+>   done
+>   ```
 
 > **There are no unit tests** wired up. `test/autopool_tester.py` is a host-side helper, not a PlatformIO test runner.
 
@@ -182,7 +190,7 @@ Settings persist to `/config.json` on SPIFFS. To re-trigger the portal later, se
 
 Three editing channels feed the same [`ParametersStruture`](src/parameters.h):
 
-1. **Web UI** — `http://<ip>/settings.html` (form is bound by [`data/script_settings.js`](data/script_settings.js))
+1. **Web UI** — `http://<ip>/settings.html` (form is bound by [`data/settings.js`](data/settings.js))
 2. **MQTT** — publish a full JSON payload to `<base>/CMD/PARAMETERS`, or update one field at a time with `<base>/CMD/SET/<KEY>` *(see [MQTT](#mqtt))*
 3. **WiFiManager portal** — for the network and broker fields only, on first boot or after `portal` / `portal_reset`
 
@@ -199,8 +207,54 @@ Three editing channels feed the same [`ParametersStruture`](src/parameters.h):
 | `timer_prog` | 24-bit hourly bitmap for filter run | — |
 | `filter_auto_mode` | `0` = bitmap, `1` = function of water temperature | 0 |
 | `timer_prog_temperature[11]` | Per-temperature bitmaps (10 °C → 30 °C, step 2 °C) | — |
-| `periodic_filter_time` | Seconds for short anti-stagnation cycle | 0 |
+| `periodic_filter_time` | Minutes between short anti-stagnation cycles (0 disables) | 0 |
+| `winter_start_hour`, `winter_duration_h` | Winter filter window (start hour, length in hours, wraps past midnight) | 4, 3 |
+| `frost_threshold` | Outdoor temperature (°C) that starts frost protection in winter mode | 1.0 |
 | `ha_discovery_enabled`, `ha_discovery_prefix` | HA autodiscovery toggle and topic prefix | `false`, `homeassistant` |
+
+---
+
+## Winter mode
+
+An *active* wintering mode: the water stays in the pool, the filter runs a short daily window and protects the pipes from freezing. It is toggled from Home Assistant (`switch.autopool_winter_mode`), the web dashboard, or MQTT `SET/WINTER_MODE`, and persists across reboots. The Nextion HMI is unchanged: it shows the winter program in the timer grid and the events on the LOG page.
+
+While winter mode is on:
+
+- **Filtration** — the AUTO program is replaced by `winter_duration_h` hours starting at `winter_start_hour` (default 04:00–07:00). `filter_auto_mode` and `timer_prog` are left untouched and apply again when winter mode ends.
+- **Chemistry** — pH-, pH+ and ORP are forced OFF; any request to switch them back on (Nextion, MQTT, web, CLI) is refused and logged. Their previous modes are saved and restored when winter mode ends.
+- **Frost protection** — in filter AUTO, the pump runs continuously (filter state `FROST`) when the outdoor temperature drops to `frost_threshold`, and stops 1.5 °C above it.
+  - The outdoor temperature is pushed by Home Assistant to `<base>/CMD/OUTDOOR_TEMP`. A value older than 30 min is ignored, and the controller falls back to the water temperature (frost below 4 °C, cleared above 5 °C).
+  - The enclosure DHT22 is **not** used: it reads the temperature inside the box.
+  - A manual filter **OFF** always wins (maintenance): the pump is not started, but `frost_alert` is raised instead.
+
+Home Assistant has to feed the outdoor temperature. An automation such as the following works: every 10 minutes and on each change, it publishes the coldest of a garden sensor and the weather forecast.
+
+```yaml
+alias: AutoPool – Outdoor temperature
+mode: queued
+triggers:
+  - trigger: state
+    entity_id: sensor.garden_temperature
+  - trigger: state
+    entity_id: weather.home
+    attribute: temperature
+  - trigger: time_pattern
+    minutes: /10
+  - trigger: homeassistant
+    event: start
+variables:
+  outdoor_temps: >-
+    {{ [states('sensor.garden_temperature'), state_attr('weather.home', 'temperature')]
+       | select('is_number') | map('float') | list }}
+conditions:
+  - condition: template
+    value_template: "{{ outdoor_temps | count > 0 }}"
+actions:
+  - action: mqtt.publish
+    data:
+      topic: autopool/CMD/OUTDOOR_TEMP
+      payload: "{{ outdoor_temps | min | round(1) }}"
+```
 
 ---
 
@@ -213,8 +267,8 @@ All topics are rooted at `<base>` (the value of `mqtt_base_topic`, default `auto
 | Topic | Retained | Payload |
 |---|---|---|
 | `<base>/AVAIL` | yes | `online` while the controller is up; `offline` published as LWT on disconnect |
-| `<base>/MEAS` | no | JSON snapshot of [`MeasuresStructure`](src/measures.h) (temps, pH, ORP, pressure, levels, daily mL counters, boot count) |
-| `<base>/STATE_FILTER` | no | JSON snapshot of the filter regulator state |
+| `<base>/MEAS` | no | JSON snapshot of [`MeasuresStructure`](src/measures.h) (temps, pH, ORP, pressure, levels, daily mL counters, filter runtime, boot count). `water_temperature` is omitted until the first valid reading after boot, and `outdoor_temperature` while it is stale |
+| `<base>/STATE_FILTER` | no | JSON snapshot of the filter regulator state, including `winter_mode`, `frost_active`, `frost_alert` |
 | `<base>/STATE_PH` | no | JSON snapshot of the pH± regulator state |
 | `<base>/STATE_ORP` | no | JSON snapshot of the ORP regulator state |
 | `<base>/PARAM` | no | Echo of the current `ParametersStruture` after any change |
@@ -241,9 +295,18 @@ All topics are rooted at `<base>` (the value of `mqtt_base_topic`, default `auto
 | `SET/CL_MAX_DAY`, `SET/PHM_MAX_DAY` | float (mL) |
 | `SET/PRESSURE_WARNING` | float (bar) |
 | `SET/PH_OFFSET`, `SET/ORP_OFFSET` | float (calibration) |
-| `SET/PERIODIC_FILTER_TIME` | seconds |
+| `SET/PERIODIC_FILTER_TIME` | minutes |
+| `SET/WINTER_START_HOUR`, `SET/WINTER_DURATION_H` | integer (hour 0–23, hours 0–24) |
+| `SET/FROST_THRESHOLD` | float (°C) |
 
 Per-field SET commands persist to `/config.json` and echo on `<base>/PARAM`.
+
+**Winter mode:**
+
+| Topic | Payload |
+|---|---|
+| `SET/WINTER_MODE` | `ON` \| `OFF` — persisted in `/state.json` |
+| `OUTDOOR_TEMP` | float (°C), pushed periodically by HA; volatile, stale after 30 min |
 
 **JSON updates** *(payload = full JSON document):*
 `PARAMETERS` · `MEASURES` · `FILTER_STATE` · `ORP_STATE` · `PH_STATE`
@@ -259,13 +322,16 @@ Two paths, pick one.
 ### Autodiscovery (recommended)
 
 1. Open the AutoPool web UI → **Settings** → tick **Enable autodiscovery**, leave the prefix as `homeassistant` unless your HA instance uses a custom one.
-2. Click **Submit**. The controller publishes ~40 retained discovery configs under `<prefix>/+/autopool_<mac>/+/config`.
+2. Click **Submit**. The controller publishes ~55 retained discovery configs under `<prefix>/+/autopool_<mac>/+/config`.
 3. Home Assistant's MQTT integration picks them up automatically. AutoPool appears as a single device with:
    - Sensors — water / system temperature, humidity, pressure, pH, ORP, daily mL counters, boot count
    - Binary sensors — water level, three tank levels, four pump-running indicators
    - Selects — filter mode, filter power, ORP mode, pH± modes
-   - Numbers — every setpoint listed in [Configuration](#configuration)
-   - Buttons — controller reset, daily Cl counter reset
+   - Switch — winter mode
+   - Binary sensors — frost protection running, frost alert
+   - Sensor — outdoor temperature as received from HA (diagnostic)
+   - Numbers — every setpoint listed in [Configuration](#configuration), including the winter settings
+   - Buttons — controller reset, daily Cl counter reset, boot counter reset
    - Diagnostic sensors — internal state of the three regulators
 4. To remove the device: untick the checkbox; the controller publishes empty retained payloads to clear every discovery topic.
 
@@ -302,11 +368,11 @@ If you'd rather not run discovery, the older path still works: copy [`homeassist
 
 Served by [`src/server.cpp`](src/server.cpp) from SPIFFS:
 
-- `/` — live dashboard (measures, daily counters)
+- `/` — live dashboard (measures, daily counters, regulator modes, winter mode and frost status)
 - `/settings.html` — full configuration form
 - `/getmeasures`, `/getparameters`, `/getfilterstate`, `/getorpstate`, `/getphstate` — JSON endpoints used by the dashboard
 - `/setparameters` — POST endpoint backing the settings form
-- `/filter_auto`, `/filter_on`, `/filter_off`, `/filter_pwr_full`, `/filter_pwr_reg`, `/orp_*`, `/ph_*` — quick-action buttons
+- `/filter_auto`, `/filter_on`, `/filter_off`, `/filter_pwr_full`, `/filter_pwr_reg`, `/orp_*`, `/ph_*`, `/winter_on`, `/winter_off` — quick-action buttons
 - `/reboot`, `/rst_daily_ml_orp` — maintenance
 - `/edit`, `/list`, `/fs` — SPIFFS file browser
 
