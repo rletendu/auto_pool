@@ -366,6 +366,14 @@ If you'd rather not run discovery, the older path still works: copy [`homeassist
 
 ### Web UI
 
+| Dashboard | Settings |
+| --- | --- |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Settings](docs/screenshots/settings.png) |
+
+The dashboard is responsive and works the same on a phone:
+
+<img src="docs/screenshots/dashboard-mobile.png" alt="Dashboard on mobile" width="280">
+
 Served by [`src/server.cpp`](src/server.cpp) from SPIFFS:
 
 - `/` — live dashboard (measures, daily counters, regulator modes, winter mode and frost status)
